@@ -1,4 +1,5 @@
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
@@ -52,6 +53,13 @@ public class DraggableDocument : MonoBehaviour, IBeginDragHandler, IDragHandler,
     /// <summary>Runtime document data injected by the spawner after instantiation.</summary>
     private DocumentData documentData;
 
+    /// <summary>
+    /// Snapshot of all active rules across all bins for the current day.
+    /// Required to pass to SortingBin.ValidateDocument, which needs the full rule set
+    /// for Fallback validation. Injected by DocumentSpawner alongside documentData.
+    /// </summary>
+    private List<RuleData> allActiveRules = new List<RuleData>();
+
     /// <summary>Anchored position captured at the start of the drag, used for snap-back.</summary>
     private Vector2 originalAnchoredPosition;
 
@@ -97,6 +105,17 @@ public class DraggableDocument : MonoBehaviour, IBeginDragHandler, IDragHandler,
     public void SetDropZoneDetector(DropZoneDetector detector)
     {
         dropZoneDetector = detector;
+    }
+
+    /// <summary>
+    /// Injects the full cross-bin rule list so it can be forwarded to SortingBin.ValidateDocument.
+    /// Stored here rather than fetched at drop time to avoid any scene query — the list is a
+    /// point-in-time snapshot of the day's rules, consistent with what the player sees on the bins.
+    /// </summary>
+    /// <param name="rules">All active RuleData objects across all bins for the current day.</param>
+    public void SetAllActiveRules(List<RuleData> rules)
+    {
+        allActiveRules = new List<RuleData>(rules);
     }
 
     // -------------------------------------------------------------------------
@@ -184,7 +203,7 @@ public class DraggableDocument : MonoBehaviour, IBeginDragHandler, IDragHandler,
             return;
         }
 
-        bool isDropValid = binUnderPointer.ValidateDocument(documentData);
+        bool isDropValid = binUnderPointer.ValidateDocument(documentData, allActiveRules);
 
         if (isDropValid)
         {

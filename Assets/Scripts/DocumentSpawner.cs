@@ -132,9 +132,8 @@ public class DocumentSpawner : MonoBehaviour
     // -------------------------------------------------------------------------
 
     /// <summary>
-    /// Rebuilds validCombinations from the current activeRules.
-    /// For each rule, registers every individual condition as a minimal combination
-    /// and the full conditions list as a complete combination.
+    /// Rebuilds validCombinations from the current activeRules, generating document specificity
+    /// sets that are appropriate for each rule type.
     /// Called once at the start of each day, never during an active SpawnLoop —
     /// this avoids modifying the combination list while SpawnDocument reads from it,
     /// and ensures all spawned documents remain consistent with the rules the player sees.
@@ -145,16 +144,40 @@ public class DocumentSpawner : MonoBehaviour
 
         foreach (RuleData rule in activeRules)
         {
-            // Add each individual condition as a single-item combination so that
-            // some documents are straightforwardly sortable (one matching specificity).
-            foreach (string condition in rule.conditions)
-                validCombinations.Add(new List<string> { condition });
+            switch (rule.ruleType)
+            {
+                case RuleType.PositiveForced:
+                case RuleType.PositiveExclusive:
+                case RuleType.NegativeSimple:
+                    // A document with conditionA will trigger these rules (positively or negatively).
+                    validCombinations.Add(new List<string> { rule.conditionA });
+                    break;
 
-            // Add the full condition list so that more complex documents exist
-            // that satisfy the rule entirely — raising the ceiling for skilled players.
-            if (rule.conditions.Count > 1)
-                validCombinations.Add(new List<string>(rule.conditions));
+                case RuleType.ConditionalBranch:
+                    // Add conditionA alone (routes to secondaryBinID) and both together (routes to targetBinID),
+                    // so both branches of the rule are exercised by spawned documents.
+                    validCombinations.Add(new List<string> { rule.conditionA });
+                    validCombinations.Add(new List<string> { rule.conditionA, rule.conditionB });
+                    break;
+
+                case RuleType.NegativeMultiple:
+                    // A document with no specificities satisfies "none of these conditions" by definition.
+                    // Spawning empty-specificity documents ensures NegativeMultiple rules are reachable.
+                    validCombinations.Add(new List<string>());
+                    break;
+
+                case RuleType.Fallback:
+                    // A document matching no rule is the intended trigger for the Fallback bin.
+                    // An empty specificity list guarantees no positive rule can claim it.
+                    validCombinations.Add(new List<string>());
+                    break;
+            }
         }
+
+        // Guard: if all rules produced empty combinations, add one non-empty default
+        // so SpawnDocument always has at least one spawnable document type.
+        if (validCombinations.Count == 0)
+            validCombinations.Add(new List<string>());
     }
 
     // -------------------------------------------------------------------------
@@ -217,6 +240,7 @@ public class DocumentSpawner : MonoBehaviour
         draggableDocument.SetDocumentData(generatedData);
         draggableDocument.SetCanvasReference(mainCanvas);
         draggableDocument.SetDropZoneDetector(dropZoneDetector);
+        draggableDocument.SetAllActiveRules(activeRules);
 
         AssignSpecificitiesToLabel(documentInstance, generatedData.specificities);
 

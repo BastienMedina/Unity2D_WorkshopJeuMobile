@@ -22,6 +22,22 @@ MonoBehaviour:
   - confidential
   - wet
   templates:
-  - Documents with {0} go here
-  - Send {0} documents here
-  - Documents that are {0} and {1} go here
+  - templateText: If the document has {0}, it goes here regardless of anything else
+    requiredSpecificityCount: 1
+    ruleType: 0
+  - templateText: If the document has only {0}, place it here
+    requiredSpecificityCount: 1
+    ruleType: 1
+  - templateText: "If {0} is present, check for {1} \u2014 if yes place here, if
+      not use the other bin"
+    requiredSpecificityCount: 2
+    ruleType: 2
+  - templateText: If no other rule applies, place the document here
+    requiredSpecificityCount: 0
+    ruleType: 3
+  - templateText: If the document does not have {0}, it goes here
+    requiredSpecificityCount: 1
+    ruleType: 4
+  - templateText: If the document has neither {0}, nor {1}, nor {2}, place it here
+    requiredSpecificityCount: 3
+    ruleType: 5

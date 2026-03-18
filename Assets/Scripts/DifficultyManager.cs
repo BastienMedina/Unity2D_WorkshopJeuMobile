@@ -66,16 +66,20 @@ public class DifficultyManager : MonoBehaviour
     [SerializeField] private float minSpawnInterval = 2f;
 
     // -------------------------------------------------------------------------
-    // Rule count bounds
+    // Rules-per-bin bounds
     // -------------------------------------------------------------------------
 
-    [Header("Rule Count Bounds")]
+    [Header("Rules Per Bin Bounds")]
 
-    /// <summary>Minimum number of active rules (at the easiest difficulty).</summary>
-    [SerializeField] private int minNumberOfRules = 1;
+    /// <summary>
+    /// Minimum number of rules assigned to each bin at the easiest difficulty.
+    /// Rules are computed per bin rather than as a global total — this guarantees
+    /// every bin has at least one rule at all difficulty levels, preventing empty bins.
+    /// </summary>
+    [SerializeField] private int minRulesPerBin = 1;
 
-    /// <summary>Maximum number of active rules (at the hardest difficulty).</summary>
-    [SerializeField] private int maxNumberOfRules = 6;
+    /// <summary>Maximum number of rules assigned to each bin at the hardest difficulty.</summary>
+    [SerializeField] private int maxRulesPerBin = 3;
 
     // -------------------------------------------------------------------------
     // Bin count bounds
@@ -152,8 +156,12 @@ public class DifficultyManager : MonoBehaviour
             spawnInterval    = Mathf.Clamp(Mathf.Lerp(maxSpawnInterval, minSpawnInterval, curvedIndex),
                                            minSpawnInterval, maxSpawnInterval),
 
-            numberOfRules    = Mathf.Clamp(Mathf.RoundToInt(Mathf.Lerp(minNumberOfRules, maxNumberOfRules, curvedIndex)),
-                                           minNumberOfRules, maxNumberOfRules),
+            // Compute rules per bin first, then multiply by bin count so the total always
+            // covers all active bins evenly — a global total would not guarantee full coverage.
+            numberOfRules    = Mathf.Clamp(Mathf.RoundToInt(Mathf.Lerp(minRulesPerBin, maxRulesPerBin, curvedIndex)),
+                                           minRulesPerBin, maxRulesPerBin)
+                               * Mathf.Clamp(Mathf.RoundToInt(Mathf.Lerp(minNumberOfBins, maxNumberOfBins, curvedIndex)),
+                                             minNumberOfBins, maxNumberOfBins),
 
             numberOfBins     = Mathf.Clamp(Mathf.RoundToInt(Mathf.Lerp(minNumberOfBins, maxNumberOfBins, curvedIndex)),
                                            minNumberOfBins, maxNumberOfBins),

@@ -17,8 +17,9 @@ public class SpecificityDatabase : ScriptableObject
 
     /// <summary>
     /// Sentence templates used to format rules into human-readable strings.
-    /// Use {0} for a single-specificity slot and {0} + {1} for two-specificity slots.
-    /// Example: "Sort items that are {0} into the correct bin."
+    /// Each entry specifies the sentence text with {0}/{1} placeholders and the
+    /// number of specificities it expects, so RuleGenerator can select a matching
+    /// template without parsing the string itself.
     /// </summary>
-    [SerializeField] public List<string> templates = new List<string>();
+    [SerializeField] public List<RuleTemplate> templates = new List<RuleTemplate>();
 }

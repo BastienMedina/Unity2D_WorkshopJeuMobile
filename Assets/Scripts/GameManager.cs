@@ -54,18 +54,37 @@ public class GameManager : MonoBehaviour
     /// </summary>
     public void InitializeDay()
     {
+        // Guard before any computation: division by bin count happens below,
+        // and zero bins would produce a divide-by-zero crash with no clear error message.
+        if (sortingBins.Count == 0)
+        {
+            Debug.LogError("[GameManager] sortingBins list is empty. Assign at least one SortingBin in the Inspector.");
+            return;
+        }
+
         (DifficultySettings daySettings, DayEvolutionType evolutionType) =
             difficultyManager.OnNewDay(currentDayIndex, currentLevelIndex);
 
         List<string> activeBinIDs = ExtractBinIDs(sortingBins);
         ruleGenerator.SetAvailableBins(activeBinIDs);
 
+        // Divide total rules by bin count to obtain the per-bin value RuleGenerator expects.
+        // RuleGenerator iterates per bin to guarantee full coverage, so the unit it consumes
+        // is rules-per-bin, not a global total.
+        int rulesPerBin = daySettings.numberOfRules / sortingBins.Count;
+
         List<RuleData> generatedRules = ruleGenerator.GenerateRulesForDay(
-            daySettings.numberOfRules,
+            rulesPerBin,
             daySettings.maxRuleComplexity
         );
 
         DistributeRulesToBins(generatedRules);
+
+        // Inject the full cross-bin rule list into every bin immediately after distribution.
+        // Bins need this only for Fallback validation — they must not query each other directly,
+        // so GameManager is the correct point to push a single flat snapshot to all bins.
+        foreach (SortingBin bin in sortingBins)
+            bin.SetAllActiveRules(generatedRules);
 
         documentSpawner.UpdateActiveRules(generatedRules);
 
