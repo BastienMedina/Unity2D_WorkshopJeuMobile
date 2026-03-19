@@ -22,10 +22,12 @@ public class ProfitabilityManager : MonoBehaviour
 
     /// <summary>
     /// Amount by which profitability falls per second while the day is active.
+    /// Not [SerializeField] — value is injected at runtime by GameManager via SetDecayRate
+    /// so FloorProgressionManager can scale it per floor without exposing floor logic to this class.
     /// Constant decay creates pressure even when the player is sorting correctly but too slowly —
     /// it ensures speed is a meaningful variable, not just accuracy.
     /// </summary>
-    [SerializeField] private float decayRatePerSecond = 2f;
+    private float decayRatePerSecond = 2f;
 
     /// <summary>Base profitability gain awarded for each correctly sorted document.</summary>
     [SerializeField] private float gainPerDocument = 5f;
@@ -39,12 +41,24 @@ public class ProfitabilityManager : MonoBehaviour
 
     /// <summary>
     /// Profitability level below which the player fails the day.
-    /// SerializeField so designers can tune difficulty without touching code.
+    /// Not [SerializeField] — value is injected at runtime by GameManager via SetFailThreshold
+    /// so FloorProgressionManager can scale it per floor without exposing floor logic to this class.
     /// </summary>
-    [SerializeField] private float failThreshold = 20f;
+    private float failThreshold = 20f;
 
-    /// <summary>Total day length in seconds. Default is 120 seconds (2 minutes).</summary>
-    [SerializeField] private float dayDuration = 120f;
+    /// <summary>
+    /// Amount subtracted from currentProfitability when the player drops a document
+    /// into the wrong bin. [SerializeField] so designers can tune penalty severity without
+    /// touching code — default 10f means one wrong drop costs roughly 5 seconds of decay,
+    /// making it feel significant but not instantly fatal.
+    /// </summary>
+    [SerializeField] private float wrongBinPenalty = 10f;
+
+    /// <summary>Total day length in seconds. Default is 120 seconds (2 minutes).
+    /// Not [SerializeField] — value is injected at runtime by GameManager via SetDayDuration
+    /// so FloorProgressionManager can scale it per floor without exposing floor logic to this class.
+    /// </summary>
+    private float dayDuration = 120f;
 
     // -------------------------------------------------------------------------
     // Runtime state
@@ -197,6 +211,63 @@ public class ProfitabilityManager : MonoBehaviour
     }
 
     /// <summary>
+    /// Subtracts wrongBinPenalty from currentProfitability and fires onProfitabilityChanged
+    /// so the bar reacts visually in the same frame as the drop.
+    /// Called by GameManager in response to SortingBin.onInvalidDrop.
+    /// Does NOT check the fail condition here — Update() runs every frame and will detect
+    /// the threshold crossing on the very next tick, avoiding duplicated fail logic.
+    /// </summary>
+    public void ApplyWrongBinPenalty()
+    {
+        currentProfitability -= wrongBinPenalty;
+
+        // Clamp to 0 so the bar never displays a negative value.
+        // The fail condition (< failThreshold) is checked in Update() every frame —
+        // duplicating it here would create two competing code paths for the same event.
+        currentProfitability = Mathf.Clamp(currentProfitability, 0f, 100f);
+
+        // Fire immediately so ProfitabilityBarUI reflects the penalty in the same frame,
+        // giving the player instant negative feedback without waiting for the next Update tick.
+        onProfitabilityChanged?.Invoke(currentProfitability);
+    }
+
+    /// <summary>
+    /// Sets the fail threshold and fires onProfitabilityChanged to refresh any UI
+    /// that displays the threshold marker.
+    /// Clamped to [5, 80] to prevent values that make the game unplayable:
+    /// below 5 the player can never lose; above 80 the player fails before they can act.
+    /// </summary>
+    /// <param name="value">Desired fail threshold on the 0–100 profitability scale.</param>
+    public void SetFailThreshold(float value)
+    {
+        failThreshold = Mathf.Clamp(value, 5f, 80f);
+        onProfitabilityChanged?.Invoke(currentProfitability);
+    }
+
+    /// <summary>
+    /// Sets the day duration in seconds.
+    /// Minimum 60s prevents days so short the player cannot sort any documents —
+    /// below that threshold even a single decay tick could end the day before the
+    /// first document arrives.
+    /// </summary>
+    /// <param name="value">Desired day duration in seconds.</param>
+    public void SetDayDuration(float value)
+    {
+        dayDuration = Mathf.Max(60f, value);
+    }
+
+    /// <summary>
+    /// Sets the profitability decay rate in units per second.
+    /// Minimum 0.5 prevents days where profitability never drops, removing all tension —
+    /// without any decay the player can stop sorting after reaching 100 and simply wait.
+    /// </summary>
+    /// <param name="value">Desired decay rate in profitability points per second.</param>
+    public void SetDecayRate(float value)
+    {
+        decayRatePerSecond = Mathf.Max(0.5f, value);
+    }
+
+    /// <summary>
     /// Returns the current profitability value (0–100 scale).
     /// Used by GameManager to seed the initial UI display after StartDay.
     /// </summary>
@@ -214,6 +285,26 @@ public class ProfitabilityManager : MonoBehaviour
     public float GetFailThreshold()
     {
         return failThreshold;
+    }
+
+    /// <summary>
+    /// Returns the configured day duration in seconds.
+    /// GameManager can read this after applying a floor bonus to confirm the new value.
+    /// </summary>
+    /// <returns>Current day duration in seconds.</returns>
+    public float GetDayDuration()
+    {
+        return dayDuration;
+    }
+
+    /// <summary>
+    /// Returns the configured profitability decay rate in units per second.
+    /// GameManager can read this after applying a floor bonus to confirm the new value.
+    /// </summary>
+    /// <returns>Current decay rate in profitability points per second.</returns>
+    public float GetDecayRate()
+    {
+        return decayRatePerSecond;
     }
 
     /// <summary>

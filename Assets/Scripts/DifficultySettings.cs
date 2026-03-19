@@ -8,7 +8,12 @@ using System;
 [Serializable]
 public class DifficultySettings
 {
-    /// <summary>Seconds between consecutive document spawns. Lower values mean faster pressure.</summary>
+    /// <summary>
+    /// Seconds between consecutive document spawns.
+    /// Spawn rate is no longer difficulty-driven — the queue-size-based system ensures
+    /// constant document availability by keeping the stack at targetStackSize at all times.
+    /// Kept here to avoid breaking serialised assets that may still reference this field.
+    /// </summary>
     public float spawnInterval;
 
     /// <summary>How many sorting rules are active during the day.</summary>

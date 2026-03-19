@@ -39,6 +39,25 @@ public class BinLayoutManager : MonoBehaviour
     [SerializeField] private int maximumBinCount = 5;
 
     // -------------------------------------------------------------------------
+    // Runtime state
+    // -------------------------------------------------------------------------
+
+    /// <summary>
+    /// How many bins were active after the most recent SetActiveBinCount call.
+    /// Cached so GameManager can read the previous count before calling SetActiveBinCount
+    /// again, enabling it to detect whether a new bin was added this day.
+    /// </summary>
+    private int currentActiveBinCount = 0;
+
+    /// <summary>
+    /// The bin ID of the most recently activated slot, or null if no new bin was activated
+    /// during the last SetActiveBinCount call.
+    /// Reset to null at the start of every SetActiveBinCount call and set only when a slot
+    /// transitions from inactive to active — not when the count stays the same.
+    /// </summary>
+    private string lastActivatedBinID = null;
+
+    // -------------------------------------------------------------------------
     // Public API
     // -------------------------------------------------------------------------
 
@@ -58,6 +77,10 @@ public class BinLayoutManager : MonoBehaviour
         // and more than five would overrun the activationOrder array.
         int clampedCount = Mathf.Clamp(count, minimumBinCount, maximumBinCount);
 
+        // Reset every call so GetLastActivatedBinID only returns a value when this
+        // specific SetActiveBinCount call actually activated a new slot.
+        lastActivatedBinID = null;
+
         for (int orderIndex = 0; orderIndex < activationOrder.Length; orderIndex++)
         {
             int slotIndex = activationOrder[orderIndex];
@@ -68,8 +91,24 @@ public class BinLayoutManager : MonoBehaviour
                 continue;
 
             RectTransform slotRectTransform = binSlots[slotIndex];
-            bool shouldBeActive = orderIndex < clampedCount;
+            bool shouldBeActive             = orderIndex < clampedCount;
+            bool wasAlreadyActive           = slotRectTransform.gameObject.activeSelf;
+
             slotRectTransform.gameObject.SetActive(shouldBeActive);
+
+            // Record the first slot that just transitioned from inactive to active —
+            // GameManager uses this to build the new-bin description in the summary.
+            // Only the first newly activated slot is recorded; subsequent ones would mean
+            // the count jumped by more than one, which the current difficulty system never does.
+            bool isNewlyActivated = shouldBeActive && !wasAlreadyActive;
+
+            if (isNewlyActivated && lastActivatedBinID == null)
+            {
+                SortingBin newBin = slotRectTransform.GetComponent<SortingBin>();
+
+                if (newBin != null)
+                    lastActivatedBinID = newBin.GetBinID();
+            }
 
             BinHoverDetector hoverDetector = slotRectTransform.GetComponent<BinHoverDetector>();
 
@@ -101,6 +140,64 @@ public class BinLayoutManager : MonoBehaviour
                     hoverDetector.enabled = false;
             }
         }
+
+        currentActiveBinCount = clampedCount;
+    }
+
+    /// <summary>
+    /// Returns the number of bins that were active after the most recent SetActiveBinCount call.
+    /// GameManager reads this BEFORE calling SetActiveBinCount so it can compare the old and new
+    /// counts to detect whether a new bin was activated this day.
+    /// </summary>
+    /// <returns>Current active bin count (already clamped to [minimumBinCount, maximumBinCount]).</returns>
+    public int GetActiveBinCount()
+    {
+        return currentActiveBinCount;
+    }
+
+    /// <summary>
+    /// Returns the bin ID of the slot that was most recently activated by SetActiveBinCount,
+    /// or null if the last call did not activate any new slot (count was unchanged or decreased).
+    /// GameManager uses this to build the "New bin: …" entry in DifficultyChangeSummary
+    /// without having to compare two full bin lists itself.
+    /// </summary>
+    /// <returns>The bin ID of the newly activated slot, or null.</returns>
+    public string GetLastActivatedBinID()
+    {
+        return lastActivatedBinID;
+    }
+
+    /// <summary>
+    /// Returns the SortingBin components from every bin slot regardless of active state.
+    /// Called by GameManager.RefreshBinSubscriptions to unsubscribe stale event delegates
+    /// from ALL bins — including inactive ones — before re-subscribing only to active ones.
+    /// Iterating only active bins would leave stale subscriptions on bins that were active
+    /// in a previous day but deactivated for the current one, causing duplicate events.
+    /// </summary>
+    /// <returns>
+    /// A list of every SortingBin in binSlots, active and inactive, in slot-list order.
+    /// </returns>
+    public List<SortingBin> GetAllBins()
+    {
+        List<SortingBin> allBins = new List<SortingBin>();
+
+        foreach (RectTransform slot in binSlots)
+        {
+            SortingBin sortingBin = slot.GetComponent<SortingBin>();
+
+            // Guard: warn clearly rather than silently skipping a misconfigured slot,
+            // since a missing SortingBin would leave its events permanently subscribed.
+            if (sortingBin == null)
+            {
+                Debug.LogWarning($"[BinLayoutManager] Slot '{slot.name}' has no SortingBin component. " +
+                                  "Assign a SortingBin to every entry in binSlots.");
+                continue;
+            }
+
+            allBins.Add(sortingBin);
+        }
+
+        return allBins;
     }
 
     /// <summary>

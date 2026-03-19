@@ -3,7 +3,8 @@ using System.Collections.Generic;
 
 /// <summary>
 /// Pure data container for a single sorting rule in the game.
-/// Holds the rule type, typed condition fields, target bins, complexity, and display text.
+/// Holds the rule type, typed condition fields, target bins, complexity, display text,
+/// and complement metadata used to guarantee every document is always placeable.
 /// Does NOT contain any game logic, validation, or UI references.
 /// </summary>
 [Serializable]
@@ -17,21 +18,20 @@ public class RuleData
     public RuleType ruleType;
 
     /// <summary>
-    /// Primary condition string. Used by all rule types except Fallback.
+    /// Primary condition string. Used by all rule types except complement-less types.
     /// Example: "red_stamp", "urgent".
     /// </summary>
     public string conditionA = string.Empty;
 
     /// <summary>
-    /// Secondary condition string. Used exclusively by ConditionalBranch to determine
-    /// which of the two target bins the document routes to.
+    /// Secondary condition string. Used by ConditionalBranch, PositiveDouble,
+    /// PositiveWithNegative, and their complements.
     /// </summary>
     public string conditionB = string.Empty;
 
     /// <summary>
-    /// List of conditions of which the document must contain none. Used by NegativeMultiple only.
-    /// Typed as a separate list rather than reusing conditionA/B to make the multi-condition
-    /// intent unambiguous — a flat list of two named fields would not scale to N conditions.
+    /// Retained for backwards compatibility but no longer used by any active rule type.
+    /// NegativeMultiple (the only consumer) was replaced by PositiveWithNegative.
     /// </summary>
     public List<string> conditionsList = new List<string>();
 
@@ -39,9 +39,9 @@ public class RuleData
     public string targetBinID = string.Empty;
 
     /// <summary>
-    /// Identifier of the secondary bin used only by ConditionalBranch.
-    /// ConditionalBranch is the only rule type that routes to two different bins
-    /// depending on the presence of a secondary condition — all other types use targetBinID only.
+    /// Identifier of the secondary bin used by ConditionalBranch and PositiveDouble.
+    /// These are the only rule types that route to two different bins depending on
+    /// the presence or absence of a secondary condition — all other types use targetBinID only.
     /// </summary>
     public string secondaryBinID = string.Empty;
 
@@ -56,4 +56,20 @@ public class RuleData
     /// Stored here to avoid re-resolving the template string every frame inside DisplayRules().
     /// </summary>
     public string displayText = string.Empty;
+
+    /// <summary>
+    /// True when this rule was automatically generated as a complement of a primary rule.
+    /// Complement rules must be identifiable so the system never generates a complement of a
+    /// complement — this flag is the guard against infinite recursion in GenerateComplementRule.
+    /// </summary>
+    public bool isComplement;
+
+    /// <summary>
+    /// The bin ID where the complement of this primary rule has been placed.
+    /// Set during generation by RuleGenerator immediately after complement creation.
+    /// Stored on the primary rule so GameManager can look up where the complement was assigned
+    /// without having to search the full rule list.
+    /// Only meaningful when isComplement is false.
+    /// </summary>
+    public string complementBinID = string.Empty;
 }

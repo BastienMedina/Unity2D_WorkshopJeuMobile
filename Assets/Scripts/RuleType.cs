@@ -1,44 +1,90 @@
 /// <summary>
 /// Enumerates all sorting rule types available in the game.
-/// Each value maps to a distinct validation logic and a distinct complexity base score.
+/// Each value maps to a distinct validation logic and complexity base score.
 /// Does NOT contain any validation code — logic lives in SortingBin's private helpers.
 /// </summary>
 public enum RuleType
 {
     /// <summary>
-    /// Document contains conditionA → always valid, regardless of any other specificities.
+    /// Document contains conditionA → valid regardless of any other specificities.
+    /// Has complement: YES → ComplementPositiveForced.
     /// Complexity base: 2.
     /// </summary>
     PositiveForced,
 
     /// <summary>
-    /// Document contains conditionA AND has no other specificities → valid.
+    /// Document contains ONLY conditionA and no other specificities → valid.
+    /// Has complement: YES → ComplementPositiveExclusive.
     /// Complexity base: 1.
     /// </summary>
     PositiveExclusive,
 
     /// <summary>
-    /// Document contains conditionA AND conditionB → targetBinID.
-    /// Document contains conditionA BUT NOT conditionB → secondaryBinID.
+    /// conditionA present + conditionB present → targetBinID.
+    /// conditionA present + conditionB absent  → secondaryBinID.
+    /// Has complement: SELF-COMPLEMENTARY — ConditionalBranch already covers both cases
+    /// (with and without conditionB) so no separate complement rule is needed;
+    /// both outcomes are handled by the same rule with two target bins.
     /// Complexity base: 3.
     /// </summary>
     ConditionalBranch,
 
     /// <summary>
-    /// Document does not match ANY rule of ANY active bin → valid.
-    /// Complexity base: 2.
+    /// Document contains conditionA AND conditionB → targetBinID.
+    /// Document contains conditionA but NOT conditionB → secondaryBinID.
+    /// Has complement: SELF-COMPLEMENTARY — both branches of the rule are handled here,
+    /// replacing ambiguous cases where having both or only one specificity needed separate routing.
+    /// Complexity base: 3.
     /// </summary>
-    Fallback,
+    PositiveDouble,
 
     /// <summary>
     /// Document does NOT contain conditionA → valid.
+    /// Has complement: YES → ComplementNegativeSimple.
+    /// NegativeSimple complement is simply PositiveForced — the two rules together cover all cases.
     /// Complexity base: 2.
     /// </summary>
     NegativeSimple,
 
     /// <summary>
-    /// Document contains NONE of the entries in conditionsList → valid.
+    /// Document contains conditionA AND does NOT contain conditionB → valid in targetBinID.
+    /// Has complement: YES → ComplementPositiveWithNegative.
+    /// This pair guarantees that any document with conditionA always has exactly one valid destination.
     /// Complexity base: 3.
     /// </summary>
-    NegativeMultiple
+    PositiveWithNegative,
+
+    // -------------------------------------------------------------------------
+    // Complement types — generated automatically, never manually.
+    // Complement types are tagged separately so the system can identify and skip them
+    // during complement generation, preventing infinite recursion.
+    // -------------------------------------------------------------------------
+
+    /// <summary>
+    /// Complement of PositiveForced.
+    /// Document does NOT contain conditionA → routes to complement bin.
+    /// Auto-generated only.
+    /// </summary>
+    ComplementPositiveForced,
+
+    /// <summary>
+    /// Complement of PositiveExclusive.
+    /// Document contains conditionA AND at least one other specificity → routes to complement bin.
+    /// Auto-generated only.
+    /// </summary>
+    ComplementPositiveExclusive,
+
+    /// <summary>
+    /// Complement of NegativeSimple.
+    /// Document contains conditionA → routes to complement bin.
+    /// Auto-generated only.
+    /// </summary>
+    ComplementNegativeSimple,
+
+    /// <summary>
+    /// Complement of PositiveWithNegative.
+    /// Document contains conditionA AND conditionB → routes to complement bin.
+    /// Auto-generated only.
+    /// </summary>
+    ComplementPositiveWithNegative
 }

@@ -56,6 +56,15 @@ public class DraggableDocument : MonoBehaviour, IBeginDragHandler, IDragHandler,
     [SerializeField] private float invalidFlashDuration = 0.2f;
     [SerializeField] private float invalidFlashAlpha    = 0.4f;
 
+    /// <summary>
+    /// Absolute sizeDelta applied to this document as soon as the player begins dragging it.
+    /// [SerializeField] so designers can tune the drag thumb size in the Inspector without
+    /// touching code — the correct size depends on screen resolution and target device form factor.
+    /// Anchors are switched to center (0.5, 0.5) before applying sizeDelta because sizeDelta
+    /// has no effect on a stretch-anchored element (it would compute relative to the parent bounds).
+    /// </summary>
+    [SerializeField] private Vector2 dragSize = new Vector2(300f, 390f);
+
     // -------------------------------------------------------------------------
     // Runtime state — not serialized, reset each drag
     // -------------------------------------------------------------------------
@@ -151,8 +160,11 @@ public class DraggableDocument : MonoBehaviour, IBeginDragHandler, IDragHandler,
 
     /// <summary>
     /// Called by the EventSystem when the player begins dragging this document.
-    /// Disables raycast blocking so the pointer can reach bins beneath this document,
-    /// then notifies the stack manager to apply the drag visual and reveal the next document.
+    /// Removes the document from the stack visually by notifying the stack manager,
+    /// applies a thumb-friendly drag size at full opacity, then positions the document
+    /// under the pointer at the correct grab offset.
+    /// The document is rendered above all other UI elements during the drag so it is
+    /// never obscured by the next document appearing in the stack zone behind it.
     /// </summary>
     /// <param name="eventData">Pointer event data provided by the EventSystem.</param>
     public void OnBeginDrag(PointerEventData eventData)
@@ -160,13 +172,38 @@ public class DraggableDocument : MonoBehaviour, IBeginDragHandler, IDragHandler,
         // Disable raycast blocking so pointer events pass through this document
         // and can reach the SortingBin drop zones behind it in the hierarchy.
         // Without this, the GraphicRaycaster would always hit this document first,
-        // making it impossible to detect any bin underneath.
+        // making it impossible to detect any bin underneath during the drag.
         canvasGroup.blocksRaycasts = false;
 
+        // Notify the stack manager first so currentTopDocument is nulled and ShowNextDocument
+        // is called before we reposition this document — this ensures the next document
+        // is already visible in the stack zone by the time the drag visual is applied.
+        stackManager.OnDocumentDragStarted(gameObject);
+
+        RectTransform documentRectTransform = GetComponent<RectTransform>();
+
+        // Switch from stretch anchors to center anchors before applying sizeDelta.
+        // sizeDelta has no visible effect on a stretch-anchored element because the element's
+        // size is controlled by the anchor offsets, not sizeDelta — setting anchors to center
+        // (0.5, 0.5) first makes sizeDelta behave as an absolute pixel dimension.
+        documentRectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+        documentRectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+        documentRectTransform.pivot     = new Vector2(0.5f, 0.5f);
+        documentRectTransform.sizeDelta = dragSize;
+
+        // Document is fully visible when dragged — no transparency because it is
+        // now free-floating above the stack zone rather than layered on top of other documents.
+        canvasGroup.alpha = 1f;
+
+        // Render above every other UI sibling so the dragged document is never
+        // occluded by the next document appearing in the stack zone beneath it.
+        transform.SetAsLastSibling();
+
         // Convert the initial pointer screen position to canvas local space so we can
-        // compute the offset between the pointer and the document pivot at drag start.
+        // compute the offset between the document pivot and the pointer at drag start.
         // Without this offset, OnDrag would snap the pivot directly under the pointer,
-        // causing the document to jump instead of being dragged from the touched point.
+        // causing the document to jump to a different position instead of being dragged
+        // from the exact point the player touched.
         bool isInitialPositionConverted = RectTransformUtility.ScreenPointToLocalPointInRectangle(
             parentCanvas.transform as RectTransform,
             eventData.position,
@@ -176,15 +213,9 @@ public class DraggableDocument : MonoBehaviour, IBeginDragHandler, IDragHandler,
 
         if (isInitialPositionConverted)
         {
-            RectTransform documentRectTransform = GetComponent<RectTransform>();
-
             // Store the delta so every OnDrag frame can restore the original grab offset.
             dragPointerOffset = documentRectTransform.anchoredPosition - localPointerPositionAtDragStart;
         }
-
-        // Notify stack manager to shrink/fade this document and reveal the next one below.
-        // Stack manager owns all visual state — DraggableDocument only reports the event.
-        stackManager.OnDocumentDragStarted(gameObject);
     }
 
     /// <summary>
