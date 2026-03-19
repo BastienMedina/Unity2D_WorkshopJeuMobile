@@ -2,15 +2,18 @@ using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
-/// MonoBehaviour that acts as the single orchestrator for one game day.
-/// Coordinates RuleGenerator, DocumentSpawner, DifficultyManager, and SortingBins
-/// in the correct sequence without containing any rule logic, spawn logic, or validation logic.
-/// Does NOT generate rules, spawn documents, compute difficulty, or validate documents directly.
+/// MonoBehaviour that acts as the single orchestrator for the entire game session.
+/// Coordinates RuleGenerator, DocumentSpawner, DifficultyManager, BinLayoutManager,
+/// DocumentStackManager, ProfitabilityManager, ProfitabilityBarUI, and DayTransitionManager
+/// in the correct sequence, wiring all events together without containing any rule logic,
+/// spawn logic, profitability logic, layout logic, or UI rendering logic.
+/// Does NOT generate rules, spawn documents, compute difficulty, validate documents,
+/// activate bins, manage the document stack, compute profitability, or render UI directly.
 /// </summary>
 public class GameManager : MonoBehaviour
 {
     // -------------------------------------------------------------------------
-    // Inspector-assigned system references
+    // Inspector-assigned system references — core gameplay
     // -------------------------------------------------------------------------
 
     /// <summary>Generates the day's rule set from the SpecificityDatabase.</summary>
@@ -22,8 +25,27 @@ public class GameManager : MonoBehaviour
     /// <summary>Computes difficulty settings and day evolution type from the progression index.</summary>
     [SerializeField] private DifficultyManager difficultyManager;
 
-    /// <summary>All sorting bins active in the scene. GameManager distributes rules across them.</summary>
-    [SerializeField] private List<SortingBin> sortingBins;
+    /// <summary>Activates and positions SortingBin slots based on the day's bin count.</summary>
+    [SerializeField] private BinLayoutManager binLayoutManager;
+
+    /// <summary>Manages the visual document stack, drag feedback, and document lifetime.</summary>
+    [SerializeField] private DocumentStackManager documentStackManager;
+
+    // -------------------------------------------------------------------------
+    // Inspector-assigned system references — profitability and progression
+    // -------------------------------------------------------------------------
+
+    /// <summary>Tracks profitability, applies decay, and detects day success and failure.</summary>
+    [SerializeField] private ProfitabilityManager profitabilityManager;
+
+    /// <summary>Renders the profitability bar, threshold marker, and percentage text.</summary>
+    [SerializeField] private ProfitabilityBarUI profitabilityBarUI;
+
+    /// <summary>Displays the day-transition overlay between days.</summary>
+    [SerializeField] private DayTransitionManager dayTransitionManager;
+
+    /// <summary>Renders the MM:SS countdown timer below the profitability bar.</summary>
+    [SerializeField] private DayTimerUI dayTimerUI;
 
     // -------------------------------------------------------------------------
     // Inspector-editable progression state
@@ -35,58 +57,208 @@ public class GameManager : MonoBehaviour
     /// <summary>Zero-based index of the current level.</summary>
     [SerializeField] private int currentLevelIndex = 0;
 
+    /// <summary>How many successful days must be completed before moving to the next level.</summary>
+    [SerializeField] private int totalDaysPerLevel = 5;
+
     // -------------------------------------------------------------------------
     // Unity lifecycle
     // -------------------------------------------------------------------------
 
     private void Start()
     {
+        SubscribeToAllEvents();
+        InitializeDay();
+    }
+
+    private void OnDestroy()
+    {
+        // Unsubscribe to prevent ghost callbacks if this object is destroyed while
+        // ProfitabilityManager or DayTransitionManager coroutines are still pending.
+        UnsubscribeFromAllEvents();
+    }
+
+    // -------------------------------------------------------------------------
+    // Event wiring
+    // -------------------------------------------------------------------------
+
+    /// <summary>
+    /// Subscribes GameManager to every event produced by the sub-systems.
+    /// All wiring is centralised here so the data-flow graph is readable in one place
+    /// and accidental double-subscription is easy to audit.
+    /// </summary>
+    private void SubscribeToAllEvents()
+    {
+        profitabilityManager.onProfitabilityChanged += OnProfitabilityChanged;
+        profitabilityManager.onDaySuccess           += OnDaySuccess;
+        profitabilityManager.onDayFailed            += OnDayFailed;
+        profitabilityManager.onTimerUpdated         += OnTimerUpdated;
+        dayTransitionManager.onTransitionComplete   += OnTransitionComplete;
+    }
+
+    /// <summary>
+    /// Mirror of SubscribeToAllEvents — called in OnDestroy to avoid memory leaks
+    /// from dangling delegates referencing a destroyed MonoBehaviour.
+    /// </summary>
+    private void UnsubscribeFromAllEvents()
+    {
+        profitabilityManager.onProfitabilityChanged -= OnProfitabilityChanged;
+        profitabilityManager.onDaySuccess           -= OnDaySuccess;
+        profitabilityManager.onDayFailed            -= OnDayFailed;
+        profitabilityManager.onTimerUpdated         -= OnTimerUpdated;
+        dayTransitionManager.onTransitionComplete   -= OnTransitionComplete;
+    }
+
+    // -------------------------------------------------------------------------
+    // Event handlers
+    // -------------------------------------------------------------------------
+
+    /// <summary>
+    /// Called by ProfitabilityManager every frame during an active day.
+    /// Pushes the new profitability value to the UI without any computation in GameManager.
+    /// </summary>
+    /// <param name="profitabilityValue">Current profitability on the 0–100 scale.</param>
+    private void OnProfitabilityChanged(float profitabilityValue)
+    {
+        profitabilityBarUI.UpdateDisplay(profitabilityValue);
+    }
+
+    /// <summary>
+    /// Called by ProfitabilityManager every frame during an active day with seconds remaining.
+    /// Relays the value directly to DayTimerUI so GameManager stays the single wiring point
+    /// and DayTimerUI never needs a reference to ProfitabilityManager.
+    /// </summary>
+    /// <param name="remainingSeconds">Seconds left in the current day (always >= 0).</param>
+    private void OnTimerUpdated(float remainingSeconds)
+    {
+        dayTimerUI.UpdateTimer(remainingSeconds);
+    }
+
+    /// <summary>
+    /// Called by ProfitabilityManager when the day timer elapses without the player failing.
+    /// Stops spawning, clears all stacks, advances the day or level counter,
+    /// and starts the transition screen.
+    /// </summary>
+    private void OnDaySuccess()
+    {
+        documentSpawner.StopDay();
+        documentSpawner.ClearAllDocuments();
+        documentStackManager.ClearStack();
+
+        currentDayIndex++;
+
+        // When all days in the current level are completed, move to the next level
+        // and restart the day counter so the player progresses through the full arc.
+        bool isLevelComplete = currentDayIndex >= totalDaysPerLevel;
+
+        if (isLevelComplete)
+        {
+            currentDayIndex = 0;
+            currentLevelIndex++;
+        }
+
+        dayTransitionManager.PlayTransition(currentDayIndex);
+    }
+
+    /// <summary>
+    /// Called by ProfitabilityManager when profitability drops below the fail threshold.
+    /// Stops spawning, clears all stacks, and starts the failure transition. dayIndex is reset
+    /// to 0 so InitializeDay() restarts from the first day of the current level.
+    /// The player retains level progress but must replay the day arc from the beginning.
+    /// </summary>
+    private void OnDayFailed()
+    {
+        documentSpawner.StopDay();
+        documentSpawner.ClearAllDocuments();
+        documentStackManager.ClearStack();
+
+        // Reset to day 1 of the current level, not the whole game —
+        // the player failed this arc but has not lost all prior level progress.
+        currentDayIndex = 0;
+
+        // -1 is the failure sentinel understood by DayTransitionManager.PlayTransition(),
+        // which displays "FAILED — Back to Day 1" regardless of the day index value.
+        dayTransitionManager.PlayTransition(-1);
+    }
+
+    /// <summary>
+    /// Called by DayTransitionManager after the overlay completes its display duration.
+    /// Safe to initialise the next day here because profitability tracking and spawning
+    /// were both stopped before PlayTransition was called.
+    /// </summary>
+    private void OnTransitionComplete()
+    {
         InitializeDay();
     }
 
     // -------------------------------------------------------------------------
-    // Public API
+    // Day initialisation
     // -------------------------------------------------------------------------
 
     /// <summary>
     /// Bootstraps all systems for the current day in the correct dependency order:
-    /// difficulty → bin IDs → rule generation → rule distribution → spawner setup → spawn start.
+    /// profitability start → UI initialisation → difficulty → bin activation →
+    /// bin IDs → rule generation → rule distribution → spawner setup → stack clear → spawn start.
     /// </summary>
     public void InitializeDay()
     {
-        // Guard before any computation: division by bin count happens below,
-        // and zero bins would produce a divide-by-zero crash with no clear error message.
-        if (sortingBins.Count == 0)
-        {
-            Debug.LogError("[GameManager] sortingBins list is empty. Assign at least one SortingBin in the Inspector.");
-            return;
-        }
+        profitabilityManager.StartDay();
+
+        // ResetDisplay must be called after StartDay so GetRemainingSeconds returns the
+        // correct full duration — before StartDay, dayTimer is still at its previous value.
+        dayTimerUI.ResetDisplay();
+
+        // Initialize UI with the fail threshold and initial profitability so the marker
+        // is positioned and the bar is filled correctly before the first event fires.
+        profitabilityBarUI.Initialize(
+            profitabilityManager.GetFailThreshold(),
+            profitabilityManager.GetCurrentProfitability());
 
         (DifficultySettings daySettings, DayEvolutionType evolutionType) =
             difficultyManager.OnNewDay(currentDayIndex, currentLevelIndex);
 
-        List<string> activeBinIDs = ExtractBinIDs(sortingBins);
+        // Activate the correct number of bin slots for today's difficulty before
+        // extracting the active bin list — GetActiveBins must reflect the new count.
+        binLayoutManager.SetActiveBinCount(daySettings.numberOfBins);
+
+        List<SortingBin> activeBins = binLayoutManager.GetActiveBins();
+
+        // Guard: zero active bins would cause divide-by-zero in the rules-per-bin calculation.
+        if (activeBins.Count == 0)
+        {
+            Debug.LogError("[GameManager] No active bins returned by BinLayoutManager. " +
+                           "Assign at least one BinSlot in the Inspector.");
+            return;
+        }
+
+        List<string> activeBinIDs = ExtractBinIDs(activeBins);
         ruleGenerator.SetAvailableBins(activeBinIDs);
 
         // Divide total rules by bin count to obtain the per-bin value RuleGenerator expects.
         // RuleGenerator iterates per bin to guarantee full coverage, so the unit it consumes
         // is rules-per-bin, not a global total.
-        int rulesPerBin = daySettings.numberOfRules / sortingBins.Count;
+        int rulesPerBin = daySettings.numberOfRules / activeBins.Count;
 
         List<RuleData> generatedRules = ruleGenerator.GenerateRulesForDay(
             rulesPerBin,
             daySettings.maxRuleComplexity
         );
 
-        DistributeRulesToBins(generatedRules);
+        DistributeRulesToBins(generatedRules, activeBins);
 
         // Inject the full cross-bin rule list into every bin immediately after distribution.
         // Bins need this only for Fallback validation — they must not query each other directly,
         // so GameManager is the correct point to push a single flat snapshot to all bins.
-        foreach (SortingBin bin in sortingBins)
+        foreach (SortingBin bin in activeBins)
             bin.SetAllActiveRules(generatedRules);
 
+        // Subscribe to each active bin's onValidDrop event for this day.
+        // Done here rather than once at startup because the set of active bins changes each day.
+        SubscribeToBinEvents(activeBins);
+
         documentSpawner.UpdateActiveRules(generatedRules);
+
+        // Clear any stale documents from the previous day before starting the new spawn loop.
+        documentStackManager.ClearStack();
 
         // Apply the difficulty-driven interval before starting the loop so the
         // first spawn waits the correct duration rather than the previous day's value.
@@ -95,26 +267,38 @@ public class GameManager : MonoBehaviour
         documentSpawner.StartDay();
     }
 
-    /// <summary>
-    /// Shuts down the current day, clears all live documents, advances the day counter,
-    /// and immediately initialises the next day.
-    /// </summary>
-    public void EndDay()
-    {
-        documentSpawner.StopDay();
-        documentSpawner.ClearAllDocuments();
-
-        currentDayIndex++;
-
-        InitializeDay();
-    }
-
     // -------------------------------------------------------------------------
     // Private helpers
     // -------------------------------------------------------------------------
 
     /// <summary>
-    /// Collects the string ID from each SortingBin in the scene list.
+    /// Subscribes OnValidDrop to each active bin's onValidDrop event.
+    /// Unsubscribes first to prevent accumulating duplicate subscriptions across days,
+    /// which would fire OnValidDrop multiple times per drop and over-count profitability.
+    /// </summary>
+    /// <param name="activeBins">The bins active for the current day.</param>
+    private void SubscribeToBinEvents(List<SortingBin> activeBins)
+    {
+        foreach (SortingBin bin in activeBins)
+        {
+            // Unsubscribe before subscribing to guarantee exactly one subscription per bin per day,
+            // regardless of how many times InitializeDay has been called previously.
+            bin.onValidDrop -= OnValidDrop;
+            bin.onValidDrop += OnValidDrop;
+        }
+    }
+
+    /// <summary>
+    /// Called by any active SortingBin the moment a valid document drop is confirmed.
+    /// Delegates to ProfitabilityManager so the bin never knows about the profitability system.
+    /// </summary>
+    private void OnValidDrop()
+    {
+        profitabilityManager.OnDocumentSorted();
+    }
+
+    /// <summary>
+    /// Collects the string ID from each SortingBin in the provided list.
     /// Extracted into its own method to keep InitializeDay at a single level of abstraction.
     /// </summary>
     /// <param name="bins">The list of active SortingBin instances.</param>
@@ -135,16 +319,16 @@ public class GameManager : MonoBehaviour
     /// this guards against stale IDs that may no longer exist in the scene.
     /// </summary>
     /// <param name="rules">The full list of RuleData produced for the current day.</param>
-    private void DistributeRulesToBins(List<RuleData> rules)
+    /// <param name="activeBins">The currently active SortingBin instances to distribute rules into.</param>
+    private void DistributeRulesToBins(List<RuleData> rules, List<SortingBin> activeBins)
     {
         // Group rules by target bin first so each bin receives one AssignRules call,
         // avoiding multiple overwrites when several rules share the same targetBinID.
         Dictionary<string, List<RuleData>> rulesByBinID = GroupRulesByBinID(rules);
 
-        foreach (SortingBin bin in sortingBins)
+        foreach (SortingBin bin in activeBins)
         {
-            string binID = bin.GetBinID();
-
+            string binID     = bin.GetBinID();
             bool hasBinRules = rulesByBinID.TryGetValue(binID, out List<RuleData> binRules);
 
             // Bins with no rules assigned still receive an empty list so they display

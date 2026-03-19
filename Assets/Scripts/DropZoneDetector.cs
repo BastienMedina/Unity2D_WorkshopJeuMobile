@@ -41,13 +41,7 @@ public class DropZoneDetector : MonoBehaviour
     /// </returns>
     public SortingBin GetBinUnderPointer(Vector2 screenPosition)
     {
-        PointerEventData pointerEventData = new PointerEventData(eventSystem)
-        {
-            position = screenPosition
-        };
-
-        List<RaycastResult> raycastResults = new List<RaycastResult>();
-        graphicRaycaster.Raycast(pointerEventData, raycastResults);
+        List<RaycastResult> raycastResults = PerformRaycast(screenPosition);
 
         foreach (RaycastResult raycastResult in raycastResults)
         {
@@ -61,5 +55,53 @@ public class DropZoneDetector : MonoBehaviour
         }
 
         return null;
+    }
+
+    /// <summary>
+    /// Casts a UI ray at the given screen position and returns the first BinHoverDetector hit.
+    /// Used by DraggableDocument during OnDrag to trigger expansion animations on hovered bins.
+    /// </summary>
+    /// <param name="screenPosition">
+    /// The screen-space position to test, typically sourced from PointerEventData.position.
+    /// </param>
+    /// <returns>
+    /// The first BinHoverDetector component found under the pointer, or null if none was hit.
+    /// </returns>
+    public BinHoverDetector GetBinHoverDetectorUnderPointer(Vector2 screenPosition)
+    {
+        List<RaycastResult> raycastResults = PerformRaycast(screenPosition);
+
+        foreach (RaycastResult raycastResult in raycastResults)
+        {
+            BinHoverDetector hoverDetector = raycastResult.gameObject.GetComponent<BinHoverDetector>();
+
+            // Return immediately on the first hit — same ordering guarantee as GetBinUnderPointer.
+            if (hoverDetector != null)
+                return hoverDetector;
+        }
+
+        return null;
+    }
+
+    // -------------------------------------------------------------------------
+    // Private helpers
+    // -------------------------------------------------------------------------
+
+    /// <summary>
+    /// Builds PointerEventData for the given screen position and executes a GraphicRaycaster pass.
+    /// Centralised here so both public methods share a single raycast implementation.
+    /// </summary>
+    /// <param name="screenPosition">Screen-space position to raycast against.</param>
+    /// <returns>Ordered list of RaycastResult from front to back.</returns>
+    private List<RaycastResult> PerformRaycast(Vector2 screenPosition)
+    {
+        PointerEventData pointerEventData = new PointerEventData(eventSystem)
+        {
+            position = screenPosition
+        };
+
+        List<RaycastResult> raycastResults = new List<RaycastResult>();
+        graphicRaycaster.Raycast(pointerEventData, raycastResults);
+        return raycastResults;
     }
 }
