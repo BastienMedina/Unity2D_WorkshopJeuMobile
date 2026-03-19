@@ -59,11 +59,20 @@ public class DifficultyManager : MonoBehaviour
 
     [Header("Spawn Interval Bounds")]
 
-    /// <summary>Slowest spawn rate in seconds, applied at the start of the game (easy).</summary>
-    [SerializeField] private float maxSpawnInterval = 10f;
+    /// <summary>
+    /// Slowest spawn rate in seconds, applied at the start of the game (easy).
+    /// Fixed at 0.5s to match the required document spawn rate.
+    /// </summary>
+    [SerializeField] private float maxSpawnInterval = 0.5f;
 
-    /// <summary>Fastest spawn rate in seconds, applied at the end of the game (hard).</summary>
-    [SerializeField] private float minSpawnInterval = 2f;
+    /// <summary>
+    /// Fastest spawn rate in seconds, applied at the end of the game (hard).
+    /// Fixed at 0.5s to match the required document spawn rate.
+    /// Both bounds are equal so spawnInterval stays constant at 0.5s
+    /// across all difficulty levels — difficulty is expressed through rules and bin count,
+    /// not spawn speed.
+    /// </summary>
+    [SerializeField] private float minSpawnInterval = 0.5f;
 
     // -------------------------------------------------------------------------
     // Rules-per-bin bounds

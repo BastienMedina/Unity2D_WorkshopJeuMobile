@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Text;
 using TMPro;
@@ -23,6 +24,18 @@ public class SortingBin : MonoBehaviour
 
     /// <summary>Text component that displays the rules currently assigned to this bin.</summary>
     [SerializeField] private TextMeshProUGUI rulesDisplayText;
+
+    // -------------------------------------------------------------------------
+    // Events
+    // -------------------------------------------------------------------------
+
+    /// <summary>
+    /// Fired immediately after a document drop is confirmed as valid.
+    /// SortingBin must not reference ScoreManager directly — using an event keeps
+    /// the two systems fully decoupled, allowing GameManager to wire them together
+    /// without either class knowing the other exists.
+    /// </summary>
+    public event Action onValidDrop;
 
     // -------------------------------------------------------------------------
     // Runtime state
@@ -104,6 +117,8 @@ public class SortingBin : MonoBehaviour
     /// Checks whether the given document satisfies at least one of this bin's assigned rules.
     /// Dispatches validation to a private helper per RuleType to keep this method flat.
     /// Returns true on the first matching rule — "at least one rule" is sufficient.
+    /// Fires onValidDrop when the document is accepted so GameManager can award a point
+    /// without SortingBin needing to know ScoreManager exists.
     /// </summary>
     /// <param name="documentData">The document dropped onto this bin by the player.</param>
     /// <param name="activeRules">
@@ -120,8 +135,14 @@ public class SortingBin : MonoBehaviour
             // Return on the first successful match — "at least one rule" is the design intent.
             // A document legitimately belongs here if it satisfies any single criterion,
             // allowing overlapping rule sets without forcing strict global consistency.
-            if (isRuleMatched)
-                return true;
+            if (!isRuleMatched)
+                continue;
+
+            // Notify listeners (GameManager → ScoreManager) that a point was earned.
+            // Fired here rather than in DraggableDocument so that the bin — the authority
+            // on validity — is the source of truth for scoring events.
+            onValidDrop?.Invoke();
+            return true;
         }
 
         return false;

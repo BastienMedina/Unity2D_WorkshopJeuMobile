@@ -6,8 +6,10 @@ using UnityEngine;
 /// <summary>
 /// MonoBehaviour responsible for generating DocumentData, instantiating document prefabs
 /// at runtime, and controlling the spawn rhythm throughout a game day.
-/// Does NOT validate documents, access SortingBin logic, or store rules beyond the
-/// time needed to rebuild the valid combination list at the start of each day.
+/// Injects all scene dependencies (canvas, detector, stack manager) into each spawned document
+/// immediately after instantiation, then hands the document off to DocumentStackManager.
+/// Does NOT validate documents, access SortingBin logic, store rules beyond the
+/// time needed to rebuild the valid combination list, or manage document position.
 /// </summary>
 public class DocumentSpawner : MonoBehaviour
 {
@@ -18,7 +20,11 @@ public class DocumentSpawner : MonoBehaviour
     /// <summary>Prefab instantiated for each spawned document. Must carry a DraggableDocument component.</summary>
     [SerializeField] private GameObject documentPrefab;
 
-    /// <summary>Canvas panel inside which documents are spawned and positioned.</summary>
+    /// <summary>
+    /// Parent transform under which documents are instantiated.
+    /// DocumentStackManager owns all positioning after spawn — this parent just scopes
+    /// the document inside the correct Canvas hierarchy.
+    /// </summary>
     [SerializeField] private RectTransform spawnAreaParent;
 
     /// <summary>
@@ -36,12 +42,19 @@ public class DocumentSpawner : MonoBehaviour
     /// </summary>
     [SerializeField] private DropZoneDetector dropZoneDetector;
 
+    /// <summary>
+    /// The DocumentStackManager that receives every newly spawned document.
+    /// Injected into each DraggableDocument so the document can report drag events
+    /// back to the manager, which owns all visual state and document lifetime.
+    /// </summary>
+    [SerializeField] private DocumentStackManager documentStackManager;
+
     // -------------------------------------------------------------------------
     // Spawn timing — never hardcoded inline
     // -------------------------------------------------------------------------
 
     /// <summary>Seconds between consecutive document spawns. Adjusted externally by DifficultyManager.</summary>
-    [SerializeField] private float spawnInterval = 5f;
+    [SerializeField] private float spawnInterval = 0.5f;
 
     // -------------------------------------------------------------------------
     // Runtime state
@@ -233,16 +246,23 @@ public class DocumentSpawner : MonoBehaviour
         DocumentData generatedData = GenerateDocumentData();
 
         GameObject documentInstance = Instantiate(documentPrefab, spawnAreaParent);
-        RectTransform documentRectTransform = documentInstance.GetComponent<RectTransform>();
-        documentRectTransform.anchoredPosition = ComputeRandomSpawnPosition();
+
+        // Do NOT set anchoredPosition here — DocumentStackManager owns all document positioning
+        // and will centre the document on the stack zone as soon as it becomes the top document.
 
         DraggableDocument draggableDocument = documentInstance.GetComponent<DraggableDocument>();
         draggableDocument.SetDocumentData(generatedData);
         draggableDocument.SetCanvasReference(mainCanvas);
         draggableDocument.SetDropZoneDetector(dropZoneDetector);
+        draggableDocument.SetStackManager(documentStackManager);
         draggableDocument.SetAllActiveRules(activeRules);
 
         AssignSpecificitiesToLabel(documentInstance, generatedData.specificities);
+
+        // Hand the document off to the stack manager instead of positioning it manually.
+        // DocumentStackManager owns all document positioning — spawner must not set anchoredPosition
+        // after this point, as the manager will immediately override it when showing the document.
+        documentStackManager.EnqueueDocument(documentInstance);
 
         spawnedDocuments.Add(documentInstance);
     }
