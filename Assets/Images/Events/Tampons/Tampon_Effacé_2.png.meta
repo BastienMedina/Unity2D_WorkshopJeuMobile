@@ -1,0 +1,702 @@
+fileFormatVersion: 2
+guid: 68550ace37d47b540811f4bb578d1f06
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 4490952815191906507
+    second: "Tampon_Effac\xE9_2_0"
+  - first:
+      213: 2460191218206171004
+    second: "Tampon_Effac\xE9_2_1"
+  - first:
+      213: 6747317192503227760
+    second: "Tampon_Effac\xE9_2_2"
+  - first:
+      213: -4839968431864576644
+    second: "Tampon_Effac\xE9_2_3"
+  - first:
+      213: 4221599529738859002
+    second: "Tampon_Effac\xE9_2_4"
+  - first:
+      213: -6964291729346764251
+    second: "Tampon_Effac\xE9_2_5"
+  - first:
+      213: 1912655978044549804
+    second: "Tampon_Effac\xE9_2_6"
+  - first:
+      213: -8246959611666423884
+    second: "Tampon_Effac\xE9_2_7"
+  - first:
+      213: 3374679920833787090
+    second: "Tampon_Effac\xE9_2_8"
+  - first:
+      213: -5845169322536549923
+    second: "Tampon_Effac\xE9_2_9"
+  - first:
+      213: -2795056958865779461
+    second: "Tampon_Effac\xE9_2_10"
+  - first:
+      213: 3241557931087335338
+    second: "Tampon_Effac\xE9_2_11"
+  - first:
+      213: -9052263368454818202
+    second: "Tampon_Effac\xE9_2_12"
+  - first:
+      213: 8719474251473376610
+    second: "Tampon_Effac\xE9_2_13"
+  - first:
+      213: -5393122696019150278
+    second: "Tampon_Effac\xE9_2_14"
+  - first:
+      213: 2187898246112350098
+    second: "Tampon_Effac\xE9_2_15"
+  - first:
+      213: -8320990486373400366
+    second: "Tampon_Effac\xE9_2_16"
+  - first:
+      213: -1131838672987499699
+    second: "Tampon_Effac\xE9_2_17"
+  - first:
+      213: 1004913519644202872
+    second: "Tampon_Effac\xE9_2_18"
+  - first:
+      213: 2742558833355763503
+    second: "Tampon_Effac\xE9_2_19"
+  - first:
+      213: -8597579082712266691
+    second: "Tampon_Effac\xE9_2_20"
+  - first:
+      213: -6765440096588540880
+    second: "Tampon_Effac\xE9_2_21"
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: "Tampon_Effac\xE9_2_0"
+      rect:
+        serializedVersion: 2
+        x: 12
+        y: 220
+        width: 401
+        height: 74
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bc8dd849ac1135e30800000000000000
+      internalID: 4490952815191906507
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "Tampon_Effac\xE9_2_1"
+      rect:
+        serializedVersion: 2
+        x: 34
+        y: 241
+        width: 530
+        height: 49
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c7fd6b8d0ea542220800000000000000
+      internalID: 2460191218206171004
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "Tampon_Effac\xE9_2_2"
+      rect:
+        serializedVersion: 2
+        x: 419
+        y: 278
+        width: 6
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0757a0edc3943ad50800000000000000
+      internalID: 6747317192503227760
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "Tampon_Effac\xE9_2_3"
+      rect:
+        serializedVersion: 2
+        x: 473
+        y: 275
+        width: 63
+        height: 18
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c758b9eba5af4dcb0800000000000000
+      internalID: -4839968431864576644
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "Tampon_Effac\xE9_2_4"
+      rect:
+        serializedVersion: 2
+        x: 51
+        y: 52
+        width: 222
+        height: 200
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: af17a02c762269a30800000000000000
+      internalID: 4221599529738859002
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "Tampon_Effac\xE9_2_5"
+      rect:
+        serializedVersion: 2
+        x: 260
+        y: 166
+        width: 17
+        height: 86
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5226810129dd95f90800000000000000
+      internalID: -6964291729346764251
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "Tampon_Effac\xE9_2_6"
+      rect:
+        serializedVersion: 2
+        x: 571
+        y: 240
+        width: 16
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: caa6fd47a7e1b8a10800000000000000
+      internalID: 1912655978044549804
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "Tampon_Effac\xE9_2_7"
+      rect:
+        serializedVersion: 2
+        x: 576
+        y: 251
+        width: 11
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4bf11ad6de9ec8d80800000000000000
+      internalID: -8246959611666423884
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "Tampon_Effac\xE9_2_8"
+      rect:
+        serializedVersion: 2
+        x: 26
+        y: 85
+        width: 17
+        height: 145
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2d4f0f7128545de20800000000000000
+      internalID: 3374679920833787090
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "Tampon_Effac\xE9_2_9"
+      rect:
+        serializedVersion: 2
+        x: 33
+        y: 229
+        width: 11
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dd1c23e5879c1eea0800000000000000
+      internalID: -5845169322536549923
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "Tampon_Effac\xE9_2_10"
+      rect:
+        serializedVersion: 2
+        x: 274
+        y: 61
+        width: 268
+        height: 179
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bf452d73186f539d0800000000000000
+      internalID: -2795056958865779461
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "Tampon_Effac\xE9_2_11"
+      rect:
+        serializedVersion: 2
+        x: 512
+        y: 8
+        width: 81
+        height: 235
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: aaf8f4983c35cfc20800000000000000
+      internalID: 3241557931087335338
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "Tampon_Effac\xE9_2_12"
+      rect:
+        serializedVersion: 2
+        x: 7
+        y: 52
+        width: 22
+        height: 170
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 66638f56d66ef5280800000000000000
+      internalID: -9052263368454818202
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "Tampon_Effac\xE9_2_13"
+      rect:
+        serializedVersion: 2
+        x: 13
+        y: 6
+        width: 479
+        height: 47
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2655c3b42abc10970800000000000000
+      internalID: 8719474251473376610
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "Tampon_Effac\xE9_2_14"
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 28
+        width: 108
+        height: 47
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a3a7ea16b77c725b0800000000000000
+      internalID: -5393122696019150278
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "Tampon_Effac\xE9_2_15"
+      rect:
+        serializedVersion: 2
+        x: 260
+        y: 48
+        width: 17
+        height: 81
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 29f0a34ecd9fc5e10800000000000000
+      internalID: 2187898246112350098
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "Tampon_Effac\xE9_2_16"
+      rect:
+        serializedVersion: 2
+        x: 152
+        y: 26
+        width: 340
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2d00f483d37e58c80800000000000000
+      internalID: -8320990486373400366
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "Tampon_Effac\xE9_2_17"
+      rect:
+        serializedVersion: 2
+        x: 491
+        y: 28
+        width: 20
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d43d78149b6ea40f0800000000000000
+      internalID: -1131838672987499699
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "Tampon_Effac\xE9_2_18"
+      rect:
+        serializedVersion: 2
+        x: 498
+        y: 31
+        width: 7
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8775168958b22fd00800000000000000
+      internalID: 1004913519644202872
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "Tampon_Effac\xE9_2_19"
+      rect:
+        serializedVersion: 2
+        x: 491
+        y: 11
+        width: 13
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f2fa7cd6ab68f0620800000000000000
+      internalID: 2742558833355763503
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "Tampon_Effac\xE9_2_20"
+      rect:
+        serializedVersion: 2
+        x: 495
+        y: 8
+        width: 10
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d384b9e40634fa880800000000000000
+      internalID: -8597579082712266691
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "Tampon_Effac\xE9_2_21"
+      rect:
+        serializedVersion: 2
+        x: 501
+        y: 8
+        width: 21
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 034d7a5b3145c12a0800000000000000
+      internalID: -6765440096588540880
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      "Tampon_Effac\xE9_2_0": 4490952815191906507
+      "Tampon_Effac\xE9_2_1": 2460191218206171004
+      "Tampon_Effac\xE9_2_10": -2795056958865779461
+      "Tampon_Effac\xE9_2_11": 3241557931087335338
+      "Tampon_Effac\xE9_2_12": -9052263368454818202
+      "Tampon_Effac\xE9_2_13": 8719474251473376610
+      "Tampon_Effac\xE9_2_14": -5393122696019150278
+      "Tampon_Effac\xE9_2_15": 2187898246112350098
+      "Tampon_Effac\xE9_2_16": -8320990486373400366
+      "Tampon_Effac\xE9_2_17": -1131838672987499699
+      "Tampon_Effac\xE9_2_18": 1004913519644202872
+      "Tampon_Effac\xE9_2_19": 2742558833355763503
+      "Tampon_Effac\xE9_2_2": 6747317192503227760
+      "Tampon_Effac\xE9_2_20": -8597579082712266691
+      "Tampon_Effac\xE9_2_21": -6765440096588540880
+      "Tampon_Effac\xE9_2_3": -4839968431864576644
+      "Tampon_Effac\xE9_2_4": 4221599529738859002
+      "Tampon_Effac\xE9_2_5": -6964291729346764251
+      "Tampon_Effac\xE9_2_6": 1912655978044549804
+      "Tampon_Effac\xE9_2_7": -8246959611666423884
+      "Tampon_Effac\xE9_2_8": 3374679920833787090
+      "Tampon_Effac\xE9_2_9": -5845169322536549923
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
