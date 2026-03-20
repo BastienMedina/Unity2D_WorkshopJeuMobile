@@ -1,11 +1,14 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// MonoBehaviour that acts as the single orchestrator for the entire game session.
 /// Coordinates RuleGenerator, DocumentSpawner, DifficultyManager, BinLayoutManager,
 /// DocumentStackManager, ProfitabilityManager, ProfitabilityBarUI, DayTransitionManager,
-/// and FloorProgressionManager in the correct sequence, wiring all events together.
+/// FloorProgressionManager, FloorSaveSystem, and FloorDifficultyProgression in the correct
+/// sequence, wiring all events together.
 /// Does NOT generate rules, spawn documents, compute difficulty, validate documents,
 /// activate bins, manage the document stack, compute profitability, or render UI directly.
 /// </summary>
@@ -52,6 +55,16 @@ public class GameManager : MonoBehaviour
     /// through GameManager so the data-flow graph stays centralised.
     /// </summary>
     [SerializeField] private FloorProgressionManager floorProgressionManager;
+
+    /// <summary>Persists and retrieves FloorSaveData to/from JSON files on disk.</summary>
+    [SerializeField] private FloorSaveSystem floorSaveSystem;
+
+    /// <summary>
+    /// Computes floor parameters from base values and per-floor deltas.
+    /// Used in Start() to derive the current floor's difficulty when no session data was passed,
+    /// and in OnDaySuccess() to pre-compute the next floor's parameters immediately after saving.
+    /// </summary>
+    [SerializeField] private FloorDifficultyProgression floorDifficultyProgression;
 
     // -------------------------------------------------------------------------
     // Inspector-editable progression state
@@ -110,6 +123,13 @@ public class GameManager : MonoBehaviour
     /// </summary>
     private DifficultyChangeSummary pendingSummary;
 
+    /// <summary>
+    /// The FloorSaveData snapshot for the floor currently being played.
+    /// Set by InitializeFromFloorData() and kept in sync so SaveCurrentFloor() can read
+    /// rulesPerBin and maxRuleComplexity from it without re-querying DifficultyManager.
+    /// </summary>
+    private FloorSaveData currentFloorSaveData;
+
     // -------------------------------------------------------------------------
     // Unity lifecycle
     // -------------------------------------------------------------------------
@@ -117,7 +137,34 @@ public class GameManager : MonoBehaviour
     private void Start()
     {
         SubscribeToAllEvents();
-        InitializeDay();
+
+        // Read session data before clearing — Clear() must be called immediately so stale
+        // values do not affect future sessions if GameScene is loaded again.
+        FloorSaveData sessionFloor    = FloorSessionData.SelectedFloor;
+        bool isReplayingFloor         = FloorSessionData.IsReplayingFloor;
+        FloorSessionData.Clear();
+
+        if (sessionFloor != null && isReplayingFloor)
+        {
+            // Player tapped a completed floor in TowerScene — restore it exactly.
+            RestoreFloorFromSave(sessionFloor);
+            return;
+        }
+
+        if (sessionFloor != null)
+        {
+            // Player tapped the current (incomplete) floor — use its pre-computed parameters
+            // without running the replay restoration path (rules are generated fresh).
+            InitializeFromFloorData(sessionFloor);
+            return;
+        }
+
+        // No session data — fresh game start. Always begin at floor 0 and compute or
+        // load its parameters so the first session uses the same values as any later replay.
+        FloorSaveData floor0Data = floorDifficultyProgression.GetOrGenerateFloorData(
+            0, floorSaveSystem);
+
+        InitializeFromFloorData(floor0Data);
     }
 
     private void OnDestroy()
@@ -187,6 +234,8 @@ public class GameManager : MonoBehaviour
     /// Called by ProfitabilityManager when the day timer elapses without the player failing.
     /// Stops spawning, clears all stacks, advances the day or floor counter,
     /// and starts the transition screen.
+    /// When all days on a floor are completed, saves the floor, pre-computes the next floor's
+    /// parameters, and returns to TowerScene.
     /// </summary>
     private void OnDaySuccess()
     {
@@ -196,20 +245,33 @@ public class GameManager : MonoBehaviour
 
         currentDayIndex++;
 
-        // 5 days completed = floor cleared — advance to the next floor and reset the day counter.
+        // 5 days completed = floor cleared — save, generate next floor data, return to TowerScene.
         bool isFloorComplete = currentDayIndex >= daysPerFloor;
 
         if (isFloorComplete)
         {
-            currentDayIndex   = 0;
-            currentFloorIndex++;
+            SaveCurrentFloor();
 
-            // Allow OnNewFloor to run for the new floor when InitializeDay is next called.
-            isFloorBonusApplied = false;
+            // Pre-compute the next floor's parameters immediately from the just-saved floor data
+            // so TowerManager can pass them to GameScene without having to re-derive the chain.
+            // The next floor is generated in memory only — it is NOT saved to disk here.
+            // Saving happens only when the player completes that floor.
+            FloorSaveData nextFloorData = floorDifficultyProgression.GenerateNextFloorData(
+                currentFloorSaveData);
+
+            // Place the next floor's data in the session holder so TowerManager can read it
+            // when the player taps the new block, without needing to re-run the derivation.
+            FloorSessionData.SelectedFloor    = nextFloorData;
+            FloorSessionData.IsReplayingFloor = false;
+
+            // Return to TowerScene after completing a floor so the player sees the new block.
+            // SceneManager.LoadScene triggers Unity's scene transition; no further code runs here.
+            SceneManager.LoadScene("TowerScene");
+            return;
         }
 
-        // pendingSummary was built during the InitializeDay that started this day —
-        // all changes have already been recorded, so the summary is ready to display.
+        // Floor not yet complete — advance to the next day inside GameScene as before.
+        // pendingSummary was built during the InitializeDay that started this day.
         dayTransitionManager.PlayTransition(currentDayIndex, currentFloorIndex, pendingSummary);
     }
 
@@ -218,6 +280,8 @@ public class GameManager : MonoBehaviour
     /// Stops spawning, clears all stacks, resets to day 1 of the current floor,
     /// and starts the failure transition. Floor index is NOT reset — the player retains
     /// floor progress but must replay the day arc from the beginning.
+    /// Does NOT return to TowerScene — failure stays in GameScene so the player can retry
+    /// the floor immediately without navigating back through the tower.
     /// Floor bonuses persist (they were earned), but rules are regenerated so the player
     /// does not memorise the exact same rule set on retry.
     /// </summary>
@@ -413,6 +477,37 @@ public class GameManager : MonoBehaviour
     // -------------------------------------------------------------------------
 
     /// <summary>
+    /// Applies all parameters from floorData to the relevant sub-systems and then calls
+    /// InitializeDay() to begin the first day on that floor.
+    /// This is the single authoritative entry point for starting any floor — using it
+    /// ensures no system is accidentally left with stale parameters from a previous floor.
+    /// </summary>
+    /// <param name="floorData">The floor whose parameters should be applied. Must not be null.</param>
+    private void InitializeFromFloorData(FloorSaveData floorData)
+    {
+        if (floorData == null)
+        {
+            Debug.LogError("[GameManager] InitializeFromFloorData called with null floorData.");
+            return;
+        }
+
+        currentFloorSaveData = floorData;
+        currentFloorIndex    = floorData.floorIndex;
+        currentDayIndex      = 0;
+        isFloorBonusApplied  = true; // Parameters come from floorData — floor bonus must not re-apply.
+
+        profitabilityManager.SetFailThreshold(floorData.failThreshold);
+        profitabilityManager.SetDayDuration(floorData.dayDuration);
+        profitabilityManager.SetDecayRate(floorData.decayRatePerSecond);
+
+        // Bin count from floorData overrides whatever BinLayoutManager's default is —
+        // the stored value is always the canonical bin count for this floor.
+        binLayoutManager.SetActiveBinCount(floorData.numberOfBins);
+
+        InitializeDay();
+    }
+
+    /// <summary>
     /// Requests FloorDifficultyData from FloorProgressionManager and applies it to
     /// ProfitabilityManager. Called once per floor when dayIndex == 0.
     /// FloorProgressionManager never touches ProfitabilityManager directly — this method
@@ -472,7 +567,7 @@ public class GameManager : MonoBehaviour
         {
             // Pick a random bin to receive the new rule.
             // Random selection keeps the rule distribution unpredictable across days.
-            SortingBin targetBin = activeBins[Random.Range(0, activeBins.Count)];
+            SortingBin targetBin = activeBins[UnityEngine.Random.Range(0, activeBins.Count)];
             string targetBinID   = targetBin.GetBinID();
 
             RuleData newRule = ruleGenerator.GenerateSingleRule(
@@ -710,5 +805,164 @@ public class GameManager : MonoBehaviour
         }
 
         return groupedRules;
+    }
+
+    // -------------------------------------------------------------------------
+    // Floor save / restore
+    // -------------------------------------------------------------------------
+
+    /// <summary>
+    /// Builds a FloorSaveData snapshot from the current game state and persists it via FloorSaveSystem.
+    /// Called by OnDaySuccess exactly when all daysPerFloor have been completed.
+    /// Keeps currentFloorSaveData in sync so GenerateNextFloorData() can read accurate values.
+    /// Also resets progression counters so the tower scene starts the player on the next floor.
+    /// </summary>
+    private void SaveCurrentFloor()
+    {
+        if (floorSaveSystem == null)
+        {
+            Debug.LogError("[GameManager] SaveCurrentFloor: floorSaveSystem is not assigned.");
+            return;
+        }
+
+        // Read rulesPerBin and maxRuleComplexity from currentFloorSaveData if available,
+        // otherwise fall back to currentDayData which reflects what was actually used this day.
+        int savedRulesPerBin       = currentFloorSaveData != null
+                                     ? currentFloorSaveData.rulesPerBin
+                                     : currentDayData.rulesPerBin;
+
+        int savedMaxRuleComplexity = currentFloorSaveData != null
+                                     ? currentFloorSaveData.maxRuleComplexity
+                                     : currentDayData.maxRuleComplexity;
+
+        FloorSaveData floorData = new FloorSaveData
+        {
+            floorIndex         = currentFloorIndex,
+            isCompleted        = true,
+            wasGenerated       = currentFloorSaveData != null && currentFloorSaveData.wasGenerated,
+            numberOfBins       = binLayoutManager.GetActiveBinCount(),
+            failThreshold      = profitabilityManager.GetFailThreshold(),
+            dayDuration        = profitabilityManager.GetDayDuration(),
+            decayRatePerSecond = profitabilityManager.GetDecayRate(),
+            rulesPerBin        = savedRulesPerBin,
+            maxRuleComplexity  = savedMaxRuleComplexity,
+            floorSeed          = string.Empty
+        };
+
+        // Convert each active RuleData to its serialisable SavedRuleData form.
+        // RuleType enum values are stored as strings to keep JSON files human-readable
+        // and to avoid breakage if the enum order changes in a future build.
+        foreach (RuleData rule in activeRules)
+        {
+            SavedRuleData savedRule = new SavedRuleData
+            {
+                ruleType       = rule.ruleType.ToString(),
+                conditionA     = rule.conditionA,
+                conditionB     = rule.conditionB,
+                targetBinID    = rule.targetBinID,
+                secondaryBinID = rule.secondaryBinID,
+                displayText    = rule.displayText,
+                complexity     = rule.complexity,
+                isComplement   = rule.isComplement
+            };
+
+            floorData.rules.Add(savedRule);
+
+            // Collect all condition strings as specificities for replay reference.
+            if (!string.IsNullOrEmpty(rule.conditionA) && !floorData.specificities.Contains(rule.conditionA))
+                floorData.specificities.Add(rule.conditionA);
+
+            if (!string.IsNullOrEmpty(rule.conditionB) && !floorData.specificities.Contains(rule.conditionB))
+                floorData.specificities.Add(rule.conditionB);
+        }
+
+        floorSaveSystem.SaveFloor(floorData);
+
+        // Keep currentFloorSaveData pointing at the just-saved snapshot so
+        // OnDaySuccess can immediately pass it to GenerateNextFloorData().
+        currentFloorSaveData = floorData;
+
+        // Advance floor index and reset day counter for the next session.
+        currentDayIndex     = 0;
+        currentFloorIndex++;
+        isFloorBonusApplied = false;
+    }
+
+    /// <summary>
+    /// Restores the game state from a saved FloorSaveData so the player can replay a completed floor.
+    /// Sets all profitability parameters, rebuilds the active rule list from serialised data,
+    /// distributes rules to their matching bins, and starts the day.
+    /// Exact restoration means the same rules, the same bins, and the same difficulty as the original run.
+    /// </summary>
+    /// <param name="saveData">The saved floor data to restore. Must not be null.</param>
+    private void RestoreFloorFromSave(FloorSaveData saveData)
+    {
+        currentFloorIndex   = saveData.floorIndex;
+        currentDayIndex     = 0;
+        isFloorBonusApplied = true; // Floor bonus already encoded in saved parameters — do not re-apply.
+
+        // Apply the saved difficulty parameters directly, bypassing FloorProgressionManager
+        // so the restored session matches the original difficulty exactly.
+        profitabilityManager.SetFailThreshold(saveData.failThreshold);
+        profitabilityManager.SetDayDuration(saveData.dayDuration);
+        profitabilityManager.SetDecayRate(saveData.decayRatePerSecond);
+
+        profitabilityManager.StartDay();
+        dayTimerUI.ResetDisplay();
+
+        profitabilityBarUI.Initialize(
+            profitabilityManager.GetFailThreshold(),
+            profitabilityManager.GetCurrentProfitability());
+
+        // Rebuild the active bin layout to match the saved bin count.
+        currentDayData = difficultyManager.ComputeDayData(currentDayIndex, currentFloorIndex);
+        binLayoutManager.SetActiveBinCount(saveData.numberOfBins);
+
+        List<SortingBin> activeBins   = binLayoutManager.GetActiveBins();
+        List<string> activeBinIDs = ExtractBinIDs(activeBins);
+        ruleGenerator.SetAvailableBins(activeBinIDs);
+
+        // Convert each SavedRuleData back to a full RuleData for validation and display.
+        activeRules = new List<RuleData>();
+
+        foreach (SavedRuleData savedRule in saveData.rules)
+        {
+            // Parse the string back to the enum safely; skip the entry if the string is unrecognised
+            // (e.g. the enum was renamed in a later build) rather than crashing with an exception.
+            bool isParsed = Enum.TryParse(savedRule.ruleType, out RuleType parsedType);
+
+            if (!isParsed)
+            {
+                Debug.LogWarning($"[GameManager] RestoreFloorFromSave: unknown ruleType '{savedRule.ruleType}' — skipped.");
+                continue;
+            }
+
+            RuleData rule = new RuleData
+            {
+                ruleType       = parsedType,
+                conditionA     = savedRule.conditionA,
+                conditionB     = savedRule.conditionB,
+                targetBinID    = savedRule.targetBinID,
+                secondaryBinID = savedRule.secondaryBinID,
+                displayText    = savedRule.displayText,
+                complexity     = savedRule.complexity,
+                isComplement   = savedRule.isComplement
+            };
+
+            activeRules.Add(rule);
+        }
+
+        DistributeRulesToBins(activeRules, activeBins);
+
+        foreach (SortingBin bin in activeBins)
+            bin.SetAllActiveRules(activeRules);
+
+        RefreshBinSubscriptions(activeBins);
+
+        documentSpawner.UpdateActiveRules(activeRules);
+        documentStackManager.ClearStack();
+        documentSpawner.StartDay();
+
+        pendingSummary = new DifficultyChangeSummary();
     }
 }
