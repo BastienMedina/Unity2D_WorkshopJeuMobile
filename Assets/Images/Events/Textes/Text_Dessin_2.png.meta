@@ -1,0 +1,832 @@
+fileFormatVersion: 2
+guid: 62cd3ac4d87efe14d87e6e1a7900529a
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 4916266001264803801
+    second: Feuille_Dessin_2_0
+  - first:
+      213: -6719251443742048772
+    second: Feuille_Dessin_2_1
+  - first:
+      213: 4236815783374206932
+    second: Feuille_Dessin_2_2
+  - first:
+      213: 6598993575258764704
+    second: Feuille_Dessin_2_3
+  - first:
+      213: -6452206110067555300
+    second: Feuille_Dessin_2_4
+  - first:
+      213: -6701606847452304008
+    second: Feuille_Dessin_2_5
+  - first:
+      213: 4817925584848385386
+    second: Feuille_Dessin_2_6
+  - first:
+      213: 715079989521321874
+    second: Feuille_Dessin_2_7
+  - first:
+      213: 3738845093272160948
+    second: Feuille_Dessin_2_8
+  - first:
+      213: -5765616700927600368
+    second: Feuille_Dessin_2_9
+  - first:
+      213: -7683668639562570330
+    second: Feuille_Dessin_2_10
+  - first:
+      213: -4327525533718382375
+    second: Feuille_Dessin_2_11
+  - first:
+      213: -2633070433251109594
+    second: Feuille_Dessin_2_12
+  - first:
+      213: -6150357443835278003
+    second: Feuille_Dessin_2_13
+  - first:
+      213: 3229549469033369581
+    second: Feuille_Dessin_2_14
+  - first:
+      213: -6400339415102305496
+    second: Feuille_Dessin_2_15
+  - first:
+      213: -4003868379784941681
+    second: Feuille_Dessin_2_16
+  - first:
+      213: -2589900915070622066
+    second: Feuille_Dessin_2_17
+  - first:
+      213: -8866924065485946674
+    second: Feuille_Dessin_2_18
+  - first:
+      213: 4393114328349987476
+    second: Feuille_Dessin_2_19
+  - first:
+      213: 3801766399929648334
+    second: Feuille_Dessin_2_20
+  - first:
+      213: -3655295347394858206
+    second: Feuille_Dessin_2_21
+  - first:
+      213: -8807504580490793658
+    second: Feuille_Dessin_2_22
+  - first:
+      213: 5940882330923309744
+    second: Feuille_Dessin_2_23
+  - first:
+      213: -5836241750239736665
+    second: Feuille_Dessin_2_24
+  - first:
+      213: -7020379743335972791
+    second: Feuille_Dessin_2_25
+  - first:
+      213: -6698834394538672508
+    second: Feuille_Dessin_2_26
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Feuille_Dessin_2_0
+      rect:
+        serializedVersion: 2
+        x: 94
+        y: 601
+        width: 27
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9dff7b271e51a3440800000000000000
+      internalID: 4916266001264803801
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Feuille_Dessin_2_1
+      rect:
+        serializedVersion: 2
+        x: 116
+        y: 617
+        width: 30
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cfd793b796c60c2a0800000000000000
+      internalID: -6719251443742048772
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Feuille_Dessin_2_2
+      rect:
+        serializedVersion: 2
+        x: 156
+        y: 620
+        width: 14
+        height: 38
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4d7b9c2e1813cca30800000000000000
+      internalID: 4236815783374206932
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Feuille_Dessin_2_3
+      rect:
+        serializedVersion: 2
+        x: 186
+        y: 620
+        width: 14
+        height: 38
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0a5326891b5549b50800000000000000
+      internalID: 6598993575258764704
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Feuille_Dessin_2_4
+      rect:
+        serializedVersion: 2
+        x: 210
+        y: 617
+        width: 30
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c1481d76ab82576a0800000000000000
+      internalID: -6452206110067555300
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Feuille_Dessin_2_5
+      rect:
+        serializedVersion: 2
+        x: 235
+        y: 601
+        width: 27
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 87da741341c1ff2a0800000000000000
+      internalID: -6701606847452304008
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Feuille_Dessin_2_6
+      rect:
+        serializedVersion: 2
+        x: 63
+        y: 570
+        width: 35
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a65772ffac5bcd240800000000000000
+      internalID: 4817925584848385386
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Feuille_Dessin_2_7
+      rect:
+        serializedVersion: 2
+        x: 99
+        y: 457
+        width: 158
+        height: 153
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 29f886936797ce900800000000000000
+      internalID: 715079989521321874
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Feuille_Dessin_2_8
+      rect:
+        serializedVersion: 2
+        x: 258
+        y: 570
+        width: 35
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4ba03b69dcb03e330800000000000000
+      internalID: 3738845093272160948
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Feuille_Dessin_2_9
+      rect:
+        serializedVersion: 2
+        x: 56
+        y: 543
+        width: 39
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0199626782a6cffa0800000000000000
+      internalID: -5765616700927600368
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Feuille_Dessin_2_10
+      rect:
+        serializedVersion: 2
+        x: 261
+        y: 543
+        width: 39
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6a5601705102e5590800000000000000
+      internalID: -7683668639562570330
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Feuille_Dessin_2_11
+      rect:
+        serializedVersion: 2
+        x: 56
+        y: 510
+        width: 39
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9d8784e847a81f3c0800000000000000
+      internalID: -4327525533718382375
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Feuille_Dessin_2_12
+      rect:
+        serializedVersion: 2
+        x: 261
+        y: 510
+        width: 39
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 625db7d3464757bd0800000000000000
+      internalID: -2633070433251109594
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Feuille_Dessin_2_13
+      rect:
+        serializedVersion: 2
+        x: 63
+        y: 462
+        width: 35
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d4dc486ad7a85aaa0800000000000000
+      internalID: -6150357443835278003
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Feuille_Dessin_2_14
+      rect:
+        serializedVersion: 2
+        x: 94
+        y: 434
+        width: 27
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: def0946912aa1dc20800000000000000
+      internalID: 3229549469033369581
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Feuille_Dessin_2_15
+      rect:
+        serializedVersion: 2
+        x: 235
+        y: 434
+        width: 27
+        height: 32
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 82b45e0663d6d27a0800000000000000
+      internalID: -6400339415102305496
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Feuille_Dessin_2_16
+      rect:
+        serializedVersion: 2
+        x: 258
+        y: 462
+        width: 35
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f8fef770ce66f68c0800000000000000
+      internalID: -4003868379784941681
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Feuille_Dessin_2_17
+      rect:
+        serializedVersion: 2
+        x: 116
+        y: 415
+        width: 30
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e86a1c1f6d2de0cd0800000000000000
+      internalID: -2589900915070622066
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Feuille_Dessin_2_18
+      rect:
+        serializedVersion: 2
+        x: 156
+        y: 409
+        width: 14
+        height: 38
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ec0095a9a8b52f480800000000000000
+      internalID: -8866924065485946674
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Feuille_Dessin_2_19
+      rect:
+        serializedVersion: 2
+        x: 186
+        y: 409
+        width: 14
+        height: 38
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 492daf6b43a77fc30800000000000000
+      internalID: 4393114328349987476
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Feuille_Dessin_2_20
+      rect:
+        serializedVersion: 2
+        x: 210
+        y: 415
+        width: 30
+        height: 35
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ec482dae56692c430800000000000000
+      internalID: 3801766399929648334
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Feuille_Dessin_2_21
+      rect:
+        serializedVersion: 2
+        x: 125
+        y: 221
+        width: 335
+        height: 180
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 22334658f38c54dc0800000000000000
+      internalID: -3655295347394858206
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Feuille_Dessin_2_22
+      rect:
+        serializedVersion: 2
+        x: 135
+        y: 187
+        width: 30
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 64d683a8f3575c580800000000000000
+      internalID: -8807504580490793658
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Feuille_Dessin_2_23
+      rect:
+        serializedVersion: 2
+        x: 165
+        y: 170
+        width: 31
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0ba141bf001427250800000000000000
+      internalID: 5940882330923309744
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Feuille_Dessin_2_24
+      rect:
+        serializedVersion: 2
+        x: 212
+        y: 174
+        width: 46
+        height: 39
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7ac08a5cc01810fa0800000000000000
+      internalID: -5836241750239736665
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Feuille_Dessin_2_25
+      rect:
+        serializedVersion: 2
+        x: 308
+        y: 183
+        width: 30
+        height: 31
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9408c1aa1d9929e90800000000000000
+      internalID: -7020379743335972791
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Feuille_Dessin_2_26
+      rect:
+        serializedVersion: 2
+        x: 400
+        y: 192
+        width: 26
+        height: 25
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 48e7a503c95f803a0800000000000000
+      internalID: -6698834394538672508
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Feuille_Dessin_2_0: 4916266001264803801
+      Feuille_Dessin_2_1: -6719251443742048772
+      Feuille_Dessin_2_10: -7683668639562570330
+      Feuille_Dessin_2_11: -4327525533718382375
+      Feuille_Dessin_2_12: -2633070433251109594
+      Feuille_Dessin_2_13: -6150357443835278003
+      Feuille_Dessin_2_14: 3229549469033369581
+      Feuille_Dessin_2_15: -6400339415102305496
+      Feuille_Dessin_2_16: -4003868379784941681
+      Feuille_Dessin_2_17: -2589900915070622066
+      Feuille_Dessin_2_18: -8866924065485946674
+      Feuille_Dessin_2_19: 4393114328349987476
+      Feuille_Dessin_2_2: 4236815783374206932
+      Feuille_Dessin_2_20: 3801766399929648334
+      Feuille_Dessin_2_21: -3655295347394858206
+      Feuille_Dessin_2_22: -8807504580490793658
+      Feuille_Dessin_2_23: 5940882330923309744
+      Feuille_Dessin_2_24: -5836241750239736665
+      Feuille_Dessin_2_25: -7020379743335972791
+      Feuille_Dessin_2_26: -6698834394538672508
+      Feuille_Dessin_2_3: 6598993575258764704
+      Feuille_Dessin_2_4: -6452206110067555300
+      Feuille_Dessin_2_5: -6701606847452304008
+      Feuille_Dessin_2_6: 4817925584848385386
+      Feuille_Dessin_2_7: 715079989521321874
+      Feuille_Dessin_2_8: 3738845093272160948
+      Feuille_Dessin_2_9: -5765616700927600368
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -1,0 +1,6032 @@
+fileFormatVersion: 2
+guid: 86dfc96cd3e52324daf64d5075a01cde
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -2184894294192587571
+    second: Text_Machine_1_0
+  - first:
+      213: -5976213170559691492
+    second: Text_Machine_1_1
+  - first:
+      213: 3927700115542111873
+    second: Text_Machine_1_2
+  - first:
+      213: -3549696204596752205
+    second: Text_Machine_1_3
+  - first:
+      213: -619722498129439179
+    second: Text_Machine_1_4
+  - first:
+      213: -3037341534681484885
+    second: Text_Machine_1_5
+  - first:
+      213: 1001103791453346989
+    second: Text_Machine_1_6
+  - first:
+      213: -2537696898784967987
+    second: Text_Machine_1_7
+  - first:
+      213: -4607467610272679803
+    second: Text_Machine_1_8
+  - first:
+      213: -5836911612150331227
+    second: Text_Machine_1_9
+  - first:
+      213: 90945630605328404
+    second: Text_Machine_1_10
+  - first:
+      213: -3550626826716877577
+    second: Text_Machine_1_11
+  - first:
+      213: 1434704212714391162
+    second: Text_Machine_1_12
+  - first:
+      213: 8020009819407881769
+    second: Text_Machine_1_13
+  - first:
+      213: -1545412392158165400
+    second: Text_Machine_1_14
+  - first:
+      213: -5032312038468323669
+    second: Text_Machine_1_15
+  - first:
+      213: -729897404832617890
+    second: Text_Machine_1_16
+  - first:
+      213: -4956156245316513869
+    second: Text_Machine_1_17
+  - first:
+      213: 1065933221756840740
+    second: Text_Machine_1_18
+  - first:
+      213: -752797439599611171
+    second: Text_Machine_1_19
+  - first:
+      213: -3821316022199916455
+    second: Text_Machine_1_20
+  - first:
+      213: 8168621136000258141
+    second: Text_Machine_1_21
+  - first:
+      213: 645433423172114552
+    second: Text_Machine_1_22
+  - first:
+      213: -4679296486218443699
+    second: Text_Machine_1_23
+  - first:
+      213: 6730430380795464708
+    second: Text_Machine_1_24
+  - first:
+      213: -6941540162062429041
+    second: Text_Machine_1_25
+  - first:
+      213: -3613447603146246362
+    second: Text_Machine_1_26
+  - first:
+      213: 2172638343658730152
+    second: Text_Machine_1_27
+  - first:
+      213: -7243005768655245047
+    second: Text_Machine_1_28
+  - first:
+      213: -4830885565310937987
+    second: Text_Machine_1_29
+  - first:
+      213: 6286235411356321341
+    second: Text_Machine_1_30
+  - first:
+      213: 1986309108091268124
+    second: Text_Machine_1_31
+  - first:
+      213: -3841894099284831117
+    second: Text_Machine_1_32
+  - first:
+      213: -2272001001436589686
+    second: Text_Machine_1_33
+  - first:
+      213: 4554010532757863314
+    second: Text_Machine_1_34
+  - first:
+      213: 3684032517974495249
+    second: Text_Machine_1_35
+  - first:
+      213: -2428168333818845139
+    second: Text_Machine_1_36
+  - first:
+      213: -7234992716666650096
+    second: Text_Machine_1_37
+  - first:
+      213: 1524151881465027433
+    second: Text_Machine_1_38
+  - first:
+      213: 870194961551724905
+    second: Text_Machine_1_39
+  - first:
+      213: 1231318513540856518
+    second: Text_Machine_1_40
+  - first:
+      213: -2051410476500902278
+    second: Text_Machine_1_41
+  - first:
+      213: 586986195318312677
+    second: Text_Machine_1_42
+  - first:
+      213: -8063850899515479228
+    second: Text_Machine_1_43
+  - first:
+      213: -3240758932755716907
+    second: Text_Machine_1_44
+  - first:
+      213: -4568475078416550923
+    second: Text_Machine_1_45
+  - first:
+      213: 2652239009181972305
+    second: Text_Machine_1_46
+  - first:
+      213: -2465046168882796663
+    second: Text_Machine_1_47
+  - first:
+      213: -6205026331230013664
+    second: Text_Machine_1_48
+  - first:
+      213: 1268688768724915486
+    second: Text_Machine_1_49
+  - first:
+      213: 3034574255728175155
+    second: Text_Machine_1_50
+  - first:
+      213: -6522312497056426310
+    second: Text_Machine_1_51
+  - first:
+      213: 4465162358946260528
+    second: Text_Machine_1_52
+  - first:
+      213: -7879293866422147717
+    second: Text_Machine_1_53
+  - first:
+      213: -8403364405906670683
+    second: Text_Machine_1_54
+  - first:
+      213: 3195857606675548966
+    second: Text_Machine_1_55
+  - first:
+      213: -5234900701565311168
+    second: Text_Machine_1_56
+  - first:
+      213: -4975249908834238534
+    second: Text_Machine_1_57
+  - first:
+      213: 5072745772479120909
+    second: Text_Machine_1_58
+  - first:
+      213: -6878226212986101698
+    second: Text_Machine_1_59
+  - first:
+      213: 3604541866063052966
+    second: Text_Machine_1_60
+  - first:
+      213: -1657963499997536421
+    second: Text_Machine_1_61
+  - first:
+      213: -2749635724689997548
+    second: Text_Machine_1_62
+  - first:
+      213: 4163793620578064455
+    second: Text_Machine_1_63
+  - first:
+      213: 8877571778154145198
+    second: Text_Machine_1_64
+  - first:
+      213: 4130842945265120922
+    second: Text_Machine_1_65
+  - first:
+      213: 3371609163429110296
+    second: Text_Machine_1_66
+  - first:
+      213: 2732223510680169764
+    second: Text_Machine_1_67
+  - first:
+      213: -195127498959969338
+    second: Text_Machine_1_68
+  - first:
+      213: -4520087233127457505
+    second: Text_Machine_1_69
+  - first:
+      213: -1638829854812146330
+    second: Text_Machine_1_70
+  - first:
+      213: 3077258341910844947
+    second: Text_Machine_1_71
+  - first:
+      213: -987679033968980511
+    second: Text_Machine_1_72
+  - first:
+      213: 7331170150456832980
+    second: Text_Machine_1_73
+  - first:
+      213: 5862895379968653201
+    second: Text_Machine_1_74
+  - first:
+      213: -8578614162065666109
+    second: Text_Machine_1_75
+  - first:
+      213: 1038693082489003318
+    second: Text_Machine_1_76
+  - first:
+      213: -2441410267992283363
+    second: Text_Machine_1_77
+  - first:
+      213: -1756783283300851611
+    second: Text_Machine_1_78
+  - first:
+      213: -8397885998316668410
+    second: Text_Machine_1_79
+  - first:
+      213: 6940270247758930864
+    second: Text_Machine_1_80
+  - first:
+      213: -7885678406296561666
+    second: Text_Machine_1_81
+  - first:
+      213: 2988256089688369963
+    second: Text_Machine_1_82
+  - first:
+      213: 6729778394184508312
+    second: Text_Machine_1_83
+  - first:
+      213: 5100085489238124548
+    second: Text_Machine_1_84
+  - first:
+      213: 5176902477297743681
+    second: Text_Machine_1_85
+  - first:
+      213: 8623659379397935379
+    second: Text_Machine_1_86
+  - first:
+      213: -3530414467380418517
+    second: Text_Machine_1_87
+  - first:
+      213: 6290424566345721873
+    second: Text_Machine_1_88
+  - first:
+      213: 7688354267083154461
+    second: Text_Machine_1_89
+  - first:
+      213: 876734429657419805
+    second: Text_Machine_1_90
+  - first:
+      213: 3145240357093189725
+    second: Text_Machine_1_91
+  - first:
+      213: 4357880063191129564
+    second: Text_Machine_1_92
+  - first:
+      213: -2789842660207172063
+    second: Text_Machine_1_93
+  - first:
+      213: -8680960185321057365
+    second: Text_Machine_1_94
+  - first:
+      213: -4893586629602734646
+    second: Text_Machine_1_95
+  - first:
+      213: 1327904550510806957
+    second: Text_Machine_1_96
+  - first:
+      213: -6487657162170048137
+    second: Text_Machine_1_97
+  - first:
+      213: 5452174870988217799
+    second: Text_Machine_1_98
+  - first:
+      213: 5693341891269046639
+    second: Text_Machine_1_99
+  - first:
+      213: 7166712224128951859
+    second: Text_Machine_1_100
+  - first:
+      213: -412302919726681192
+    second: Text_Machine_1_101
+  - first:
+      213: 8009283753211541153
+    second: Text_Machine_1_102
+  - first:
+      213: 3152387596398044299
+    second: Text_Machine_1_103
+  - first:
+      213: -4581524963209366259
+    second: Text_Machine_1_104
+  - first:
+      213: 4259205679369563930
+    second: Text_Machine_1_105
+  - first:
+      213: -741056112313411416
+    second: Text_Machine_1_106
+  - first:
+      213: -3850451901927988934
+    second: Text_Machine_1_107
+  - first:
+      213: 5410265221751573700
+    second: Text_Machine_1_108
+  - first:
+      213: -944459558533539635
+    second: Text_Machine_1_109
+  - first:
+      213: 8136366815578176073
+    second: Text_Machine_1_110
+  - first:
+      213: 725472591598848594
+    second: Text_Machine_1_111
+  - first:
+      213: 428999804894887505
+    second: Text_Machine_1_112
+  - first:
+      213: 8866377598420144101
+    second: Text_Machine_1_113
+  - first:
+      213: -278867545007487408
+    second: Text_Machine_1_114
+  - first:
+      213: 1718186178726967037
+    second: Text_Machine_1_115
+  - first:
+      213: -6951381248673408292
+    second: Text_Machine_1_116
+  - first:
+      213: -2139039092041161651
+    second: Text_Machine_1_117
+  - first:
+      213: 4136870425122951127
+    second: Text_Machine_1_118
+  - first:
+      213: -2699737388026521301
+    second: Text_Machine_1_119
+  - first:
+      213: -7286046532298425263
+    second: Text_Machine_1_120
+  - first:
+      213: -870975359164727135
+    second: Text_Machine_1_121
+  - first:
+      213: -4135554732253789268
+    second: Text_Machine_1_122
+  - first:
+      213: 1133172852653946788
+    second: Text_Machine_1_123
+  - first:
+      213: 2725779948157885464
+    second: Text_Machine_1_124
+  - first:
+      213: -8474852499066424134
+    second: Text_Machine_1_125
+  - first:
+      213: -7520120532104761601
+    second: Text_Machine_1_126
+  - first:
+      213: 4416870484505503468
+    second: Text_Machine_1_127
+  - first:
+      213: 3567759788839979760
+    second: Text_Machine_1_128
+  - first:
+      213: 7286539747961041466
+    second: Text_Machine_1_129
+  - first:
+      213: 2533519871625573198
+    second: Text_Machine_1_130
+  - first:
+      213: -4472549822540283044
+    second: Text_Machine_1_131
+  - first:
+      213: 3078110960804716705
+    second: Text_Machine_1_132
+  - first:
+      213: 5837472186302552007
+    second: Text_Machine_1_133
+  - first:
+      213: 1927521719256945286
+    second: Text_Machine_1_134
+  - first:
+      213: 5639848305805562905
+    second: Text_Machine_1_135
+  - first:
+      213: 1306889665916277676
+    second: Text_Machine_1_136
+  - first:
+      213: -7034532173138613827
+    second: Text_Machine_1_137
+  - first:
+      213: 8428357092939159770
+    second: Text_Machine_1_138
+  - first:
+      213: -3722936154771804707
+    second: Text_Machine_1_139
+  - first:
+      213: 7205216969276255884
+    second: Text_Machine_1_140
+  - first:
+      213: 1313814321383289634
+    second: Text_Machine_1_141
+  - first:
+      213: 7159813554710704641
+    second: Text_Machine_1_142
+  - first:
+      213: 4614918222625567965
+    second: Text_Machine_1_143
+  - first:
+      213: -8199378204654209577
+    second: Text_Machine_1_144
+  - first:
+      213: -6824725215316918113
+    second: Text_Machine_1_145
+  - first:
+      213: 477623382128334151
+    second: Text_Machine_1_146
+  - first:
+      213: 2830525958293749256
+    second: Text_Machine_1_147
+  - first:
+      213: 66655154273816403
+    second: Text_Machine_1_148
+  - first:
+      213: -8943536075723831908
+    second: Text_Machine_1_149
+  - first:
+      213: -6241510244365760954
+    second: Text_Machine_1_150
+  - first:
+      213: -2866433327123696124
+    second: Text_Machine_1_151
+  - first:
+      213: -3153057090481248919
+    second: Text_Machine_1_152
+  - first:
+      213: 8490352403165904595
+    second: Text_Machine_1_153
+  - first:
+      213: 8055747942427715165
+    second: Text_Machine_1_154
+  - first:
+      213: -7411564779809738129
+    second: Text_Machine_1_155
+  - first:
+      213: 1015083126341234757
+    second: Text_Machine_1_156
+  - first:
+      213: 8688915892865315886
+    second: Text_Machine_1_157
+  - first:
+      213: 271628223262191690
+    second: Text_Machine_1_158
+  - first:
+      213: 136596922300166933
+    second: Text_Machine_1_159
+  - first:
+      213: 7270142979611579359
+    second: Text_Machine_1_160
+  - first:
+      213: -6735158308043225489
+    second: Text_Machine_1_161
+  - first:
+      213: -6785920701446002565
+    second: Text_Machine_1_162
+  - first:
+      213: -547931428477014295
+    second: Text_Machine_1_163
+  - first:
+      213: 1388467203116047345
+    second: Text_Machine_1_164
+  - first:
+      213: 2328664834690596187
+    second: Text_Machine_1_165
+  - first:
+      213: 3388130986356320779
+    second: Text_Machine_1_166
+  - first:
+      213: -7253174110040328456
+    second: Text_Machine_1_167
+  - first:
+      213: 3165206337584292357
+    second: Text_Machine_1_168
+  - first:
+      213: -8378145191361254892
+    second: Text_Machine_1_169
+  - first:
+      213: -2743294135472357531
+    second: Text_Machine_1_170
+  - first:
+      213: -7956074304103039183
+    second: Text_Machine_1_171
+  - first:
+      213: 2996526204521115928
+    second: Text_Machine_1_172
+  - first:
+      213: -7391382294591322767
+    second: Text_Machine_1_173
+  - first:
+      213: -37157417543723880
+    second: Text_Machine_1_174
+  - first:
+      213: 987444869070956813
+    second: Text_Machine_1_175
+  - first:
+      213: 4968612524815000657
+    second: Text_Machine_1_176
+  - first:
+      213: 2776399718751575236
+    second: Text_Machine_1_177
+  - first:
+      213: 4857876682160621195
+    second: Text_Machine_1_178
+  - first:
+      213: -339182214160172775
+    second: Text_Machine_1_179
+  - first:
+      213: 2056424621106336332
+    second: Text_Machine_1_180
+  - first:
+      213: 2367435166195019290
+    second: Text_Machine_1_181
+  - first:
+      213: -4989793513204927264
+    second: Text_Machine_1_182
+  - first:
+      213: 2541483929957494626
+    second: Text_Machine_1_183
+  - first:
+      213: 7957872499578185233
+    second: Text_Machine_1_184
+  - first:
+      213: 3366947467463312400
+    second: Text_Machine_1_185
+  - first:
+      213: 4958885418151250214
+    second: Text_Machine_1_186
+  - first:
+      213: -5250587957550777149
+    second: Text_Machine_1_187
+  - first:
+      213: -6763719798397174981
+    second: Text_Machine_1_188
+  - first:
+      213: 175533041763879934
+    second: Text_Machine_1_189
+  - first:
+      213: -2746167070855457082
+    second: Text_Machine_1_190
+  - first:
+      213: -6568933472797936054
+    second: Text_Machine_1_191
+  - first:
+      213: -5719341049901119752
+    second: Text_Machine_1_192
+  - first:
+      213: -9086009726702969715
+    second: Text_Machine_1_193
+  - first:
+      213: 8478281055865112607
+    second: Text_Machine_1_194
+  - first:
+      213: 6042651076369230075
+    second: Text_Machine_1_195
+  - first:
+      213: -630363852470074955
+    second: Text_Machine_1_196
+  - first:
+      213: 8509300576711251129
+    second: Text_Machine_1_197
+  - first:
+      213: -2890015137045582187
+    second: Text_Machine_1_198
+  - first:
+      213: 2601813894723371966
+    second: Text_Machine_1_199
+  - first:
+      213: 7738049656884852460
+    second: Text_Machine_1_200
+  - first:
+      213: 9158498398414003351
+    second: Text_Machine_1_201
+  - first:
+      213: 5236281466217081041
+    second: Text_Machine_1_202
+  - first:
+      213: 5779289766971433555
+    second: Text_Machine_1_203
+  - first:
+      213: 6674222155757358047
+    second: Text_Machine_1_204
+  - first:
+      213: -1622860363185669909
+    second: Text_Machine_1_205
+  - first:
+      213: -4203021710786488454
+    second: Text_Machine_1_206
+  - first:
+      213: -6709594422938426312
+    second: Text_Machine_1_207
+  - first:
+      213: 6803474835394619965
+    second: Text_Machine_1_208
+  - first:
+      213: -7041940446414067136
+    second: Text_Machine_1_209
+  - first:
+      213: 8949483675249361502
+    second: Text_Machine_1_210
+  - first:
+      213: 3400734088030616288
+    second: Text_Machine_1_211
+  - first:
+      213: -7788354651531404324
+    second: Text_Machine_1_212
+  - first:
+      213: 3032014466169970629
+    second: Text_Machine_1_213
+  - first:
+      213: -74182002685388617
+    second: Text_Machine_1_214
+  - first:
+      213: 2095885502067407325
+    second: Text_Machine_1_215
+  - first:
+      213: 8593094433288684919
+    second: Text_Machine_1_216
+  - first:
+      213: 1418503985023269063
+    second: Text_Machine_1_217
+  - first:
+      213: -6299794698351572960
+    second: Text_Machine_1_218
+  - first:
+      213: 7258862446806438645
+    second: Text_Machine_1_219
+  - first:
+      213: -2679189802974227020
+    second: Text_Machine_1_220
+  - first:
+      213: 1108333571349449673
+    second: Text_Machine_1_221
+  - first:
+      213: 7985008552536859159
+    second: Text_Machine_1_222
+  - first:
+      213: 4240753380461326869
+    second: Text_Machine_1_223
+  - first:
+      213: 5128617445300621470
+    second: Text_Machine_1_224
+  - first:
+      213: 7554617764739819987
+    second: Text_Machine_1_225
+  - first:
+      213: 5077078790799103921
+    second: Text_Machine_1_226
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 1
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Text_Machine_1_0
+      rect:
+        serializedVersion: 2
+        x: 236
+        y: 696
+        width: 37
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dcc7fda2732bda1e0800000000000000
+      internalID: -2184894294192587571
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_1
+      rect:
+        serializedVersion: 2
+        x: 256
+        y: 685
+        width: 32
+        height: 20
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c1557c2e8c9301da0800000000000000
+      internalID: -5976213170559691492
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_2
+      rect:
+        serializedVersion: 2
+        x: 285
+        y: 698
+        width: 70
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 186f52bf17ef18630800000000000000
+      internalID: 3927700115542111873
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_3
+      rect:
+        serializedVersion: 2
+        x: 358
+        y: 698
+        width: 17
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3b05578eb12fcbec0800000000000000
+      internalID: -3549696204596752205
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_4
+      rect:
+        serializedVersion: 2
+        x: 378
+        y: 698
+        width: 78
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5365dafdbad4667f0800000000000000
+      internalID: -619722498129439179
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_5
+      rect:
+        serializedVersion: 2
+        x: 185
+        y: 685
+        width: 31
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ba135cb77f139d5d0800000000000000
+      internalID: -3037341534681484885
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_6
+      rect:
+        serializedVersion: 2
+        x: 219
+        y: 685
+        width: 40
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dac9fd02892a4ed00800000000000000
+      internalID: 1001103791453346989
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_7
+      rect:
+        serializedVersion: 2
+        x: 291
+        y: 683
+        width: 69
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dc2cf48ad1a48ccd0800000000000000
+      internalID: -2537696898784967987
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_8
+      rect:
+        serializedVersion: 2
+        x: 364
+        y: 685
+        width: 16
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 588349fae9cfe00c0800000000000000
+      internalID: -4607467610272679803
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_9
+      rect:
+        serializedVersion: 2
+        x: 384
+        y: 685
+        width: 49
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5a84d6460df1ffea0800000000000000
+      internalID: -5836911612150331227
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_10
+      rect:
+        serializedVersion: 2
+        x: 430
+        y: 685
+        width: 32
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 410ca16b19a134100800000000000000
+      internalID: 90945630605328404
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_11
+      rect:
+        serializedVersion: 2
+        x: 47
+        y: 613
+        width: 27
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7fc619f86b3a9bec0800000000000000
+      internalID: -3550626826716877577
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_12
+      rect:
+        serializedVersion: 2
+        x: 72
+        y: 613
+        width: 17
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a76099c41e719e310800000000000000
+      internalID: 1434704212714391162
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_13
+      rect:
+        serializedVersion: 2
+        x: 93
+        y: 613
+        width: 12
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 92693fc507ccc4f60800000000000000
+      internalID: 8020009819407881769
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_14
+      rect:
+        serializedVersion: 2
+        x: 108
+        y: 613
+        width: 11
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8660de50e979d8ae0800000000000000
+      internalID: -1545412392158165400
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_15
+      rect:
+        serializedVersion: 2
+        x: 117
+        y: 613
+        width: 56
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ba67c240dd2a92ab0800000000000000
+      internalID: -5032312038468323669
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_16
+      rect:
+        serializedVersion: 2
+        x: 177
+        y: 610
+        width: 84
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e5ae87e6d22eed5f0800000000000000
+      internalID: -729897404832617890
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_17
+      rect:
+        serializedVersion: 2
+        x: 265
+        y: 613
+        width: 18
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3bf439a5722383bb0800000000000000
+      internalID: -4956156245316513869
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_18
+      rect:
+        serializedVersion: 2
+        x: 287
+        y: 613
+        width: 43
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 42baa1d1e94face00800000000000000
+      internalID: 1065933221756840740
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_19
+      rect:
+        serializedVersion: 2
+        x: 334
+        y: 613
+        width: 56
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dd277d897b68d85f0800000000000000
+      internalID: -752797439599611171
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_20
+      rect:
+        serializedVersion: 2
+        x: 388
+        y: 611
+        width: 7
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 958e342f255f7fac0800000000000000
+      internalID: -3821316022199916455
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_21
+      rect:
+        serializedVersion: 2
+        x: 47
+        y: 598
+        width: 35
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d501b0cd4a5cc5170800000000000000
+      internalID: 8168621136000258141
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_22
+      rect:
+        serializedVersion: 2
+        x: 86
+        y: 598
+        width: 36
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 878965a574a05f800800000000000000
+      internalID: 645433423172114552
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_23
+      rect:
+        serializedVersion: 2
+        x: 126
+        y: 598
+        width: 76
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d44573443accf0fb0800000000000000
+      internalID: -4679296486218443699
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_24
+      rect:
+        serializedVersion: 2
+        x: 206
+        y: 595
+        width: 11
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 40c8fc0a5ca476d50800000000000000
+      internalID: 6730430380795464708
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_25
+      rect:
+        serializedVersion: 2
+        x: 215
+        y: 598
+        width: 19
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f84592e1002baaf90800000000000000
+      internalID: -6941540162062429041
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_26
+      rect:
+        serializedVersion: 2
+        x: 238
+        y: 598
+        width: 26
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6273bffbc847addc0800000000000000
+      internalID: -3613447603146246362
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_27
+      rect:
+        serializedVersion: 2
+        x: 262
+        y: 598
+        width: 19
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8a2fb2bff03c62e10800000000000000
+      internalID: 2172638343658730152
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_28
+      rect:
+        serializedVersion: 2
+        x: 279
+        y: 598
+        width: 25
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 901f235e0acab7b90800000000000000
+      internalID: -7243005768655245047
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_29
+      rect:
+        serializedVersion: 2
+        x: 308
+        y: 598
+        width: 25
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d7454196c2f35fcb0800000000000000
+      internalID: -4830885565310937987
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_30
+      rect:
+        serializedVersion: 2
+        x: 47
+        y: 584
+        width: 27
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d36006cfcc13d3750800000000000000
+      internalID: 6286235411356321341
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_31
+      rect:
+        serializedVersion: 2
+        x: 72
+        y: 584
+        width: 68
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c1c27e12c99c09b10800000000000000
+      internalID: 1986309108091268124
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_32
+      rect:
+        serializedVersion: 2
+        x: 138
+        y: 584
+        width: 10
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 37455730ca9deaac0800000000000000
+      internalID: -3841894099284831117
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_33
+      rect:
+        serializedVersion: 2
+        x: 152
+        y: 584
+        width: 19
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a815a04702b3870e0800000000000000
+      internalID: -2272001001436589686
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_34
+      rect:
+        serializedVersion: 2
+        x: 175
+        y: 584
+        width: 43
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 29b7b6c8378133f30800000000000000
+      internalID: 4554010532757863314
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_35
+      rect:
+        serializedVersion: 2
+        x: 222
+        y: 584
+        width: 18
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1109bd66e00502330800000000000000
+      internalID: 3684032517974495249
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_36
+      rect:
+        serializedVersion: 2
+        x: 244
+        y: 584
+        width: 85
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d2820efe3c96d4ed0800000000000000
+      internalID: -2428168333818845139
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_37
+      rect:
+        serializedVersion: 2
+        x: 47
+        y: 570
+        width: 43
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 012cb82f474289b90800000000000000
+      internalID: -7234992716666650096
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_38
+      rect:
+        serializedVersion: 2
+        x: 87
+        y: 568
+        width: 79
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 96b57769f00e62510800000000000000
+      internalID: 1524151881465027433
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_39
+      rect:
+        serializedVersion: 2
+        x: 171
+        y: 570
+        width: 35
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 96110a005bd831c00800000000000000
+      internalID: 870194961551724905
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_40
+      rect:
+        serializedVersion: 2
+        x: 210
+        y: 570
+        width: 11
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6caf6fc0aa5861110800000000000000
+      internalID: 1231318513540856518
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_41
+      rect:
+        serializedVersion: 2
+        x: 218
+        y: 570
+        width: 47
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a7e16ab5a0de783e0800000000000000
+      internalID: -2051410476500902278
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_42
+      rect:
+        serializedVersion: 2
+        x: 262
+        y: 570
+        width: 18
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5ee810ca5d4652800800000000000000
+      internalID: 586986195318312677
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_43
+      rect:
+        serializedVersion: 2
+        x: 284
+        y: 570
+        width: 18
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 44b6aacb452771090800000000000000
+      internalID: -8063850899515479228
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_44
+      rect:
+        serializedVersion: 2
+        x: 306
+        y: 570
+        width: 19
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5d4eb62cbe28603d0800000000000000
+      internalID: -3240758932755716907
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_45
+      rect:
+        serializedVersion: 2
+        x: 47
+        y: 555
+        width: 69
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5f3b1c9fe148990c0800000000000000
+      internalID: -4568475078416550923
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_46
+      rect:
+        serializedVersion: 2
+        x: 114
+        y: 555
+        width: 34
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 157b9b1a355aec420800000000000000
+      internalID: 2652239009181972305
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_47
+      rect:
+        serializedVersion: 2
+        x: 152
+        y: 555
+        width: 18
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 987adccd1956acdd0800000000000000
+      internalID: -2465046168882796663
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_48
+      rect:
+        serializedVersion: 2
+        x: 174
+        y: 555
+        width: 19
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 027f6196d6153e9a0800000000000000
+      internalID: -6205026331230013664
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_49
+      rect:
+        serializedVersion: 2
+        x: 196
+        y: 555
+        width: 52
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e15506e96b94b9110800000000000000
+      internalID: 1268688768724915486
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_50
+      rect:
+        serializedVersion: 2
+        x: 246
+        y: 555
+        width: 17
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 338293d2539fc1a20800000000000000
+      internalID: 3034574255728175155
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_51
+      rect:
+        serializedVersion: 2
+        x: 268
+        y: 555
+        width: 26
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ab65cd237571c75a0800000000000000
+      internalID: -6522312497056426310
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_52
+      rect:
+        serializedVersion: 2
+        x: 292
+        y: 555
+        width: 46
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 036ef6d028177fd30800000000000000
+      internalID: 4465162358946260528
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_53
+      rect:
+        serializedVersion: 2
+        x: 47
+        y: 541
+        width: 41
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b756efa89ff17a290800000000000000
+      internalID: -7879293866422147717
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_54
+      rect:
+        serializedVersion: 2
+        x: 92
+        y: 541
+        width: 85
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5ab75c38890416b80800000000000000
+      internalID: -8403364405906670683
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_55
+      rect:
+        serializedVersion: 2
+        x: 180
+        y: 541
+        width: 19
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 62b40a69f87f95c20800000000000000
+      internalID: 3195857606675548966
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_56
+      rect:
+        serializedVersion: 2
+        x: 204
+        y: 538
+        width: 53
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 047a1c03c85e957b0800000000000000
+      internalID: -5234900701565311168
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_57
+      rect:
+        serializedVersion: 2
+        x: 261
+        y: 541
+        width: 34
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: abff323619c54fab0800000000000000
+      internalID: -4975249908834238534
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_58
+      rect:
+        serializedVersion: 2
+        x: 299
+        y: 541
+        width: 81
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d068b7c4763066640800000000000000
+      internalID: 5072745772479120909
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_59
+      rect:
+        serializedVersion: 2
+        x: 47
+        y: 526
+        width: 44
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e30ee22a3b1ab80a0800000000000000
+      internalID: -6878226212986101698
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_60
+      rect:
+        serializedVersion: 2
+        x: 95
+        y: 526
+        width: 57
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6a046b0cab7e50230800000000000000
+      internalID: 3604541866063052966
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_61
+      rect:
+        serializedVersion: 2
+        x: 150
+        y: 526
+        width: 19
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b5f55142bfabdf8e0800000000000000
+      internalID: -1657963499997536421
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_62
+      rect:
+        serializedVersion: 2
+        x: 173
+        y: 523
+        width: 11
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 411012860e457d9d0800000000000000
+      internalID: -2749635724689997548
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_63
+      rect:
+        serializedVersion: 2
+        x: 181
+        y: 526
+        width: 12
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 748d798bc34c8c930800000000000000
+      internalID: 4163793620578064455
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_64
+      rect:
+        serializedVersion: 2
+        x: 191
+        y: 526
+        width: 14
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ea529e03f78733b70800000000000000
+      internalID: 8877571778154145198
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_65
+      rect:
+        serializedVersion: 2
+        x: 209
+        y: 523
+        width: 52
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a96b477c5c3b35930800000000000000
+      internalID: 4130842945265120922
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_66
+      rect:
+        serializedVersion: 2
+        x: 265
+        y: 526
+        width: 20
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 812e4ababac5ace20800000000000000
+      internalID: 3371609163429110296
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_67
+      rect:
+        serializedVersion: 2
+        x: 289
+        y: 526
+        width: 45
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 42def099ececae520800000000000000
+      internalID: 2732223510680169764
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_68
+      rect:
+        serializedVersion: 2
+        x: 331
+        y: 526
+        width: 10
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6c3a492d294ca4df0800000000000000
+      internalID: -195127498959969338
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_69
+      rect:
+        serializedVersion: 2
+        x: 345
+        y: 526
+        width: 20
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f1dd8a32c9c6541c0800000000000000
+      internalID: -4520087233127457505
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_70
+      rect:
+        serializedVersion: 2
+        x: 368
+        y: 526
+        width: 18
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 665fd901ee4b149e0800000000000000
+      internalID: -1638829854812146330
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_71
+      rect:
+        serializedVersion: 2
+        x: 47
+        y: 512
+        width: 56
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 31614bf682e94ba20800000000000000
+      internalID: 3077258341910844947
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_72
+      rect:
+        serializedVersion: 2
+        x: 107
+        y: 512
+        width: 11
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1ed8d2cc62f0b42f0800000000000000
+      internalID: -987679033968980511
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_73
+      rect:
+        serializedVersion: 2
+        x: 116
+        y: 512
+        width: 29
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4d33dedd86c8db560800000000000000
+      internalID: 7331170150456832980
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_74
+      rect:
+        serializedVersion: 2
+        x: 149
+        y: 512
+        width: 25
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1977f4ef8403d5150800000000000000
+      internalID: 5862895379968653201
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_75
+      rect:
+        serializedVersion: 2
+        x: 178
+        y: 512
+        width: 62
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3cfc0fcfed3a2f880800000000000000
+      internalID: -8578614162065666109
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_76
+      rect:
+        serializedVersion: 2
+        x: 244
+        y: 512
+        width: 43
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 63d9964fadd2a6e00800000000000000
+      internalID: 1038693082489003318
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_77
+      rect:
+        serializedVersion: 2
+        x: 292
+        y: 512
+        width: 67
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d172451eb4e5e1ed0800000000000000
+      internalID: -2441410267992283363
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_78
+      rect:
+        serializedVersion: 2
+        x: 364
+        y: 512
+        width: 35
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 560228369e6ae97e0800000000000000
+      internalID: -1756783283300851611
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_79
+      rect:
+        serializedVersion: 2
+        x: 47
+        y: 498
+        width: 26
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 60abb1ead27b47b80800000000000000
+      internalID: -8397885998316668410
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_80
+      rect:
+        serializedVersion: 2
+        x: 77
+        y: 498
+        width: 26
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0b322eae40bc05060800000000000000
+      internalID: 6940270247758930864
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_81
+      rect:
+        serializedVersion: 2
+        x: 101
+        y: 498
+        width: 10
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ef799b30541709290800000000000000
+      internalID: -7885678406296561666
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_82
+      rect:
+        serializedVersion: 2
+        x: 115
+        y: 498
+        width: 28
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b2be5c3c41b687920800000000000000
+      internalID: 2988256089688369963
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_83
+      rect:
+        serializedVersion: 2
+        x: 147
+        y: 498
+        width: 55
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 893677a2bc9f46d50800000000000000
+      internalID: 6729778394184508312
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_84
+      rect:
+        serializedVersion: 2
+        x: 47
+        y: 469
+        width: 37
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 408a9262bb427c640800000000000000
+      internalID: 5100085489238124548
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_85
+      rect:
+        serializedVersion: 2
+        x: 88
+        y: 469
+        width: 18
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 147fb2cef5d08d740800000000000000
+      internalID: 5176902477297743681
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_86
+      rect:
+        serializedVersion: 2
+        x: 110
+        y: 469
+        width: 26
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 311caf4f3846da770800000000000000
+      internalID: 8623659379397935379
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_87
+      rect:
+        serializedVersion: 2
+        x: 140
+        y: 469
+        width: 19
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b28e3e13fb2710fc0800000000000000
+      internalID: -3530414467380418517
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_88
+      rect:
+        serializedVersion: 2
+        x: 163
+        y: 469
+        width: 18
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1186d63a0d31c4750800000000000000
+      internalID: 6290424566345721873
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_89
+      rect:
+        serializedVersion: 2
+        x: 185
+        y: 469
+        width: 56
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d14a9d4a87582ba60800000000000000
+      internalID: 7688354267083154461
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_90
+      rect:
+        serializedVersion: 2
+        x: 245
+        y: 469
+        width: 19
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d10d5129159ca2c00800000000000000
+      internalID: 876734429657419805
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_91
+      rect:
+        serializedVersion: 2
+        x: 268
+        y: 466
+        width: 77
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d5823c9c07326ab20800000000000000
+      internalID: 3145240357093189725
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_92
+      rect:
+        serializedVersion: 2
+        x: 342
+        y: 469
+        width: 11
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cdd934414dc4a7c30800000000000000
+      internalID: 4357880063191129564
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_93
+      rect:
+        serializedVersion: 2
+        x: 357
+        y: 466
+        width: 26
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 126ee1bb1ec7849d0800000000000000
+      internalID: -2789842660207172063
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_94
+      rect:
+        serializedVersion: 2
+        x: 387
+        y: 469
+        width: 11
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ba311a484b8078780800000000000000
+      internalID: -8680960185321057365
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_95
+      rect:
+        serializedVersion: 2
+        x: 396
+        y: 469
+        width: 20
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: acd8de043ec761cb0800000000000000
+      internalID: -4893586629602734646
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_96
+      rect:
+        serializedVersion: 2
+        x: 47
+        y: 454
+        width: 27
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: da742d4372aad6210800000000000000
+      internalID: 1327904550510806957
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_97
+      rect:
+        serializedVersion: 2
+        x: 71
+        y: 454
+        width: 42
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 771e5502f2637f5a0800000000000000
+      internalID: -6487657162170048137
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_98
+      rect:
+        serializedVersion: 2
+        x: 117
+        y: 454
+        width: 18
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7cd509688240aab40800000000000000
+      internalID: 5452174870988217799
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_99
+      rect:
+        serializedVersion: 2
+        x: 139
+        y: 454
+        width: 85
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f6131f51940d20f40800000000000000
+      internalID: 5693341891269046639
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_100
+      rect:
+        serializedVersion: 2
+        x: 227
+        y: 454
+        width: 52
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 336e7a60cc6457360800000000000000
+      internalID: 7166712224128951859
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_101
+      rect:
+        serializedVersion: 2
+        x: 277
+        y: 454
+        width: 18
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 893b5d1dda4374af0800000000000000
+      internalID: -412302919726681192
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_102
+      rect:
+        serializedVersion: 2
+        x: 294
+        y: 452
+        width: 6
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1a63b777321b62f60800000000000000
+      internalID: 8009283753211541153
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_103
+      rect:
+        serializedVersion: 2
+        x: 304
+        y: 454
+        width: 18
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b8427ad11d78fbb20800000000000000
+      internalID: 3152387596398044299
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_104
+      rect:
+        serializedVersion: 2
+        x: 326
+        y: 454
+        width: 45
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d053256e1572b60c0800000000000000
+      internalID: -4581524963209366259
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_105
+      rect:
+        serializedVersion: 2
+        x: 375
+        y: 454
+        width: 34
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a1f2628cffcbb1b30800000000000000
+      internalID: 4259205679369563930
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_106
+      rect:
+        serializedVersion: 2
+        x: 47
+        y: 437
+        width: 27
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8a85de2646d37b5f0800000000000000
+      internalID: -741056112313411416
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_107
+      rect:
+        serializedVersion: 2
+        x: 72
+        y: 440
+        width: 59
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a31ead05562709ac0800000000000000
+      internalID: -3850451901927988934
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_108
+      rect:
+        serializedVersion: 2
+        x: 136
+        y: 440
+        width: 43
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4cc072bed8f151b40800000000000000
+      internalID: 5410265221751573700
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_109
+      rect:
+        serializedVersion: 2
+        x: 183
+        y: 426
+        width: 71
+        height: 27
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dc8d2e4190b94e2f0800000000000000
+      internalID: -944459558533539635
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_110
+      rect:
+        serializedVersion: 2
+        x: 223
+        y: 440
+        width: 75
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 94a30dca28e2ae070800000000000000
+      internalID: 8136366815578176073
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_111
+      rect:
+        serializedVersion: 2
+        x: 296
+        y: 440
+        width: 10
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 25a08847a75611a00800000000000000
+      internalID: 725472591598848594
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_112
+      rect:
+        serializedVersion: 2
+        x: 310
+        y: 440
+        width: 76
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 15eb873bc0d14f500800000000000000
+      internalID: 428999804894887505
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_113
+      rect:
+        serializedVersion: 2
+        x: 385
+        y: 438
+        width: 6
+        height: 8
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5ef405e1373bb0b70800000000000000
+      internalID: 8866377598420144101
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_114
+      rect:
+        serializedVersion: 2
+        x: 47
+        y: 426
+        width: 33
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 05681700273412cf0800000000000000
+      internalID: -278867545007487408
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_115
+      rect:
+        serializedVersion: 2
+        x: 84
+        y: 426
+        width: 58
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: df6b109e93938d710800000000000000
+      internalID: 1718186178726967037
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_116
+      rect:
+        serializedVersion: 2
+        x: 146
+        y: 426
+        width: 18
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cda9286959bb78f90800000000000000
+      internalID: -6951381248673408292
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_117
+      rect:
+        serializedVersion: 2
+        x: 168
+        y: 426
+        width: 11
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d446636674b9052e0800000000000000
+      internalID: -2139039092041161651
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_118
+      rect:
+        serializedVersion: 2
+        x: 176
+        y: 426
+        width: 13
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7dfc54bcbbd196930800000000000000
+      internalID: 4136870425122951127
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_119
+      rect:
+        serializedVersion: 2
+        x: 258
+        y: 426
+        width: 10
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b2996df362b988ad0800000000000000
+      internalID: -2699737388026521301
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_120
+      rect:
+        serializedVersion: 2
+        x: 266
+        y: 426
+        width: 31
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 15cb2613843c2ea90800000000000000
+      internalID: -7286046532298425263
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_121
+      rect:
+        serializedVersion: 2
+        x: 301
+        y: 426
+        width: 85
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1a04ed4868ca9e3f0800000000000000
+      internalID: -870975359164727135
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_122
+      rect:
+        serializedVersion: 2
+        x: 47
+        y: 411
+        width: 20
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ca3c3d2d1ee8b96c0800000000000000
+      internalID: -4135554732253789268
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_123
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 411
+        width: 10
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4a7fd87a4b6d9bf00800000000000000
+      internalID: 1133172852653946788
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_124
+      rect:
+        serializedVersion: 2
+        x: 73
+        y: 411
+        width: 58
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 81c55d9cb6ae3d520800000000000000
+      internalID: 2725779948157885464
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_125
+      rect:
+        serializedVersion: 2
+        x: 135
+        y: 408
+        width: 77
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ab47055cd86436a80800000000000000
+      internalID: -8474852499066424134
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_126
+      rect:
+        serializedVersion: 2
+        x: 209
+        y: 411
+        width: 10
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ffe26c7283a23a790800000000000000
+      internalID: -7520120532104761601
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_127
+      rect:
+        serializedVersion: 2
+        x: 224
+        y: 411
+        width: 17
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ce6abd7dd40eb4d30800000000000000
+      internalID: 4416870484505503468
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_128
+      rect:
+        serializedVersion: 2
+        x: 246
+        y: 411
+        width: 77
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0facab900aa338130800000000000000
+      internalID: 3567759788839979760
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_129
+      rect:
+        serializedVersion: 2
+        x: 326
+        y: 411
+        width: 27
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a327bf68b4dfe1560800000000000000
+      internalID: 7286539747961041466
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_130
+      rect:
+        serializedVersion: 2
+        x: 357
+        y: 411
+        width: 32
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e43b2ab66eed82320800000000000000
+      internalID: 2533519871625573198
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_131
+      rect:
+        serializedVersion: 2
+        x: 394
+        y: 411
+        width: 17
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c53004b02af4ee1c0800000000000000
+      internalID: -4472549822540283044
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_132
+      rect:
+        serializedVersion: 2
+        x: 47
+        y: 397
+        width: 28
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1a0600e3c95a7ba20800000000000000
+      internalID: 3078110960804716705
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_133
+      rect:
+        serializedVersion: 2
+        x: 73
+        y: 397
+        width: 59
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7c759c2760ed20150800000000000000
+      internalID: 5837472186302552007
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_134
+      rect:
+        serializedVersion: 2
+        x: 130
+        y: 397
+        width: 34
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 682192d8aceefba10800000000000000
+      internalID: 1927521719256945286
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_135
+      rect:
+        serializedVersion: 2
+        x: 168
+        y: 394
+        width: 81
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 91411a62724c44e40800000000000000
+      internalID: 5639848305805562905
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_136
+      rect:
+        serializedVersion: 2
+        x: 47
+        y: 382
+        width: 27
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ca391991a31032210800000000000000
+      internalID: 1306889665916277676
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_137
+      rect:
+        serializedVersion: 2
+        x: 71
+        y: 382
+        width: 18
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: db924035242506e90800000000000000
+      internalID: -7034532173138613827
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_138
+      rect:
+        serializedVersion: 2
+        x: 93
+        y: 382
+        width: 59
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ad858c4ee1a87f470800000000000000
+      internalID: 8428357092939159770
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_139
+      rect:
+        serializedVersion: 2
+        x: 150
+        y: 382
+        width: 19
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ddd2e5dca49755cc0800000000000000
+      internalID: -3722936154771804707
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_140
+      rect:
+        serializedVersion: 2
+        x: 173
+        y: 382
+        width: 18
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c8ee35f98a21ef360800000000000000
+      internalID: 7205216969276255884
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_141
+      rect:
+        serializedVersion: 2
+        x: 195
+        y: 382
+        width: 52
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2233fd61a2b9b3210800000000000000
+      internalID: 1313814321383289634
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_142
+      rect:
+        serializedVersion: 2
+        x: 245
+        y: 382
+        width: 34
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 102fe826e74cc5360800000000000000
+      internalID: 7159813554710704641
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_143
+      rect:
+        serializedVersion: 2
+        x: 283
+        y: 382
+        width: 20
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dd4f21f2cab7b0040800000000000000
+      internalID: 4614918222625567965
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_144
+      rect:
+        serializedVersion: 2
+        x: 301
+        y: 379
+        width: 56
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7d5718c07f4f53e80800000000000000
+      internalID: -8199378204654209577
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_145
+      rect:
+        serializedVersion: 2
+        x: 361
+        y: 382
+        width: 44
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f90426b5394b941a0800000000000000
+      internalID: -6824725215316918113
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_146
+      rect:
+        serializedVersion: 2
+        x: 47
+        y: 368
+        width: 34
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7451e2c7febd0a600800000000000000
+      internalID: 477623382128334151
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_147
+      rect:
+        serializedVersion: 2
+        x: 85
+        y: 368
+        width: 29
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 80efe9fbc5c084720800000000000000
+      internalID: 2830525958293749256
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_148
+      rect:
+        serializedVersion: 2
+        x: 112
+        y: 368
+        width: 35
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 35f80f8728ecce000800000000000000
+      internalID: 66655154273816403
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_149
+      rect:
+        serializedVersion: 2
+        x: 150
+        y: 368
+        width: 39
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c950792f25d22e380800000000000000
+      internalID: -8943536075723831908
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_150
+      rect:
+        serializedVersion: 2
+        x: 186
+        y: 368
+        width: 10
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6460e9e6083b169a0800000000000000
+      internalID: -6241510244365760954
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_151
+      rect:
+        serializedVersion: 2
+        x: 200
+        y: 368
+        width: 11
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 406737473126838d0800000000000000
+      internalID: -2866433327123696124
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_152
+      rect:
+        serializedVersion: 2
+        x: 208
+        y: 368
+        width: 48
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 965a65528471e34d0800000000000000
+      internalID: -3153057090481248919
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_153
+      rect:
+        serializedVersion: 2
+        x: 260
+        y: 368
+        width: 25
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3de7690e68ac3d570800000000000000
+      internalID: 8490352403165904595
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_154
+      rect:
+        serializedVersion: 2
+        x: 289
+        y: 366
+        width: 78
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d56ec7c8214cbcf60800000000000000
+      internalID: 8055747942427715165
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_155
+      rect:
+        serializedVersion: 2
+        x: 372
+        y: 368
+        width: 36
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f62f4a5d915d42990800000000000000
+      internalID: -7411564779809738129
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_156
+      rect:
+        serializedVersion: 2
+        x: 47
+        y: 354
+        width: 18
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 540ff0ba9bc461e00800000000000000
+      internalID: 1015083126341234757
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_157
+      rect:
+        serializedVersion: 2
+        x: 69
+        y: 351
+        width: 47
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e24bb7df7fa359870800000000000000
+      internalID: 8688915892865315886
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_158
+      rect:
+        serializedVersion: 2
+        x: 113
+        y: 354
+        width: 27
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a40738e0e6405c300800000000000000
+      internalID: 271628223262191690
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_159
+      rect:
+        serializedVersion: 2
+        x: 144
+        y: 354
+        width: 19
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 513fc175d2a45e100800000000000000
+      internalID: 136596922300166933
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_160
+      rect:
+        serializedVersion: 2
+        x: 167
+        y: 354
+        width: 68
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fd35c06658cb4e460800000000000000
+      internalID: 7270142979611579359
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_161
+      rect:
+        serializedVersion: 2
+        x: 233
+        y: 354
+        width: 17
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f6600170439e782a0800000000000000
+      internalID: -6735158308043225489
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_162
+      rect:
+        serializedVersion: 2
+        x: 254
+        y: 354
+        width: 11
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b78675c431193d1a0800000000000000
+      internalID: -6785920701446002565
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_163
+      rect:
+        serializedVersion: 2
+        x: 263
+        y: 354
+        width: 11
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9eeea54d44b5568f0800000000000000
+      internalID: -547931428477014295
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_164
+      rect:
+        serializedVersion: 2
+        x: 278
+        y: 351
+        width: 73
+        height: 14
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1fb13089093d44310800000000000000
+      internalID: 1388467203116047345
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_165
+      rect:
+        serializedVersion: 2
+        x: 356
+        y: 354
+        width: 17
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b5d3da05454115020800000000000000
+      internalID: 2328664834690596187
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_166
+      rect:
+        serializedVersion: 2
+        x: 47
+        y: 339
+        width: 85
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b0a23465e2f050f20800000000000000
+      internalID: 3388130986356320779
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_167
+      rect:
+        serializedVersion: 2
+        x: 136
+        y: 339
+        width: 19
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8f67cfc639c875b90800000000000000
+      internalID: -7253174110040328456
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_168
+      rect:
+        serializedVersion: 2
+        x: 159
+        y: 339
+        width: 47
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 502e680e4621deb20800000000000000
+      internalID: 3165206337584292357
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_169
+      rect:
+        serializedVersion: 2
+        x: 47
+        y: 310
+        width: 35
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 41ae3487659dabb80800000000000000
+      internalID: -8378145191361254892
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_170
+      rect:
+        serializedVersion: 2
+        x: 86
+        y: 310
+        width: 35
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 56ff1c4b48cdde9d0800000000000000
+      internalID: -2743294135472357531
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_171
+      rect:
+        serializedVersion: 2
+        x: 125
+        y: 310
+        width: 84
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 13f3351d298569190800000000000000
+      internalID: -7956074304103039183
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_172
+      rect:
+        serializedVersion: 2
+        x: 213
+        y: 310
+        width: 17
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 81171ace4bcc59920800000000000000
+      internalID: 2996526204521115928
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_173
+      rect:
+        serializedVersion: 2
+        x: 234
+        y: 310
+        width: 35
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 175c5cbd6f88c6990800000000000000
+      internalID: -7391382294591322767
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_174
+      rect:
+        serializedVersion: 2
+        x: 273
+        y: 310
+        width: 61
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 894198e868dfb7ff0800000000000000
+      internalID: -37157417543723880
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_175
+      rect:
+        serializedVersion: 2
+        x: 338
+        y: 307
+        width: 67
+        height: 16
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d09a14070eb14bd00800000000000000
+      internalID: 987444869070956813
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_176
+      rect:
+        serializedVersion: 2
+        x: 408
+        y: 310
+        width: 11
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 154a72834ce04f440800000000000000
+      internalID: 4968612524815000657
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_177
+      rect:
+        serializedVersion: 2
+        x: 47
+        y: 296
+        width: 41
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4cc9eae85d0c78620800000000000000
+      internalID: 2776399718751575236
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_178
+      rect:
+        serializedVersion: 2
+        x: 92
+        y: 296
+        width: 85
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b8646d2ba15aa6340800000000000000
+      internalID: 4857876682160621195
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_179
+      rect:
+        serializedVersion: 2
+        x: 164
+        y: 279
+        width: 123
+        height: 30
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9193ad2c29bfa4bf0800000000000000
+      internalID: -339182214160172775
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_180
+      rect:
+        serializedVersion: 2
+        x: 291
+        y: 296
+        width: 10
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c4219682c43e98c10800000000000000
+      internalID: 2056424621106336332
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_181
+      rect:
+        serializedVersion: 2
+        x: 299
+        y: 296
+        width: 46
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a1e62dd8db1dad020800000000000000
+      internalID: 2367435166195019290
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_182
+      rect:
+        serializedVersion: 2
+        x: 342
+        y: 296
+        width: 27
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0e43fde9c31b0cab0800000000000000
+      internalID: -4989793513204927264
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_183
+      rect:
+        serializedVersion: 2
+        x: 373
+        y: 296
+        width: 25
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 26fea7f3b2a254320800000000000000
+      internalID: 2541483929957494626
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_184
+      rect:
+        serializedVersion: 2
+        x: 47
+        y: 282
+        width: 43
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 116253130ea007e60800000000000000
+      internalID: 7957872499578185233
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_185
+      rect:
+        serializedVersion: 2
+        x: 87
+        y: 282
+        width: 42
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0144d8ff1ecc9be20800000000000000
+      internalID: 3366947467463312400
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_186
+      rect:
+        serializedVersion: 2
+        x: 133
+        y: 282
+        width: 28
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 62905c6b30081d440800000000000000
+      internalID: 4958885418151250214
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_187
+      rect:
+        serializedVersion: 2
+        x: 259
+        y: 282
+        width: 29
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3ccfd38421a2227b0800000000000000
+      internalID: -5250587957550777149
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_188
+      rect:
+        serializedVersion: 2
+        x: 285
+        y: 282
+        width: 65
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b3b7248dda07222a0800000000000000
+      internalID: -6763719798397174981
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_189
+      rect:
+        serializedVersion: 2
+        x: 47
+        y: 267
+        width: 18
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: efb0ea81f5e9f6200800000000000000
+      internalID: 175533041763879934
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_190
+      rect:
+        serializedVersion: 2
+        x: 63
+        y: 265
+        width: 60
+        height: 15
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6c619cf4997a3e9d0800000000000000
+      internalID: -2746167070855457082
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_191
+      rect:
+        serializedVersion: 2
+        x: 128
+        y: 267
+        width: 17
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a46b4b86fc576d4a0800000000000000
+      internalID: -6568933472797936054
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_192
+      rect:
+        serializedVersion: 2
+        x: 150
+        y: 267
+        width: 17
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8f685531e91d0a0b0800000000000000
+      internalID: -5719341049901119752
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_193
+      rect:
+        serializedVersion: 2
+        x: 171
+        y: 267
+        width: 78
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d8c10261b4208e180800000000000000
+      internalID: -9086009726702969715
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_194
+      rect:
+        serializedVersion: 2
+        x: 252
+        y: 267
+        width: 20
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f1883c053b7e8a570800000000000000
+      internalID: 8478281055865112607
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_195
+      rect:
+        serializedVersion: 2
+        x: 275
+        y: 267
+        width: 29
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bf8ae9c732fcbd350800000000000000
+      internalID: 6042651076369230075
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_196
+      rect:
+        serializedVersion: 2
+        x: 301
+        y: 267
+        width: 92
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5b1464e7a6f7047f0800000000000000
+      internalID: -630363852470074955
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_197
+      rect:
+        serializedVersion: 2
+        x: 397
+        y: 267
+        width: 10
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9b496e15acb171670800000000000000
+      internalID: 8509300576711251129
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_198
+      rect:
+        serializedVersion: 2
+        x: 405
+        y: 267
+        width: 12
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 59e65e87b8a94e7d0800000000000000
+      internalID: -2890015137045582187
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_199
+      rect:
+        serializedVersion: 2
+        x: 47
+        y: 253
+        width: 56
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: eb389a6c3ff7b1420800000000000000
+      internalID: 2601813894723371966
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_200
+      rect:
+        serializedVersion: 2
+        x: 107
+        y: 253
+        width: 28
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ce674fc3a23136b60800000000000000
+      internalID: 7738049656884852460
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_201
+      rect:
+        serializedVersion: 2
+        x: 139
+        y: 253
+        width: 33
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 79c537105c5891f70800000000000000
+      internalID: 9158498398414003351
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_202
+      rect:
+        serializedVersion: 2
+        x: 176
+        y: 253
+        width: 26
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1d8a4d120420ba840800000000000000
+      internalID: 5236281466217081041
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_203
+      rect:
+        serializedVersion: 2
+        x: 200
+        y: 253
+        width: 19
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 352e16e4c69243050800000000000000
+      internalID: 5779289766971433555
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_204
+      rect:
+        serializedVersion: 2
+        x: 217
+        y: 253
+        width: 25
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fdb85f960b99f9c50800000000000000
+      internalID: 6674222155757358047
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_205
+      rect:
+        serializedVersion: 2
+        x: 246
+        y: 253
+        width: 56
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: be8b14419117a79e0800000000000000
+      internalID: -1622860363185669909
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_206
+      rect:
+        serializedVersion: 2
+        x: 47
+        y: 238
+        width: 27
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a771159c50edba5c0800000000000000
+      internalID: -4203021710786488454
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_207
+      rect:
+        serializedVersion: 2
+        x: 71
+        y: 238
+        width: 18
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 83420d9db6bb2e2a0800000000000000
+      internalID: -6709594422938426312
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_208
+      rect:
+        serializedVersion: 2
+        x: 93
+        y: 238
+        width: 102
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d3a6102015cca6e50800000000000000
+      internalID: 6803474835394619965
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_209
+      rect:
+        serializedVersion: 2
+        x: 199
+        y: 238
+        width: 44
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 04aa80a4970064e90800000000000000
+      internalID: -7041940446414067136
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_210
+      rect:
+        serializedVersion: 2
+        x: 247
+        y: 238
+        width: 33
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e52456a7cf3f23c70800000000000000
+      internalID: 8949483675249361502
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_211
+      rect:
+        serializedVersion: 2
+        x: 284
+        y: 238
+        width: 73
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0ea70ac92a5d13f20800000000000000
+      internalID: 3400734088030616288
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_212
+      rect:
+        serializedVersion: 2
+        x: 361
+        y: 238
+        width: 11
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cdb95ba75b43ae390800000000000000
+      internalID: -7788354651531404324
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_213
+      rect:
+        serializedVersion: 2
+        x: 370
+        y: 238
+        width: 29
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5cf18e9b711e31a20800000000000000
+      internalID: 3032014466169970629
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_214
+      rect:
+        serializedVersion: 2
+        x: 396
+        y: 238
+        width: 10
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7b8d5319cd378fef0800000000000000
+      internalID: -74182002685388617
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_215
+      rect:
+        serializedVersion: 2
+        x: 47
+        y: 224
+        width: 18
+        height: 11
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dd97e9872c4161d10800000000000000
+      internalID: 2095885502067407325
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_216
+      rect:
+        serializedVersion: 2
+        x: 69
+        y: 224
+        width: 60
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7750f81ebddc04770800000000000000
+      internalID: 8593094433288684919
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_217
+      rect:
+        serializedVersion: 2
+        x: 133
+        y: 224
+        width: 37
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7c8b9cbdbd98fa310800000000000000
+      internalID: 1418503985023269063
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_218
+      rect:
+        serializedVersion: 2
+        x: 173
+        y: 224
+        width: 11
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0288dde7912a298a0800000000000000
+      internalID: -6299794698351572960
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_219
+      rect:
+        serializedVersion: 2
+        x: 181
+        y: 224
+        width: 64
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5f2125fafe8acb460800000000000000
+      internalID: 7258862446806438645
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_220
+      rect:
+        serializedVersion: 2
+        x: 248
+        y: 224
+        width: 20
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4b55fd3b11b91dad0800000000000000
+      internalID: -2679189802974227020
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_221
+      rect:
+        serializedVersion: 2
+        x: 272
+        y: 224
+        width: 74
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9cb8cecc287916f00800000000000000
+      internalID: 1108333571349449673
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_222
+      rect:
+        serializedVersion: 2
+        x: 351
+        y: 224
+        width: 10
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7126a6ed8f270de60800000000000000
+      internalID: 7985008552536859159
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_223
+      rect:
+        serializedVersion: 2
+        x: 359
+        y: 224
+        width: 11
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5123f662bbe2ada30800000000000000
+      internalID: 4240753380461326869
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_224
+      rect:
+        serializedVersion: 2
+        x: 47
+        y: 210
+        width: 35
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e90d308d4628c2740800000000000000
+      internalID: 5128617445300621470
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_225
+      rect:
+        serializedVersion: 2
+        x: 80
+        y: 210
+        width: 44
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3d92c29b4d467d860800000000000000
+      internalID: 7554617764739819987
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Text_Machine_1_226
+      rect:
+        serializedVersion: 2
+        x: 121
+        y: 210
+        width: 15
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1b7104eb248657640800000000000000
+      internalID: 5077078790799103921
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 5e97eb03825dee720800000000000000
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Text_Machine_1_0: -2184894294192587571
+      Text_Machine_1_1: -5976213170559691492
+      Text_Machine_1_10: 90945630605328404
+      Text_Machine_1_100: 7166712224128951859
+      Text_Machine_1_101: -412302919726681192
+      Text_Machine_1_102: 8009283753211541153
+      Text_Machine_1_103: 3152387596398044299
+      Text_Machine_1_104: -4581524963209366259
+      Text_Machine_1_105: 4259205679369563930
+      Text_Machine_1_106: -741056112313411416
+      Text_Machine_1_107: -3850451901927988934
+      Text_Machine_1_108: 5410265221751573700
+      Text_Machine_1_109: -944459558533539635
+      Text_Machine_1_11: -3550626826716877577
+      Text_Machine_1_110: 8136366815578176073
+      Text_Machine_1_111: 725472591598848594
+      Text_Machine_1_112: 428999804894887505
+      Text_Machine_1_113: 8866377598420144101
+      Text_Machine_1_114: -278867545007487408
+      Text_Machine_1_115: 1718186178726967037
+      Text_Machine_1_116: -6951381248673408292
+      Text_Machine_1_117: -2139039092041161651
+      Text_Machine_1_118: 4136870425122951127
+      Text_Machine_1_119: -2699737388026521301
+      Text_Machine_1_12: 1434704212714391162
+      Text_Machine_1_120: -7286046532298425263
+      Text_Machine_1_121: -870975359164727135
+      Text_Machine_1_122: -4135554732253789268
+      Text_Machine_1_123: 1133172852653946788
+      Text_Machine_1_124: 2725779948157885464
+      Text_Machine_1_125: -8474852499066424134
+      Text_Machine_1_126: -7520120532104761601
+      Text_Machine_1_127: 4416870484505503468
+      Text_Machine_1_128: 3567759788839979760
+      Text_Machine_1_129: 7286539747961041466
+      Text_Machine_1_13: 8020009819407881769
+      Text_Machine_1_130: 2533519871625573198
+      Text_Machine_1_131: -4472549822540283044
+      Text_Machine_1_132: 3078110960804716705
+      Text_Machine_1_133: 5837472186302552007
+      Text_Machine_1_134: 1927521719256945286
+      Text_Machine_1_135: 5639848305805562905
+      Text_Machine_1_136: 1306889665916277676
+      Text_Machine_1_137: -7034532173138613827
+      Text_Machine_1_138: 8428357092939159770
+      Text_Machine_1_139: -3722936154771804707
+      Text_Machine_1_14: -1545412392158165400
+      Text_Machine_1_140: 7205216969276255884
+      Text_Machine_1_141: 1313814321383289634
+      Text_Machine_1_142: 7159813554710704641
+      Text_Machine_1_143: 4614918222625567965
+      Text_Machine_1_144: -8199378204654209577
+      Text_Machine_1_145: -6824725215316918113
+      Text_Machine_1_146: 477623382128334151
+      Text_Machine_1_147: 2830525958293749256
+      Text_Machine_1_148: 66655154273816403
+      Text_Machine_1_149: -8943536075723831908
+      Text_Machine_1_15: -5032312038468323669
+      Text_Machine_1_150: -6241510244365760954
+      Text_Machine_1_151: -2866433327123696124
+      Text_Machine_1_152: -3153057090481248919
+      Text_Machine_1_153: 8490352403165904595
+      Text_Machine_1_154: 8055747942427715165
+      Text_Machine_1_155: -7411564779809738129
+      Text_Machine_1_156: 1015083126341234757
+      Text_Machine_1_157: 8688915892865315886
+      Text_Machine_1_158: 271628223262191690
+      Text_Machine_1_159: 136596922300166933
+      Text_Machine_1_16: -729897404832617890
+      Text_Machine_1_160: 7270142979611579359
+      Text_Machine_1_161: -6735158308043225489
+      Text_Machine_1_162: -6785920701446002565
+      Text_Machine_1_163: -547931428477014295
+      Text_Machine_1_164: 1388467203116047345
+      Text_Machine_1_165: 2328664834690596187
+      Text_Machine_1_166: 3388130986356320779
+      Text_Machine_1_167: -7253174110040328456
+      Text_Machine_1_168: 3165206337584292357
+      Text_Machine_1_169: -8378145191361254892
+      Text_Machine_1_17: -4956156245316513869
+      Text_Machine_1_170: -2743294135472357531
+      Text_Machine_1_171: -7956074304103039183
+      Text_Machine_1_172: 2996526204521115928
+      Text_Machine_1_173: -7391382294591322767
+      Text_Machine_1_174: -37157417543723880
+      Text_Machine_1_175: 987444869070956813
+      Text_Machine_1_176: 4968612524815000657
+      Text_Machine_1_177: 2776399718751575236
+      Text_Machine_1_178: 4857876682160621195
+      Text_Machine_1_179: -339182214160172775
+      Text_Machine_1_18: 1065933221756840740
+      Text_Machine_1_180: 2056424621106336332
+      Text_Machine_1_181: 2367435166195019290
+      Text_Machine_1_182: -4989793513204927264
+      Text_Machine_1_183: 2541483929957494626
+      Text_Machine_1_184: 7957872499578185233
+      Text_Machine_1_185: 3366947467463312400
+      Text_Machine_1_186: 4958885418151250214
+      Text_Machine_1_187: -5250587957550777149
+      Text_Machine_1_188: -6763719798397174981
+      Text_Machine_1_189: 175533041763879934
+      Text_Machine_1_19: -752797439599611171
+      Text_Machine_1_190: -2746167070855457082
+      Text_Machine_1_191: -6568933472797936054
+      Text_Machine_1_192: -5719341049901119752
+      Text_Machine_1_193: -9086009726702969715
+      Text_Machine_1_194: 8478281055865112607
+      Text_Machine_1_195: 6042651076369230075
+      Text_Machine_1_196: -630363852470074955
+      Text_Machine_1_197: 8509300576711251129
+      Text_Machine_1_198: -2890015137045582187
+      Text_Machine_1_199: 2601813894723371966
+      Text_Machine_1_2: 3927700115542111873
+      Text_Machine_1_20: -3821316022199916455
+      Text_Machine_1_200: 7738049656884852460
+      Text_Machine_1_201: 9158498398414003351
+      Text_Machine_1_202: 5236281466217081041
+      Text_Machine_1_203: 5779289766971433555
+      Text_Machine_1_204: 6674222155757358047
+      Text_Machine_1_205: -1622860363185669909
+      Text_Machine_1_206: -4203021710786488454
+      Text_Machine_1_207: -6709594422938426312
+      Text_Machine_1_208: 6803474835394619965
+      Text_Machine_1_209: -7041940446414067136
+      Text_Machine_1_21: 8168621136000258141
+      Text_Machine_1_210: 8949483675249361502
+      Text_Machine_1_211: 3400734088030616288
+      Text_Machine_1_212: -7788354651531404324
+      Text_Machine_1_213: 3032014466169970629
+      Text_Machine_1_214: -74182002685388617
+      Text_Machine_1_215: 2095885502067407325
+      Text_Machine_1_216: 8593094433288684919
+      Text_Machine_1_217: 1418503985023269063
+      Text_Machine_1_218: -6299794698351572960
+      Text_Machine_1_219: 7258862446806438645
+      Text_Machine_1_22: 645433423172114552
+      Text_Machine_1_220: -2679189802974227020
+      Text_Machine_1_221: 1108333571349449673
+      Text_Machine_1_222: 7985008552536859159
+      Text_Machine_1_223: 4240753380461326869
+      Text_Machine_1_224: 5128617445300621470
+      Text_Machine_1_225: 7554617764739819987
+      Text_Machine_1_226: 5077078790799103921
+      Text_Machine_1_23: -4679296486218443699
+      Text_Machine_1_24: 6730430380795464708
+      Text_Machine_1_25: -6941540162062429041
+      Text_Machine_1_26: -3613447603146246362
+      Text_Machine_1_27: 2172638343658730152
+      Text_Machine_1_28: -7243005768655245047
+      Text_Machine_1_29: -4830885565310937987
+      Text_Machine_1_3: -3549696204596752205
+      Text_Machine_1_30: 6286235411356321341
+      Text_Machine_1_31: 1986309108091268124
+      Text_Machine_1_32: -3841894099284831117
+      Text_Machine_1_33: -2272001001436589686
+      Text_Machine_1_34: 4554010532757863314
+      Text_Machine_1_35: 3684032517974495249
+      Text_Machine_1_36: -2428168333818845139
+      Text_Machine_1_37: -7234992716666650096
+      Text_Machine_1_38: 1524151881465027433
+      Text_Machine_1_39: 870194961551724905
+      Text_Machine_1_4: -619722498129439179
+      Text_Machine_1_40: 1231318513540856518
+      Text_Machine_1_41: -2051410476500902278
+      Text_Machine_1_42: 586986195318312677
+      Text_Machine_1_43: -8063850899515479228
+      Text_Machine_1_44: -3240758932755716907
+      Text_Machine_1_45: -4568475078416550923
+      Text_Machine_1_46: 2652239009181972305
+      Text_Machine_1_47: -2465046168882796663
+      Text_Machine_1_48: -6205026331230013664
+      Text_Machine_1_49: 1268688768724915486
+      Text_Machine_1_5: -3037341534681484885
+      Text_Machine_1_50: 3034574255728175155
+      Text_Machine_1_51: -6522312497056426310
+      Text_Machine_1_52: 4465162358946260528
+      Text_Machine_1_53: -7879293866422147717
+      Text_Machine_1_54: -8403364405906670683
+      Text_Machine_1_55: 3195857606675548966
+      Text_Machine_1_56: -5234900701565311168
+      Text_Machine_1_57: -4975249908834238534
+      Text_Machine_1_58: 5072745772479120909
+      Text_Machine_1_59: -6878226212986101698
+      Text_Machine_1_6: 1001103791453346989
+      Text_Machine_1_60: 3604541866063052966
+      Text_Machine_1_61: -1657963499997536421
+      Text_Machine_1_62: -2749635724689997548
+      Text_Machine_1_63: 4163793620578064455
+      Text_Machine_1_64: 8877571778154145198
+      Text_Machine_1_65: 4130842945265120922
+      Text_Machine_1_66: 3371609163429110296
+      Text_Machine_1_67: 2732223510680169764
+      Text_Machine_1_68: -195127498959969338
+      Text_Machine_1_69: -4520087233127457505
+      Text_Machine_1_7: -2537696898784967987
+      Text_Machine_1_70: -1638829854812146330
+      Text_Machine_1_71: 3077258341910844947
+      Text_Machine_1_72: -987679033968980511
+      Text_Machine_1_73: 7331170150456832980
+      Text_Machine_1_74: 5862895379968653201
+      Text_Machine_1_75: -8578614162065666109
+      Text_Machine_1_76: 1038693082489003318
+      Text_Machine_1_77: -2441410267992283363
+      Text_Machine_1_78: -1756783283300851611
+      Text_Machine_1_79: -8397885998316668410
+      Text_Machine_1_8: -4607467610272679803
+      Text_Machine_1_80: 6940270247758930864
+      Text_Machine_1_81: -7885678406296561666
+      Text_Machine_1_82: 2988256089688369963
+      Text_Machine_1_83: 6729778394184508312
+      Text_Machine_1_84: 5100085489238124548
+      Text_Machine_1_85: 5176902477297743681
+      Text_Machine_1_86: 8623659379397935379
+      Text_Machine_1_87: -3530414467380418517
+      Text_Machine_1_88: 6290424566345721873
+      Text_Machine_1_89: 7688354267083154461
+      Text_Machine_1_9: -5836911612150331227
+      Text_Machine_1_90: 876734429657419805
+      Text_Machine_1_91: 3145240357093189725
+      Text_Machine_1_92: 4357880063191129564
+      Text_Machine_1_93: -2789842660207172063
+      Text_Machine_1_94: -8680960185321057365
+      Text_Machine_1_95: -4893586629602734646
+      Text_Machine_1_96: 1327904550510806957
+      Text_Machine_1_97: -6487657162170048137
+      Text_Machine_1_98: 5452174870988217799
+      Text_Machine_1_99: 5693341891269046639
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
