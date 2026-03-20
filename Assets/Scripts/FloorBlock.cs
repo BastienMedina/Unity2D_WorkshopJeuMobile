@@ -89,19 +89,37 @@ public class FloorBlock : MonoBehaviour
         isCompleted = completed;
         isCurrent   = current;
 
+        // Null-check every serialized reference up front. After a prefab restructure the
+        // Inspector fields that pointed to deleted or moved child GameObjects become null.
+        // Logging which field is null here identifies exactly which reference needs rewiring
+        // in the Inspector rather than showing a generic NullReferenceException at line 93.
+        if (blockImage == null)
+            Debug.LogError("[FloorBlock] blockImage is null — check Inspector reference on FloorBlockPrefab");
+
+        if (enterButton == null)
+            Debug.LogError("[FloorBlock] enterButton is null — check Inspector reference on FloorBlockPrefab");
+
+        if (floorLabel == null)
+            Debug.LogError("[FloorBlock] floorLabel is null — check Inspector reference on FloorBlockPrefab");
+
         // Display floor number as 1-based to the player — zero-based indices are an implementation detail.
-        floorLabel.text = "Floor " + (index + 1);
+        if (floorLabel != null)
+            floorLabel.text = "Floor " + (index + 1);
 
         ApplyBlockColor();
 
         // Locked floors (future floors beyond current progress) must not be interactive —
         // entering a floor the player has not reached would bypass the progression system entirely.
-        enterButton.interactable = isCompleted || isCurrent;
+        if (enterButton != null)
+            enterButton.interactable = isCompleted || isCurrent;
 
         // Remove any stale listener from a previous Initialize call on a recycled object,
         // then add the current listener to prevent duplicate event firings.
-        enterButton.onClick.RemoveListener(OnBlockTapped);
-        enterButton.onClick.AddListener(OnBlockTapped);
+        if (enterButton != null)
+        {
+            enterButton.onClick.RemoveListener(OnBlockTapped);
+            enterButton.onClick.AddListener(OnBlockTapped);
+        }
     }
 
     // -------------------------------------------------------------------------
@@ -114,20 +132,23 @@ public class FloorBlock : MonoBehaviour
     /// </summary>
     private void ApplyBlockColor()
     {
+        // Guard against a missing Inspector reference — a null blockImage throws silently inside
+        // Initialize() and leaves the block invisible with no error shown in the Console.
+        if (blockImage == null)
+        {
+            Debug.LogError("[FloorBlock] blockImage is null on floor " + floorIndex);
+            return;
+        }
+
         if (isCompleted)
-        {
             blockImage.color = completedColor;
-            return;
-        }
-
-        if (isCurrent)
-        {
+        else if (isCurrent)
             blockImage.color = currentColor;
-            return;
-        }
+        else
+            // Neither completed nor current — this floor is locked and not yet reachable.
+            blockImage.color = lockedColor;
 
-        // Neither completed nor current — this floor is locked and not yet reachable.
-        blockImage.color = lockedColor;
+        Debug.Log("[FloorBlock] Color set to: " + blockImage.color + " for floor: " + floorIndex);
     }
 
     /// <summary>

@@ -2924,6 +2924,7 @@ GameObject:
   - component: {fileID: 2040673047}
   - component: {fileID: 2040673048}
   - component: {fileID: 2040673049}
+  - component: {fileID: 2040673050}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -2968,7 +2969,7 @@ MonoBehaviour:
   dayTransitionManager: {fileID: 2040673045}
   dayTimerUI: {fileID: 1736060417}
   floorProgressionManager: {fileID: 2040673048}
-  floorSaveSystem: {fileID: 0}
+  floorSaveSystem: {fileID: 2040673050}
   floorDifficultyProgression: {fileID: 2040673049}
   currentDayIndex: 0
   currentFloorIndex: 0
@@ -3137,6 +3138,18 @@ MonoBehaviour:
   maxBins: 5
   maxRulesPerBin: 4
   maxComplexity: 5
+--- !u!114 &2040673050
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2040673039}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e84560849b8907649bbb281586515346, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FloorSaveSystem
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

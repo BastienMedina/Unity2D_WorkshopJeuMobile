@@ -161,6 +161,20 @@ public class GameManager : MonoBehaviour
 
         // No session data — fresh game start. Always begin at floor 0 and compute or
         // load its parameters so the first session uses the same values as any later replay.
+
+        // If component is missing on GameManager GameObject, all floor generation crashes.
+        if (floorDifficultyProgression == null)
+        {
+            Debug.LogError("[GameManager] floorDifficultyProgression is not assigned in Inspector");
+            return;
+        }
+
+        if (floorSaveSystem == null)
+        {
+            Debug.LogError("[GameManager] floorSaveSystem is not assigned in Inspector");
+            return;
+        }
+
         FloorSaveData floor0Data = floorDifficultyProgression.GetOrGenerateFloorData(
             0, floorSaveSystem);
 
