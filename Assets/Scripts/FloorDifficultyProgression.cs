@@ -210,6 +210,16 @@ public class FloorDifficultyProgression : MonoBehaviour
     /// </returns>
     public FloorSaveData GetOrGenerateFloorData(int floorIndex, FloorSaveSystem saveSystem)
     {
+        Debug.Log("[FloorProgression] GetOrGenerateFloorData called for index: " + floorIndex);
+
+        // saveSystem being null means GameManager did not inject it properly —
+        // fall back to floor 1 base data to prevent crash.
+        if (saveSystem == null)
+        {
+            Debug.LogError("[FloorProgression] saveSystem is null — assign it in Inspector on GameManager GameObject");
+            return GenerateFloor1Data();
+        }
+
         // Saved data takes absolute priority — returning it ensures replays are identical
         // to the original run and no re-computation overrides what the player actually experienced.
         if (saveSystem.FloorExists(floorIndex))
@@ -223,6 +233,15 @@ public class FloorDifficultyProgression : MonoBehaviour
         // Walking backwards ensures the chain is correct even when intermediate floors
         // were never saved (e.g. after a DeleteAllSaves() reset).
         FloorSaveData previousFloorData = GetOrGenerateFloorData(floorIndex - 1, saveSystem);
+
+        // Null previous data means the recursive chain broke — fall back to floor 1 base data
+        // rather than propagating a null into GenerateNextFloorData and crashing there.
+        if (previousFloorData == null)
+        {
+            Debug.LogError("[FloorProgression] Previous floor data is null for index: " + (floorIndex - 1));
+            return GenerateFloor1Data();
+        }
+
         return GenerateNextFloorData(previousFloorData);
     }
 }

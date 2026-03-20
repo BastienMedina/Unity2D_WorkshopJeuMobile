@@ -41,9 +41,6 @@ public class BinHoverDetector : MonoBehaviour
     // Runtime state
     // -------------------------------------------------------------------------
 
-    /// <summary>Tracks whether the bin is currently in its expanded hover state.</summary>
-    private bool isExpanded;
-
     /// <summary>Reference to the running animation coroutine so it can be stopped before starting a new one.</summary>
     private Coroutine expansionCoroutine;
 
@@ -78,8 +75,6 @@ public class BinHoverDetector : MonoBehaviour
         // Stop the previous animation safely before starting a new one.
         // Without this, two coroutines would fight over sizeDelta and produce visual jitter.
         StopExpansionCoroutineSafely();
-
-        isExpanded = true;
         expansionCoroutine = StartCoroutine(AnimateSizeTo(expandedSize));
     }
 
@@ -92,8 +87,6 @@ public class BinHoverDetector : MonoBehaviour
         // Stop the previous animation safely before starting a new one.
         // Without this, two coroutines would fight over sizeDelta and produce visual jitter.
         StopExpansionCoroutineSafely();
-
-        isExpanded = false;
         expansionCoroutine = StartCoroutine(AnimateSizeTo(normalSize));
     }
 

@@ -51,6 +51,9 @@ public class DifficultyManager : MonoBehaviour
     /// Base values are the day 1 floor 1 defaults — all scaling is computed
     /// relative to these so the Inspector remains the single source of truth.
     /// </summary>
+    // CS0414 suppressed: field is Inspector-assigned and reserved for future scaling logic.
+    // Removing it would lose the serialized value and the [Header] grouping in the Inspector.
+#pragma warning disable CS0414
     [SerializeField] private float baseFailThreshold = 20f;
 
     /// <summary>
@@ -66,6 +69,7 @@ public class DifficultyManager : MonoBehaviour
     /// relative to these so the Inspector remains the single source of truth.
     /// </summary>
     [SerializeField] private float baseDecayRate = 2f;
+#pragma warning restore CS0414
 
     // -------------------------------------------------------------------------
     // Rules-per-bin bounds

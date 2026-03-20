@@ -55,6 +55,50 @@ public class FloorSaveData
     /// and lets tooling identify whether a floor started from defaults or from a progression chain.
     /// </summary>
     public bool wasGenerated;
+
+    /// <summary>
+    /// Per-night configuration snapshots for this floor (5 entries, one per night).
+    /// Null or empty in save files created before per-night editing was introduced;
+    /// callers must handle the missing-nights case for backward compatibility.
+    /// </summary>
+    public List<NightSaveData> nights = new List<NightSaveData>();
+}
+
+/// <summary>
+/// Serialisable snapshot of one night's configuration within a saved floor.
+/// Stores the generator parameters (numberOfBins, rulesPerBin, maxRuleComplexity) for this night.
+/// Rules are no longer manually authored in the tool — RuleGenerator creates them at runtime
+/// using these parameters, so the rules list has been removed from this class.
+/// Does NOT contain UI state such as isExpanded — only data that belongs in the save file.
+/// </summary>
+[Serializable]
+public class NightSaveData
+{
+    /// <summary>Zero-based index of this night within the floor (0 to 4).</summary>
+    public int nightIndex;
+
+    /// <summary>Number of sorting bins active during this night.</summary>
+    public int numberOfBins;
+
+    /// <summary>
+    /// How many rules each bin has during this night.
+    /// RuleGenerator reads this field at runtime to determine per-bin rule count.
+    /// </summary>
+    public int rulesPerBin;
+
+    /// <summary>
+    /// Maximum rule complexity score for rules generated during this night (range 1–5).
+    /// RuleGenerator will not produce rules whose complexity exceeds this ceiling.
+    /// </summary>
+    public int maxRuleComplexity;
+
+    /// <summary>
+    /// True when the designer explicitly edited this night's sliders.
+    /// False when values were auto-propagated from the previous night.
+    /// Saved here so the tool can restore the wasManuallyEdited state when reloading a floor,
+    /// preventing propagation from silently overwriting intentional customizations.
+    /// </summary>
+    public bool wasManuallyEdited;
 }
 
 /// <summary>
