@@ -212,17 +212,12 @@ public class FloorDifficultyProgression : MonoBehaviour
     {
         Debug.Log("[FloorProgression] GetOrGenerateFloorData called for index: " + floorIndex);
 
-        // saveSystem being null means GameManager did not inject it properly —
-        // fall back to floor 1 base data to prevent crash.
-        if (saveSystem == null)
-        {
-            Debug.LogError("[FloorProgression] saveSystem is null — assign it in Inspector on GameManager GameObject");
-            return GenerateFloor1Data();
-        }
-
-        // Saved data takes absolute priority — returning it ensures replays are identical
-        // to the original run and no re-computation overrides what the player actually experienced.
-        if (saveSystem.FloorExists(floorIndex))
+        // null saveSystem = procedural mode (TowerScene). Skip all file-loading entirely
+        // and fall straight through to the generation logic below.
+        // Non-null saveSystem = story mode (DesignerTowerScene / GameScene replay path).
+        // Saved data takes absolute priority there — returning it ensures replays are identical
+        // to the original run and no re-computation overrides what the player experienced.
+        if (saveSystem != null && saveSystem.FloorExists(floorIndex))
             return saveSystem.LoadFloor(floorIndex);
 
         // Base case: floor 0 always returns fixed base values, ending the recursion.
@@ -231,7 +226,7 @@ public class FloorDifficultyProgression : MonoBehaviour
 
         // Recursive case: build the previous floor's data first, then derive the current floor.
         // Walking backwards ensures the chain is correct even when intermediate floors
-        // were never saved (e.g. after a DeleteAllSaves() reset).
+        // were never saved (e.g. after a DeleteAllSaves() reset or in procedural mode).
         FloorSaveData previousFloorData = GetOrGenerateFloorData(floorIndex - 1, saveSystem);
 
         // Null previous data means the recursive chain broke — fall back to floor 1 base data

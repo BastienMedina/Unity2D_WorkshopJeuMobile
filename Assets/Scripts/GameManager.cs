@@ -159,8 +159,9 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        // No session data — fresh game start. Always begin at floor 0 and compute or
-        // load its parameters so the first session uses the same values as any later replay.
+        // No session data — direct launch from Editor or first game start.
+        // Generate floor 0 procedurally (null saveSystem = no disk read) so this path
+        // is consistent with TowerScene's procedural mode and never reads floor_N.json.
 
         // If component is missing on GameManager GameObject, all floor generation crashes.
         if (floorDifficultyProgression == null)
@@ -169,14 +170,7 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        if (floorSaveSystem == null)
-        {
-            Debug.LogError("[GameManager] floorSaveSystem is not assigned in Inspector");
-            return;
-        }
-
-        FloorSaveData floor0Data = floorDifficultyProgression.GetOrGenerateFloorData(
-            0, floorSaveSystem);
+        FloorSaveData floor0Data = floorDifficultyProgression.GetOrGenerateFloorData(0, null);
 
         InitializeFromFloorData(floor0Data);
     }
@@ -826,19 +820,17 @@ public class GameManager : MonoBehaviour
     // -------------------------------------------------------------------------
 
     /// <summary>
-    /// Builds a FloorSaveData snapshot from the current game state and persists it via FloorSaveSystem.
+    /// Persists progress when the player completes all daysPerFloor days on a floor.
+    /// Branches on game mode to keep the two persistence systems completely isolated:
+    ///   Procedural mode (TowerScene origin): writes only to PlayerPrefs — never touches floor_N.json.
+    ///   Story mode (DesignerTowerScene origin): writes floor_N.json via FloorSaveSystem — never
+    ///   touches PlayerPrefs.
     /// Called by OnDaySuccess exactly when all daysPerFloor have been completed.
     /// Keeps currentFloorSaveData in sync so GenerateNextFloorData() can read accurate values.
     /// Also resets progression counters so the tower scene starts the player on the next floor.
     /// </summary>
     private void SaveCurrentFloor()
     {
-        if (floorSaveSystem == null)
-        {
-            Debug.LogError("[GameManager] SaveCurrentFloor: floorSaveSystem is not assigned.");
-            return;
-        }
-
         // Read rulesPerBin and maxRuleComplexity from currentFloorSaveData if available,
         // otherwise fall back to currentDayData which reflects what was actually used this day.
         int savedRulesPerBin       = currentFloorSaveData != null
@@ -890,7 +882,36 @@ public class GameManager : MonoBehaviour
                 floorData.specificities.Add(rule.conditionB);
         }
 
-        floorSaveSystem.SaveFloor(floorData);
+        // ── Mode branch ────────────────────────────────────────────────────────
+        // wasGenerated == true means the floor was produced procedurally (TowerScene path).
+        // wasGenerated == false means the floor was loaded from a designer JSON file (story path).
+        // The two persistence systems must never cross: procedural uses PlayerPrefs,
+        // story mode uses FloorSaveSystem JSON — mixing them would corrupt both modes.
+        if (floorData.wasGenerated)
+        {
+            // Procedural mode — write progress to PlayerPrefs only.
+            // The key mirrors the one in TowerManager so both read from the same source.
+            // PlayerPrefs.Save() flushes immediately so progress survives a crash or force-quit.
+            PlayerPrefs.SetInt("ProceduralHighestFloor", currentFloorIndex + 1);
+            PlayerPrefs.Save();
+            Debug.Log("[GameManager] Procedural floor " + currentFloorIndex
+                + " completed — progress saved to PlayerPrefs.");
+        }
+        else
+        {
+            // Story mode — write floor_N.json via FloorSaveSystem.
+            // Never writes to PlayerPrefs — story progress is tracked in JSON only.
+            if (floorSaveSystem == null)
+            {
+                Debug.LogError("[GameManager] SaveCurrentFloor (story mode): floorSaveSystem is not assigned.");
+            }
+            else
+            {
+                floorSaveSystem.SaveFloor(floorData);
+                Debug.Log("[GameManager] Story floor " + currentFloorIndex
+                    + " completed — saved to disk via FloorSaveSystem.");
+            }
+        }
 
         // Keep currentFloorSaveData pointing at the just-saved snapshot so
         // OnDaySuccess can immediately pass it to GenerateNextFloorData().

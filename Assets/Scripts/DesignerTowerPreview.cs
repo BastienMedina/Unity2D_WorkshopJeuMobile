@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 /// <summary>
@@ -32,6 +33,14 @@ public class DesignerTowerPreview : MonoBehaviour
     /// <summary>InfoPanel TextMeshProUGUI label updated when the designer taps a block.</summary>
     [SerializeField] private TextMeshProUGUI infoText;
 
+    /// <summary>
+    /// Name of the scene to load when a floor block is tapped.
+    /// Kept as a SerializeField so it can be updated in the Inspector when the scene is
+    /// renamed — hardcoding the name would require a code change for every rename.
+    /// Must match exactly (case-sensitive) the name registered in Build Settings.
+    /// </summary>
+    [SerializeField] private string gameSceneName = "GameScene";
+
     // ─── Layout Settings ──────────────────────────────────────────────────────
 
     /// <summary>Height in pixels of each floor block. Must match the prefab's sizeDelta.y.</summary>
@@ -57,6 +66,14 @@ public class DesignerTowerPreview : MonoBehaviour
     /// Matches the path written by FloorDesignerSaveUtils so both tools share the same folder.
     /// </summary>
     private string saveFolderPath => Application.persistentDataPath + "/floors/";
+
+    /// <summary>
+    /// Cached list of all floors loaded from disk during the last LoadAndDisplayFloors() call.
+    /// Stored as a field so OnBlockTapped(int) can look up FloorSaveData by index at tap time
+    /// without re-reading disk — local scope inside LoadAndDisplayFloors() would make it
+    /// unreachable from the event callback.
+    /// </summary>
+    private List<FloorSaveData> loadedFloors = new List<FloorSaveData>();
 
     // ─── Unity Lifecycle ──────────────────────────────────────────────────────
 
@@ -95,7 +112,7 @@ public class DesignerTowerPreview : MonoBehaviour
 
         ClearTowerContainer();
 
-        List<FloorSaveData> loadedFloors = ReadAllFloorFiles();
+        loadedFloors = ReadAllFloorFiles();
 
         if (loadedFloors.Count == 0)
         {
@@ -150,27 +167,42 @@ public class DesignerTowerPreview : MonoBehaviour
     }
 
     /// <summary>
-    /// Called by the InfoPanel when the designer taps a floor block.
-    /// Builds a human-readable summary of the block's saved parameters
-    /// and displays it so the designer can verify the values match what
-    /// was entered in the Floor Designer tool.
+    /// Receives the zero-based floor index fired by FloorBlock.OnFloorSelected,
+    /// stores the selected floor in FloorSessionData, and loads GameScene.
+    /// GameManager.Start() reads FloorSessionData.SelectedFloor immediately on load
+    /// and calls InitializeFromFloorData() so the correct floor parameters are applied.
+    /// Signature matches Action&lt;int&gt; so it subscribes directly to FloorBlock.OnFloorSelected.
     /// </summary>
-    /// <param name="floorData">The saved floor data associated with the tapped block.</param>
-    public void OnBlockTapped(FloorSaveData floorData)
+    /// <param name="floorIndex">Zero-based index of the tapped floor.</param>
+    private void OnBlockTapped(int floorIndex)
     {
-        // Tapping a block shows its exact saved parameters so the designer can verify
-        // values match what was entered in the Floor Designer tool without opening JSON manually.
-        string info =
-            "Floor " + (floorData.floorIndex + 1) + "\n" +
-            "Fail Threshold: "  + floorData.failThreshold.ToString("F1")      + "%\n" +
-            "Day Duration: "    + floorData.dayDuration.ToString("F1")         + "s\n" +
-            "Decay Rate: "      + floorData.decayRatePerSecond.ToString("F3")  + "/s\n" +
-            "Bins: "            + floorData.numberOfBins                        + "\n" +
-            "Rules per bin: "   + floorData.rulesPerBin                         + "\n" +
-            "Max Complexity: "  + floorData.maxRuleComplexity                   + "\n" +
-            "Rules saved: "     + floorData.rules.Count;
+        Debug.Log("[DesignerTower] Floor tapped: " + floorIndex);
 
-        infoText.text = info;
+        // STEP 1 — Find the floor data in the cached list.
+        FloorSaveData data = loadedFloors.Find(f => f.floorIndex == floorIndex);
+
+        if (data == null)
+        {
+            Debug.LogError("[DesignerTower] Floor data not found for index: " + floorIndex);
+            return;
+        }
+
+        // STEP 2 — Write to FloorSessionData, the static bridge that survives scene transitions.
+        // isCompleted floors are replayed exactly (rules restored from save);
+        // incomplete floors are started fresh using the saved difficulty parameters.
+        // GameManager.Start() reads both fields and clears them immediately after.
+        FloorSessionData.SelectedFloor    = data;
+        FloorSessionData.IsReplayingFloor = data.isCompleted;
+
+        // STEP 3 — Confirm the handoff before the scene destroys this object.
+        Debug.Log("[DesignerTower] Loading GameScene for floor: " + floorIndex
+            + " | isReplaying: " + FloorSessionData.IsReplayingFloor);
+
+        // STEP 4 — Load GameScene. SceneManager destroys DesignerTowerScene immediately;
+        // GameManager.Start() in GameScene picks up FloorSessionData and initialises
+        // the correct floor without any additional wiring.
+        // Loads by name so Build Settings controls which scene file is used, not a hardcoded path.
+        SceneManager.LoadScene(gameSceneName);
     }
 
     /// <summary>
@@ -296,18 +328,31 @@ public class DesignerTowerPreview : MonoBehaviour
 
         // Initialize label and internal state first. ApplyBlockColor() inside Initialize()
         // will set a color, but we override it afterward to guarantee visibility.
-        FloorBlock floorBlock = blockObject.GetComponent<FloorBlock>();
-        if (floorBlock != null)
+        // GetComponentInChildren is used because FloorBlock may live on a child rather
+        // than the prefab root — GetComponent on root would return null silently in that case.
+        FloorBlock floorBlock = blockObject.GetComponentInChildren<FloorBlock>(true);
+
+        if (floorBlock == null)
         {
-            // isCurrent = false: all blocks in the preview show their saved state only.
-            floorBlock.Initialize(floorData.floorIndex, floorData.isCompleted, current: false);
+            Debug.LogError("[DesignerTower] FloorBlock component not found on instantiated block");
+            return;
         }
+
+        // isCurrent = false: all blocks in the preview show their saved state only.
+        floorBlock.Initialize(floorData.floorIndex, floorData.isCompleted, current: false);
+
+        // Subscribe to OnFloorSelected AFTER Initialize() so FloorBlock's RemoveAllListeners
+        // call inside Initialize() does not race with our subscription.
+        // OnFloorSelected carries only the int index; OnBlockTapped(int) looks up the full
+        // FloorSaveData from the cached loadedFloors list.
+        floorBlock.OnFloorSelected += OnBlockTapped;
+        Debug.Log("[DesignerTower] Subscribed to OnFloorSelected for floor: " + floorData.floorIndex);
 
         // In the preview all blocks must be fully visible and tappable regardless of
         // completion state. Force the Button to Normal (interactable, not locked) so its
         // ColorTint transition does not apply the DisabledColor (alpha 0.5) which would
         // make the block semi-transparent even after the color is forced below.
-        Button button = blockObject.GetComponent<Button>();
+        Button button = blockObject.GetComponentInChildren<Button>(true);
         if (button != null)
             button.interactable = true;
 
@@ -315,25 +360,20 @@ public class DesignerTowerPreview : MonoBehaviour
         // Button.interactable = false triggers a ColorTint fade to DisabledColor which
         // multiplies the Image color by (r:0.78, g:0.78, b:0.78, a:0.5) — overwriting any
         // color set before that transition completes. Setting color last guarantees it wins.
-        Image blockImage = blockObject.GetComponent<Image>();
+        Image blockImage = blockObject.GetComponentInChildren<Image>(true);
         if (blockImage != null)
         {
             blockImage.color = new Color(0.2f, 0.6f, 0.2f, 1f);
             blockImage.enabled = true;
+            // Button requires its target graphic to have raycastTarget = true to detect clicks.
+            // Setting maskable = false in the previous fix does not affect raycastTarget,
+            // but forcing it explicitly here makes the dependency visible and prevents regressions.
+            blockImage.raycastTarget = true;
         }
 
         Debug.Log("[DesignerTower] Image color at runtime: "
             + (blockImage != null ? blockImage.color.ToString() : "NULL")
             + " interactable: " + (button != null ? button.interactable.ToString() : "NULL"));
-
-        // Wire tap listener AFTER Initialize() because Initialize() calls RemoveListener,
-        // which would strip any listener added before it.
-        Button tapButton = blockObject.GetComponentInChildren<Button>();
-        if (tapButton != null)
-        {
-            FloorSaveData capturedData = floorData;
-            tapButton.onClick.AddListener(() => OnBlockTapped(capturedData));
-        }
     }
 
     /// <summary>

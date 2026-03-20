@@ -113,12 +113,15 @@ public class FloorBlock : MonoBehaviour
         if (enterButton != null)
             enterButton.interactable = isCompleted || isCurrent;
 
-        // Remove any stale listener from a previous Initialize call on a recycled object,
-        // then add the current listener to prevent duplicate event firings.
+        // RemoveAllListeners first to clear any stale wiring from a previous Initialize call
+        // on a recycled object, then add the single authoritative listener.
+        // RemoveAllListeners (not RemoveListener) is used to guarantee no duplicate callbacks
+        // survive even if the object was initialized by multiple callers.
         if (enterButton != null)
         {
-            enterButton.onClick.RemoveListener(OnBlockTapped);
+            enterButton.onClick.RemoveAllListeners();
             enterButton.onClick.AddListener(OnBlockTapped);
+            Debug.Log("[FloorBlock] Adding onClick listener for floor: " + floorIndex);
         }
     }
 
@@ -158,10 +161,8 @@ public class FloorBlock : MonoBehaviour
     /// </summary>
     private void OnBlockTapped()
     {
-        // Log here to verify the Button is receiving pointer events.
-        // If this line appears in the console but TowerManager's log does not, the event
-        // subscription in TowerManager.SpawnBlock() is broken.
-        Debug.Log("[FloorBlock] Tapped floor: " + floorIndex);
+        // If this log never appears, the Button onClick is not connected to OnBlockTapped.
+        Debug.Log("[FloorBlock] OnBlockTapped called for floor: " + floorIndex);
 
         OnFloorSelected?.Invoke(floorIndex);
     }
