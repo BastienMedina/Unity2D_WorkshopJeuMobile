@@ -23,17 +23,25 @@ public static class FloorDesignerSaveUtils
 
     /// <summary>
     /// Converts the given FloorDesignerData to FloorSaveData and writes it to JSON.
+    /// On the first save (bins are empty), auto-generates rules from the difficulty parameters
+    /// using FloorDesignerRuleGen, so each bin starts with a coherent rule set derived from the
+    /// numberOfBins, rulesPerBin, maxRuleComplexity, and pinnedSpecificities set by the designer.
+    /// On subsequent saves, persists whatever rules the designer has manually edited.
     /// When overwrite is true, writes to "floor_N.json" (replaces existing).
-    /// When overwrite is false, finds the next free versioned suffix and writes
-    /// "floor_N_vX.json" — never overwriting an existing file so the designer
-    /// can keep multiple versions in parallel without losing previous work.
-    /// Sets isDirty = false on the data if the write succeeds.
+    /// When overwrite is false, finds the next free versioned suffix — never overwrites.
+    /// Sets isDirty = false and isSaved = true on the data if the write succeeds.
     /// </summary>
     /// <param name="designerData">The floor data to convert and save.</param>
     /// <param name="overwrite">True to replace the canonical floor_N.json; false to create a new version.</param>
-    public static void SaveFloor(FloorDesignerData designerData, bool overwrite)
+    /// <param name="database">The SpecificityDatabase used for auto-generation on first save. May be null (skips gen).</param>
+    public static void SaveFloor(FloorDesignerData designerData, bool overwrite,
+                                 SpecificityDatabase database = null)
     {
         EnsureSaveFolderExists();
+
+        // Auto-generate rules into empty bins before the first save so the designer
+        // immediately sees a populated rule set to review and edit in the rule editor panel.
+        AutoGenerateEmptyNights(designerData, database);
 
         FloorSaveData saveData = ConvertToSaveData(designerData);
         string filePath = BuildSavePath(designerData.floorIndex, overwrite);
@@ -43,11 +51,60 @@ public static class FloorDesignerSaveUtils
             string json = JsonUtility.ToJson(saveData, prettyPrint: true);
             File.WriteAllText(filePath, json);
             designerData.isDirty = false;
+            // Mark as saved so the window switches to the rule editor panel on next repaint.
+            designerData.isSaved = true;
+            // Ensure every night has the correct number of bin entries after the first save.
+            designerData.SyncBinsToNights();
             Debug.Log($"[FloorDesigner] Floor saved successfully → {filePath}");
         }
         catch (Exception exception)
         {
             Debug.LogError($"[FloorDesigner] Failed to save floor {designerData.floorIndex}: {exception.Message}");
+        }
+    }
+
+    /// <summary>
+    /// For each night whose bins are empty, generates rules using FloorDesignerRuleGen
+    /// and populates the bin lists in-place before the data is serialised.
+    /// Nights that already have at least one bin with rules are left untouched —
+    /// this prevents a re-save from overwriting the designer's manual edits.
+    /// Does nothing when database is null.
+    /// </summary>
+    private static void AutoGenerateEmptyNights(FloorDesignerData floor, SpecificityDatabase database)
+    {
+        if (database == null)
+            return;
+
+        foreach (NightDesignerData night in floor.nights)
+        {
+            // Skip nights that already have rules — preserve manual edits on re-save.
+            bool hasAnyRule = false;
+            foreach (BinDesignerData b in night.bins)
+            {
+                if (b.rules.Count > 0)
+                {
+                    hasAnyRule = true;
+                    break;
+                }
+            }
+
+            if (hasAnyRule)
+                continue;
+
+            // Night has no rules yet — generate them from the difficulty parameters.
+            List<BinDesignerData> generatedBins = FloorDesignerRuleGen.GenerateBinsForNight(
+                night.numberOfBins,
+                night.rulesPerBin,
+                night.maxRuleComplexity,
+                night.pinnedSpecificities,
+                database);
+
+            // Replace the (empty) bin list with the generated one.
+            night.bins = generatedBins;
+
+            Debug.Log($"[FloorDesigner] Auto-generated rules for night {night.nightIndex + 1}: " +
+                      $"{generatedBins.Count} bins, " +
+                      $"complexity ≤ {night.maxRuleComplexity}.");
         }
     }
 
@@ -158,9 +215,7 @@ public static class FloorDesignerSaveUtils
 
     /// <summary>
     /// Converts a FloorDesignerData to the serialisable FloorSaveData format.
-    /// Maps all matching fields and converts each NightDesignerData to a NightSaveData.
-    /// Rules are no longer manually authored — the rules list is intentionally left empty
-    /// because RuleGenerator creates rules at runtime using the saved parameters.
+    /// Persists all 5 nights with their difficulty parameters and per-bin rule assignments.
     /// </summary>
     private static FloorSaveData ConvertToSaveData(FloorDesignerData source)
     {
@@ -177,24 +232,49 @@ public static class FloorDesignerSaveUtils
             wasGenerated       = true,
             floorSeed          = string.Empty,
             specificities      = new List<string>(),
-            // Rules are generated at runtime by RuleGenerator — never stored manually here.
             rules              = new List<SavedRuleData>(),
             nights             = new List<NightSaveData>()
         };
 
-        // Persist all 5 nights with their parameter sets.
-        // nightIndex, numberOfBins, rulesPerBin, maxRuleComplexity, and wasManuallyEdited
-        // are all saved so the tool can restore the exact designer state on reload.
         foreach (NightDesignerData night in source.nights)
         {
             NightSaveData nightSave = new NightSaveData
             {
-                nightIndex        = night.nightIndex,
-                numberOfBins      = night.numberOfBins,
-                rulesPerBin       = night.rulesPerBin,
-                maxRuleComplexity = night.maxRuleComplexity,
-                wasManuallyEdited = night.wasManuallyEdited
+                nightIndex          = night.nightIndex,
+                numberOfBins        = night.numberOfBins,
+                rulesPerBin         = night.rulesPerBin,
+                maxRuleComplexity   = night.maxRuleComplexity,
+                wasManuallyEdited   = night.wasManuallyEdited,
+                pinnedSpecificities = new List<string>(night.pinnedSpecificities),
+                bins                = new List<BinSaveData>()
             };
+
+            // Persist each bin's explicit rule assignments authored by the designer.
+            foreach (BinDesignerData bin in night.bins)
+            {
+                BinSaveData binSave = new BinSaveData
+                {
+                    binIndex = bin.binIndex,
+                    binID    = bin.binID,
+                    rules    = new List<SavedRuleData>()
+                };
+
+                foreach (DesignerRuleEntry rule in bin.rules)
+                {
+                    binSave.rules.Add(new SavedRuleData
+                    {
+                        ruleType    = rule.ruleTypeString,
+                        conditionA  = rule.conditionA,
+                        conditionB  = rule.conditionB,
+                        targetBinID = rule.targetBinID,
+                        displayText = rule.displayText,
+                        complexity  = rule.complexity,
+                        isComplement = rule.isComplement
+                    });
+                }
+
+                nightSave.bins.Add(binSave);
+            }
 
             target.nights.Add(nightSave);
         }
@@ -205,9 +285,8 @@ public static class FloorDesignerSaveUtils
     /// <summary>
     /// Converts a FloorSaveData (loaded from JSON) back into a FloorDesignerData
     /// so the designer can continue editing a previously saved floor.
-    /// If the save file contains 5 NightSaveData entries they are restored directly.
-    /// If not (old save format without nights) InitializeNights() is called to build
-    /// a valid starting state — backward compatibility with floors saved before this update.
+    /// Restores per-bin rule assignments when they are present in the save file.
+    /// Falls back to an empty bin structure for saves created before per-bin editing was introduced.
     /// </summary>
     private static FloorDesignerData ConvertToDesignerData(FloorSaveData source)
     {
@@ -222,32 +301,72 @@ public static class FloorDesignerSaveUtils
             rulesPerBin        = source.rulesPerBin,
             maxRuleComplexity  = source.maxRuleComplexity,
             isCompleted        = source.isCompleted,
+            // Any floor loaded from disk is considered saved — enables the rule editor panel.
+            isSaved            = true,
             isDirty            = false
         };
 
-        // Restore nights from save file when 5 complete night entries are present.
-        // The count check guards against partial saves or saves from older tool versions.
         if (source.nights != null && source.nights.Count == 5)
         {
             foreach (NightSaveData nightSave in source.nights)
             {
                 NightDesignerData night = new NightDesignerData
                 {
-                    nightIndex        = nightSave.nightIndex,
-                    numberOfBins      = nightSave.numberOfBins,
-                    rulesPerBin       = nightSave.rulesPerBin,
-                    maxRuleComplexity = nightSave.maxRuleComplexity,
-                    wasManuallyEdited = nightSave.wasManuallyEdited
+                    nightIndex          = nightSave.nightIndex,
+                    numberOfBins        = nightSave.numberOfBins,
+                    rulesPerBin         = nightSave.rulesPerBin,
+                    maxRuleComplexity   = nightSave.maxRuleComplexity,
+                    wasManuallyEdited   = nightSave.wasManuallyEdited,
+                    pinnedSpecificities = nightSave.pinnedSpecificities != null
+                        ? new List<string>(nightSave.pinnedSpecificities)
+                        : new List<string>()
                 };
+
+                // Restore per-bin rule assignments when the save file contains them.
+                if (nightSave.bins != null && nightSave.bins.Count > 0)
+                {
+                    foreach (BinSaveData binSave in nightSave.bins)
+                    {
+                        BinDesignerData bin = new BinDesignerData
+                        {
+                            binIndex = binSave.binIndex,
+                            binID    = binSave.binID
+                        };
+
+                        if (binSave.rules != null)
+                        {
+                            foreach (SavedRuleData savedRule in binSave.rules)
+                            {
+                                bin.rules.Add(new DesignerRuleEntry
+                                {
+                                    ruleTypeString = savedRule.ruleType,
+                                    conditionA     = savedRule.conditionA,
+                                    conditionB     = savedRule.conditionB,
+                                    targetBinID    = savedRule.targetBinID,
+                                    displayText    = savedRule.displayText,
+                                    complexity     = savedRule.complexity,
+                                    isComplement   = savedRule.isComplement
+                                });
+                            }
+                        }
+
+                        night.bins.Add(bin);
+                    }
+                }
+                else
+                {
+                    // Old save format has no bin assignments — build empty bins for the night.
+                    night.SyncBins(night.numberOfBins);
+                }
 
                 target.nights.Add(night);
             }
         }
         else
         {
-            // Old save format has no nights — initialise a valid 5-night structure
-            // so the designer can immediately start configuring per-night parameters.
+            // Old save format has no nights — initialise a valid 5-night structure.
             target.InitializeNights();
+            target.SyncBinsToNights();
         }
 
         return target;

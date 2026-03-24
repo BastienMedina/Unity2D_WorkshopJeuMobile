@@ -410,7 +410,20 @@ public class GameManager : MonoBehaviour
         // during SetActiveBinCount, making a before/after read within the same frame unreliable.
         int previousBinCount = activeBinCount;
 
-        binLayoutManager.SetActiveBinCount(currentDayData.numberOfBins);
+        // OPTION B — use currentFloorSaveData.numberOfBins as the single source of truth for
+        // how many bins are active on this floor. DifficultyManager.ComputeDayData is authoritative
+        // for rulesPerBin and maxRuleComplexity only; its own ComputeNumberOfBins recalculates
+        // from totalFloors * daysPerFloor independently and may diverge from FloorDifficultyProgression
+        // which already encoded the correct bin count into currentFloorSaveData. Trusting two sources
+        // in parallel guaranteed the third bin would never appear (DifficultyManager kept returning 2
+        // while FloorSaveData.numberOfBins had already reached 3).
+        // Falls back to currentDayData.numberOfBins for safety when no floor data is set
+        // (e.g. direct Editor play without going through TowerScene).
+        int targetBinCount = currentFloorSaveData != null
+            ? currentFloorSaveData.numberOfBins
+            : currentDayData.numberOfBins;
+
+        binLayoutManager.SetActiveBinCount(targetBinCount);
 
         List<SortingBin> newActiveBins = binLayoutManager.GetActiveBins();
         int newBinCount                = newActiveBins.Count;
@@ -452,9 +465,36 @@ public class GameManager : MonoBehaviour
         {
             ruleGenerator.ResetForNewLevel();
 
+            // Extract pinned specificities from the current night's designer data (if any).
+            // currentFloorSaveData.nights is indexed by dayIndex (0–4), matching each game day
+            // to the night the designer configured in the Floor Designer tool.
+            // When pinnedSpecificities is non-empty, RuleGenerator uses it as the exclusive
+            // conditionA pool so the designer's chosen concepts are guaranteed to appear.
+            List<string> pinnedSpecificities = null;
+
+            bool hasNightData = currentFloorSaveData != null &&
+                                currentFloorSaveData.nights != null &&
+                                currentFloorSaveData.nights.Count > currentDayIndex;
+
+            if (hasNightData)
+            {
+                NightSaveData currentNight = currentFloorSaveData.nights[currentDayIndex];
+
+                if (currentNight.pinnedSpecificities != null &&
+                    currentNight.pinnedSpecificities.Count > 0)
+                {
+                    pinnedSpecificities = currentNight.pinnedSpecificities;
+
+                    Debug.Log($"[GameManager] Day {currentDayIndex + 1}: " +
+                              $"using {pinnedSpecificities.Count} pinned specificities — " +
+                              string.Join(", ", pinnedSpecificities));
+                }
+            }
+
             activeRules = ruleGenerator.GenerateRulesForDay(
                 currentDayData.rulesPerBin,
-                currentDayData.maxRuleComplexity);
+                currentDayData.maxRuleComplexity,
+                pinnedSpecificities);
         }
 
         // STEP 5 — Apply daily rule evolution starting from day 2.
@@ -543,6 +583,14 @@ public class GameManager : MonoBehaviour
         // Bin count from floorData overrides whatever BinLayoutManager's default is —
         // the stored value is always the canonical bin count for this floor.
         binLayoutManager.SetActiveBinCount(floorData.numberOfBins);
+
+        // OPTION A — synchronise activeBinCount immediately after applying the floor's bin count.
+        // Without this, activeBinCount remains 0 when InitializeDay reads it as previousBinCount,
+        // causing isNewBinActivated to be true on day 1 of every floor regardless of whether a
+        // bin actually appeared (0 < floorData.numberOfBins is always true).
+        // Reading GetActiveBinCount() here is safe: SetActiveBinCount above has already updated
+        // BinLayoutManager's internal counter to the correct clamped value.
+        activeBinCount = binLayoutManager.GetActiveBinCount();
 
         InitializeDay();
     }

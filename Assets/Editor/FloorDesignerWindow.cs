@@ -67,13 +67,28 @@ public class FloorDesignerWindow : EditorWindow
     [SerializeField] private float dayDurationDeltaPct   = 0.10f;
     [SerializeField] private float decayRateDeltaPct     = 0.12f;
 
-    // Cached array of all RuleType enum names for dropdown rendering.
+    // Cached array of all RuleType enum names — used internally for serialisation.
     private string[] ruleTypeNames;
+
+    // Cached array of human-readable rule labels built from database templates.
+    // Same length and order as ruleTypeNames — index N in both arrays refers to the same RuleType.
+    private string[] ruleTypeLabels;
 
     // ─── Cached GUIStyles — created once per OnEnable to avoid per-frame alloc ─
 
     private GUIStyle sectionLabelStyle;
     private bool isStylesInitialized;
+
+    // ─── Per-night dropdown selection index (0–4), one per night.
+    // Index into the SpecificityDatabase.allSpecificities array for the Popup widget.
+    // Not serialised — resets on editor reload, acceptable for a transient selection state.
+    private readonly int[] specificityDropdownIndex = new int[5];
+
+    /// <summary>Cached specificity names loaded from the SpecificityDatabase for the Popup widget.</summary>
+    private string[] cachedSpecificityNames;
+
+    /// <summary>Cached reference to the SpecificityDatabase asset found in the project.</summary>
+    private SpecificityDatabase cachedSpecificityDatabase;
 
     /// <summary>
     /// Tracks whether the Night Progression comparison table is expanded.
@@ -81,7 +96,39 @@ public class FloorDesignerWindow : EditorWindow
     /// </summary>
     private bool showNightComparison;
 
-    // ─── Menu Entry ───────────────────────────────────────────────────────────
+    // ─── Rule editor transient state (not persisted) ──────────────────────────
+
+    /// <summary>
+    /// Per-night, per-bin: index of the selected RuleType in the "add rule" dropdown.
+    /// Key = nightIndex * 10 + binIndex. Resets on editor reload.
+    /// </summary>
+    private Dictionary<int, int> addRuleTypeIndex = new Dictionary<int, int>();
+
+    /// <summary>
+    /// Per-night, per-bin: conditionA text field value for the "add rule" form.
+    /// </summary>
+    private Dictionary<int, string> addRuleConditionA = new Dictionary<int, string>();
+
+    /// <summary>
+    /// Per-night, per-bin: conditionB text field value for the "add rule" form.
+    /// </summary>
+    private Dictionary<int, string> addRuleConditionB = new Dictionary<int, string>();
+
+    /// <summary>
+    /// Per-night, per-bin: index of the selected specificity in the conditionA dropdown.
+    /// </summary>
+    private Dictionary<int, int> addRuleSpecA = new Dictionary<int, int>();
+
+    /// <summary>
+    /// Per-night, per-bin: index of the selected specificity in the conditionB dropdown.
+    /// </summary>
+    private Dictionary<int, int> addRuleSpecB = new Dictionary<int, int>();
+
+    /// <summary>
+    /// Per-night, per-bin, per-rule: index for the "replace" rule type dropdown.
+    /// Key = nightIndex * 1000 + binIndex * 100 + ruleIndex.
+    /// </summary>
+    private Dictionary<int, int> replaceRuleTypeIndex = new Dictionary<int, int>();
 
     /// <summary>
     /// Opens the Floor Designer window from the Unity top menu.
@@ -104,9 +151,11 @@ public class FloorDesignerWindow : EditorWindow
     /// </summary>
     private void OnEnable()
     {
-        ruleTypeNames     = Enum.GetNames(typeof(RuleType));
+        ruleTypeNames       = Enum.GetNames(typeof(RuleType));
         isStylesInitialized = false;
+        LoadSpecificityDatabase();
         LoadAllFloors();
+        BuildRuleTypeLabels();
     }
 
     /// <summary>
@@ -148,11 +197,98 @@ public class FloorDesignerWindow : EditorWindow
         EditorGUILayout.EndHorizontal();
     }
 
+    // ─── Specificity Database Loader ──────────────────────────────────────────
+
+    /// <summary>
+    /// Finds and caches the first SpecificityDatabase asset in the project using AssetDatabase.
+    /// Builds cachedSpecificityNames from allSpecificities so the Popup widget can render
+    /// all available specificities without querying AssetDatabase every frame.
+    /// Called once in OnEnable and whenever the database reference is invalidated.
+    /// Logs a warning if no database is found — Pinned Specificities dropdowns will
+    /// display a single "No database found" entry and remain non-functional until one is created.
+    /// </summary>
+    private void LoadSpecificityDatabase()
+    {
+        string[] guids = AssetDatabase.FindAssets("t:SpecificityDatabase");
+
+        if (guids.Length == 0)
+        {
+            Debug.LogWarning("[FloorDesigner] No SpecificityDatabase asset found in project. Pinned Specificities dropdowns will be disabled.");
+            cachedSpecificityDatabase = null;
+            cachedSpecificityNames    = new string[] { "(No database found)" };
+            return;
+        }
+
+        string assetPath = AssetDatabase.GUIDToAssetPath(guids[0]);
+        cachedSpecificityDatabase = AssetDatabase.LoadAssetAtPath<SpecificityDatabase>(assetPath);
+
+        if (cachedSpecificityDatabase == null || cachedSpecificityDatabase.allSpecificities == null ||
+            cachedSpecificityDatabase.allSpecificities.Count == 0)
+        {
+            cachedSpecificityNames = new string[] { "(Database is empty)" };
+            return;
+        }
+
+        cachedSpecificityNames = cachedSpecificityDatabase.allSpecificities.ToArray();
+    }
+
+    /// <summary>
+    /// Builds ruleTypeLabels in the same order as ruleTypeNames (Enum.GetNames order).
+    /// Each label uses the templateText from the SpecificityDatabase for that RuleType,
+    /// keeping {0} and {1} visible as placeholders so the designer understands what
+    /// condition slots the rule expects. Falls back to the enum name when no template exists.
+    /// Called after LoadSpecificityDatabase so the database is guaranteed to be loaded first.
+    /// </summary>
+    private void BuildRuleTypeLabels()
+    {
+        RuleType[] allTypes = (RuleType[])Enum.GetValues(typeof(RuleType));
+        ruleTypeLabels = new string[allTypes.Length];
+
+        for (int i = 0; i < allTypes.Length; i++)
+        {
+            RuleType type      = allTypes[i];
+            string   enumName  = type.ToString();
+            string   label     = enumName; // fallback
+
+            if (cachedSpecificityDatabase?.templates != null)
+            {
+                foreach (RuleTemplate t in cachedSpecificityDatabase.templates)
+                {
+                    if (t.ruleType == type)
+                    {
+                        label = t.templateText;
+                        break;
+                    }
+                }
+            }
+
+            // If still on enum name, use the hard-coded French fallbacks from FloorDesignerRuleGen.
+            if (label == enumName)
+            {
+                label = type switch
+                {
+                    RuleType.PositiveExclusive              => "Si seulement {0} → ici",
+                    RuleType.PositiveForced                 => "Si {0} → ici",
+                    RuleType.NegativeSimple                 => "Si pas {0} → ici",
+                    RuleType.ConditionalBranch              => "Si {0} : {1} présent → ici, sinon autre",
+                    RuleType.PositiveDouble                 => "Si {0} et {1} → ici, sinon autre",
+                    RuleType.PositiveWithNegative           => "Si {0} mais pas {1} → ici",
+                    RuleType.ComplementPositiveForced       => "Si pas {0} → ici (complément)",
+                    RuleType.ComplementPositiveExclusive    => "Si {0} + autres → ici (complément)",
+                    RuleType.ComplementNegativeSimple       => "Si {0} → ici (complément)",
+                    RuleType.ComplementPositiveWithNegative => "Si {0} et {1} → ici (complément)",
+                    _                                       => enumName
+                };
+            }
+
+            ruleTypeLabels[i] = label;
+        }
+    }
+
     // ─── Left Panel ───────────────────────────────────────────────────────────
 
     /// <summary>Draws the tower overview panel with floor list and toolbar.</summary>
-    private void DrawLeftPanel(float width)
-    {
+    private void DrawLeftPanel(float width)    {
         EditorGUILayout.BeginVertical(GUILayout.Width(width));
 
         EditorGUILayout.LabelField("Floor Tower", sectionLabelStyle);
@@ -398,27 +534,29 @@ public class FloorDesignerWindow : EditorWindow
 
     /// <summary>
     /// Renders the NIGHTS (5 Days) section.
-    /// Each night shows a collapsible colored header with summary stats, and when expanded,
-    /// three parameter sliders that RuleGenerator will read at runtime to create the rules.
+    /// When the floor is not yet saved: shows difficulty sliders per night.
+    /// When the floor has been saved: shows the per-bin rule editor for each night.
     /// </summary>
     private void DrawNightsSection(FloorDesignerData floor)
     {
         EditorGUILayout.LabelField("── NIGHTS (5 Days) ──", sectionLabelStyle);
 
         for (int i = 0; i < floor.nights.Count; i++)
-            DrawNightPanel(floor, floor.nights[i], i);
+        {
+            if (floor.isSaved)
+                DrawNightPanelRuleEditor(floor, floor.nights[i], i);
+            else
+                DrawNightPanelCreation(floor, floor.nights[i], i);
+        }
 
         EditorGUILayout.Space(6f);
     }
 
     /// <summary>
-    /// Renders one night entry: a colored clickable header button and, when expanded,
-    /// three parameter sliders (numberOfBins, rulesPerBin, maxRuleComplexity).
+    /// Creation mode night panel: difficulty sliders only (numberOfBins, rulesPerBin, maxRuleComplexity).
+    /// Shown before the first save so the designer sets difficulty without being distracted by rule details.
     /// </summary>
-    /// <param name="floor">The parent floor whose isDirty flag is set on any change.</param>
-    /// <param name="night">The night data to render.</param>
-    /// <param name="nightIndex">Zero-based position of this night in the floor's nights list.</param>
-    private void DrawNightPanel(FloorDesignerData floor, NightDesignerData night, int nightIndex)
+    private void DrawNightPanelCreation(FloorDesignerData floor, NightDesignerData night, int nightIndex)
     {
         // ── Night Header Button ───────────────────────────────────────────────
         GUIStyle headerStyle = new GUIStyle(GUI.skin.button)
@@ -428,51 +566,41 @@ public class FloorDesignerWindow : EditorWindow
             alignment = TextAnchor.MiddleLeft
         };
 
-        // Blue = manually customized night; gray = auto-inherited from previous night.
-        // Visual distinction helps the designer quickly identify which nights have
-        // custom rule parameters vs which are simply following the previous night.
-        if (night.wasManuallyEdited)
-            GUI.backgroundColor = new Color(0.4f, 0.7f, 1f);
-        else
-            GUI.backgroundColor = new Color(0.5f, 0.5f, 0.5f);
+        GUI.backgroundColor = night.wasManuallyEdited
+            ? new Color(0.4f, 0.7f, 1f)
+            : new Color(0.5f, 0.5f, 0.5f);
 
-        // ✎ icon = manually edited night; ↓ icon = inherited from previous night.
-        // Status suffix in the header lets the designer scan all 5 nights at a glance.
-        string editMarker = night.wasManuallyEdited ? "  ✎" : "  ↓";
-        string headerLabel = $"Night {nightIndex + 1}  |  {night.numberOfBins} bins"
-                           + $"  |  {night.rulesPerBin} rules/bin"
-                           + $"  |  complexity {night.maxRuleComplexity}"
+        string editMarker  = night.wasManuallyEdited ? "  ✎" : "  ↓";
+        string headerLabel = $"Nuit {nightIndex + 1}  |  {night.numberOfBins} corbeilles"
+                           + $"  |  {night.rulesPerBin} règles/corbeille"
+                           + $"  |  complexité {night.maxRuleComplexity}"
                            + editMarker;
 
         if (GUILayout.Button(headerLabel, headerStyle, GUILayout.ExpandWidth(true)))
             night.isExpanded = !night.isExpanded;
 
-        // Always reset after the colored header button so subsequent UI is not tinted.
         GUI.backgroundColor = Color.white;
 
         if (!night.isExpanded)
             return;
 
-        // ── Night Sub-Panel ───────────────────────────────────────────────────
         EditorGUI.indentLevel++;
 
-        EditorGUILayout.LabelField($"BIN & RULE SETTINGS — Night {nightIndex + 1}", EditorStyles.boldLabel);
+        EditorGUILayout.LabelField($"DIFFICULTÉ — Nuit {nightIndex + 1}", EditorStyles.boldLabel);
 
-        // Number of Bins slider — independent per night; not propagated.
+        // Number of Bins
         EditorGUI.BeginChangeCheck();
-        int newNumberOfBins = EditorGUILayout.IntSlider(
-            "Bins active this night", night.numberOfBins, NumberOfBinsMin, NumberOfBinsMax);
+        int newBins = EditorGUILayout.IntSlider("Corbeilles actives", night.numberOfBins, NumberOfBinsMin, NumberOfBinsMax);
         if (EditorGUI.EndChangeCheck())
         {
-            night.numberOfBins    = newNumberOfBins;
+            night.numberOfBins      = newBins;
             night.wasManuallyEdited = true;
-            floor.isDirty         = true;
+            floor.isDirty           = true;
         }
 
-        // Rules Per Bin slider — propagated forward to non-manually-edited nights.
+        // Rules Per Bin
         EditorGUI.BeginChangeCheck();
-        int newRulesPerBin = EditorGUILayout.IntSlider(
-            "Rules per bin this night", night.rulesPerBin, RulesPerBinMin, RulesPerBinMax);
+        int newRulesPerBin = EditorGUILayout.IntSlider("Règles par corbeille", night.rulesPerBin, RulesPerBinMin, RulesPerBinMax);
         if (EditorGUI.EndChangeCheck())
         {
             night.rulesPerBin       = newRulesPerBin;
@@ -481,10 +609,9 @@ public class FloorDesignerWindow : EditorWindow
             floor.isDirty           = true;
         }
 
-        // Max Rule Complexity slider — propagated forward to non-manually-edited nights.
+        // Max Rule Complexity
         EditorGUI.BeginChangeCheck();
-        int newMaxComplexity = EditorGUILayout.IntSlider(
-            "Max rule complexity this night", night.maxRuleComplexity, MaxRuleComplexityMin, MaxRuleComplexityMax);
+        int newMaxComplexity = EditorGUILayout.IntSlider("Difficulté de règle (max)", night.maxRuleComplexity, MaxRuleComplexityMin, MaxRuleComplexityMax);
         if (EditorGUI.EndChangeCheck())
         {
             night.maxRuleComplexity = newMaxComplexity;
@@ -493,29 +620,21 @@ public class FloorDesignerWindow : EditorWindow
             floor.isDirty           = true;
         }
 
-        // Status label — explains whether these values are custom or inherited,
-        // helping the designer understand the source of each night's configuration.
-        GUIStyle statusLabelStyle = new GUIStyle(EditorStyles.miniLabel) { fontStyle = FontStyle.Italic };
-        string statusText;
+        GUIStyle statusStyle = new GUIStyle(EditorStyles.miniLabel) { fontStyle = FontStyle.Italic };
+        string statusText = night.wasManuallyEdited
+            ? "✎ Personnalisé manuellement"
+            : nightIndex == 0
+                ? "↓ Nuit de base — modifier pour personnaliser"
+                : $"↓ Hérité de la Nuit {nightIndex}";
+        EditorGUILayout.LabelField(statusText, statusStyle);
 
-        if (night.wasManuallyEdited)
-            statusText = "✎ Manually customized";
-        else if (nightIndex == 0)
-            statusText = "↓ Base night — edit to customize";
-        else
-            // Shows which night this one is inheriting from, so the designer can trace the chain.
-            statusText = $"↓ Inherited from Night {nightIndex}";
-
-        EditorGUILayout.LabelField(statusText, statusLabelStyle);
-
-        // Reset to inherited — only meaningful for nights that have a predecessor and were edited.
+        // Reset to inherited button
         bool canReset = nightIndex > 0 && night.wasManuallyEdited;
-        if (canReset && GUILayout.Button($"Reset this night to inherited values"))
+        if (canReset && GUILayout.Button("Réinitialiser aux valeurs héritées"))
         {
             NightDesignerData previousNight = floor.nights[nightIndex - 1];
             night.rulesPerBin       = previousNight.rulesPerBin;
             night.maxRuleComplexity = previousNight.maxRuleComplexity;
-            // Clear the manual flag so propagation can freely update this night again.
             night.wasManuallyEdited = false;
             floor.PropagateNightRules(nightIndex);
             floor.isDirty = true;
@@ -523,6 +642,325 @@ public class FloorDesignerWindow : EditorWindow
 
         EditorGUI.indentLevel--;
         EditorGUILayout.Space(4f);
+    }
+
+    /// <summary>
+    /// Rule editor mode night panel: shows one collapsible bin panel per corbeille,
+    /// each listing its assigned rules with add / remove / replace controls.
+    /// Also provides [+ Corbeille] and [− Corbeille] buttons to adjust the bin count per night.
+    /// Shown after the first save — the difficulty sliders are no longer displayed.
+    /// </summary>
+    private void DrawNightPanelRuleEditor(FloorDesignerData floor, NightDesignerData night, int nightIndex)
+    {
+        // ── Night Header Button ───────────────────────────────────────────────
+        GUIStyle headerStyle = new GUIStyle(GUI.skin.button)
+        {
+            fontSize  = 12,
+            fontStyle = FontStyle.Bold,
+            alignment = TextAnchor.MiddleLeft
+        };
+
+        int totalRules = 0;
+        foreach (BinDesignerData bin in night.bins)
+            totalRules += bin.rules.Count;
+
+        GUI.backgroundColor = new Color(0.35f, 0.65f, 0.95f);
+        string nightHeader = $"Nuit {nightIndex + 1}  |  {night.numberOfBins} corbeilles  |  {totalRules} règles au total";
+
+        if (GUILayout.Button(nightHeader, headerStyle, GUILayout.ExpandWidth(true)))
+            night.isExpanded = !night.isExpanded;
+
+        GUI.backgroundColor = Color.white;
+
+        if (!night.isExpanded)
+            return;
+
+        EditorGUI.indentLevel++;
+
+        // ── One bin panel per corbeille ───────────────────────────────────────
+        for (int binIdx = 0; binIdx < night.bins.Count; binIdx++)
+            DrawBinRulePanel(floor, night, nightIndex, night.bins[binIdx], binIdx);
+
+        // ── Bin count controls ────────────────────────────────────────────────
+        EditorGUILayout.Space(4f);
+        EditorGUILayout.BeginHorizontal();
+
+        bool canAdd    = night.numberOfBins < NumberOfBinsMax;
+        bool canRemove = night.numberOfBins > NumberOfBinsMin;
+
+        using (new EditorGUI.DisabledScope(!canAdd))
+        {
+            GUI.backgroundColor = canAdd ? new Color(0.4f, 0.85f, 0.4f) : Color.white;
+            if (GUILayout.Button("+ Corbeille", GUILayout.Width(110f)))
+            {
+                night.numberOfBins++;
+                // SyncBins appends a new empty bin and keeps binIndex/binID consistent.
+                night.SyncBins(night.numberOfBins);
+                floor.isDirty = true;
+            }
+            GUI.backgroundColor = Color.white;
+        }
+
+        using (new EditorGUI.DisabledScope(!canRemove))
+        {
+            GUI.backgroundColor = canRemove ? new Color(1f, 0.4f, 0.4f) : Color.white;
+            if (GUILayout.Button("− Corbeille", GUILayout.Width(110f)))
+            {
+                if (EditorUtility.DisplayDialog(
+                    "Supprimer la corbeille",
+                    $"Supprimer la Corbeille {(char)('A' + night.numberOfBins - 1)} de la Nuit {nightIndex + 1} ?\n" +
+                    "Les règles qu'elle contient seront perdues.",
+                    "Supprimer", "Annuler"))
+                {
+                    night.numberOfBins--;
+                    night.SyncBins(night.numberOfBins);
+                    floor.isDirty = true;
+                }
+            }
+            GUI.backgroundColor = Color.white;
+        }
+
+        GUIStyle binCountStyle = new GUIStyle(EditorStyles.miniLabel) { fontStyle = FontStyle.Italic };
+        EditorGUILayout.LabelField($"({night.numberOfBins}/{NumberOfBinsMax})", binCountStyle);
+
+        EditorGUILayout.EndHorizontal();
+
+        EditorGUI.indentLevel--;
+        EditorGUILayout.Space(4f);
+    }
+
+    /// <summary>
+    /// Draws the collapsible rule editor panel for one bin within a night.
+    /// Lists assigned rules with [×] remove and [↕] replace actions, plus an "Add Rule" form.
+    /// </summary>
+    private void DrawBinRulePanel(FloorDesignerData floor, NightDesignerData night, int nightIndex,
+                                  BinDesignerData bin, int binIdx)
+    {
+        int stateKey = nightIndex * 10 + binIdx;
+
+        // ── Bin Header ───────────────────────────────────────────────────────
+        GUIStyle binHeaderStyle = new GUIStyle(EditorStyles.foldout)
+        {
+            fontStyle = FontStyle.Bold,
+            fontSize  = 11
+        };
+
+        GUI.backgroundColor = new Color(0.55f, 0.85f, 0.55f);
+        string binLabel = $"Corbeille {(char)('A' + binIdx)}  ({bin.rules.Count} règle{(bin.rules.Count != 1 ? "s" : "")})";
+
+        EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+
+        bin.isExpanded = EditorGUILayout.Foldout(bin.isExpanded, binLabel, toggleOnLabelClick: true, binHeaderStyle);
+        GUI.backgroundColor = Color.white;
+
+        if (bin.isExpanded)
+        {
+            EditorGUI.indentLevel++;
+
+            // ── Existing rules ────────────────────────────────────────────────
+            if (bin.rules.Count == 0)
+            {
+                EditorGUILayout.LabelField("Aucune règle assignée.", EditorStyles.miniLabel);
+            }
+            else
+            {
+                for (int ruleIdx = 0; ruleIdx < bin.rules.Count; ruleIdx++)
+                    DrawRuleRow(floor, night, nightIndex, bin, binIdx, ruleIdx, stateKey);
+            }
+
+            EditorGUILayout.Space(4f);
+
+            // ── Add Rule form ─────────────────────────────────────────────────
+            DrawAddRuleForm(floor, night, nightIndex, bin, binIdx, stateKey);
+
+            EditorGUI.indentLevel--;
+        }
+
+        EditorGUILayout.EndVertical();
+        EditorGUILayout.Space(2f);
+    }
+
+    /// <summary>
+    /// Draws one row for an existing rule: display text, [×] remove button, and a [↕] replace inline form.
+    /// </summary>
+    private void DrawRuleRow(FloorDesignerData floor, NightDesignerData night, int nightIndex,
+                             BinDesignerData bin, int binIdx, int ruleIdx, int stateKey)
+    {
+        DesignerRuleEntry rule = bin.rules[ruleIdx];
+        int replaceKey = nightIndex * 1000 + binIdx * 100 + ruleIdx;
+
+        EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+        EditorGUILayout.BeginHorizontal();
+
+        // Rule summary label
+        string ruleLabel = string.IsNullOrEmpty(rule.displayText)
+            ? $"[{rule.ruleTypeString}]  {rule.conditionA}"
+            : rule.displayText;
+        EditorGUILayout.LabelField(ruleLabel, GUILayout.ExpandWidth(true));
+
+        // Remove button
+        GUI.backgroundColor = new Color(1f, 0.4f, 0.4f);
+        if (GUILayout.Button("×", GUILayout.Width(24f)))
+        {
+            bin.rules.RemoveAt(ruleIdx);
+            floor.isDirty = true;
+            GUI.backgroundColor = Color.white;
+            EditorGUILayout.EndHorizontal();
+            EditorGUILayout.EndVertical();
+            return;
+        }
+        GUI.backgroundColor = Color.white;
+
+        EditorGUILayout.EndHorizontal();
+
+        // ── Inline Replace form ───────────────────────────────────────────────
+        if (!replaceRuleTypeIndex.ContainsKey(replaceKey))
+            replaceRuleTypeIndex[replaceKey] = 0;
+
+        EditorGUILayout.LabelField("Remplacer par :", EditorStyles.miniLabel);
+        EditorGUILayout.BeginHorizontal();
+
+        replaceRuleTypeIndex[replaceKey] = EditorGUILayout.Popup(
+            replaceRuleTypeIndex[replaceKey], ruleTypeLabels, GUILayout.Width(300f));
+
+        bool databaseReady = cachedSpecificityDatabase != null &&
+                             cachedSpecificityDatabase.allSpecificities != null &&
+                             cachedSpecificityDatabase.allSpecificities.Count > 0;
+
+        // ConditionA dropdown from database
+        if (!addRuleSpecA.ContainsKey(replaceKey))
+            addRuleSpecA[replaceKey] = 0;
+        if (!addRuleSpecB.ContainsKey(replaceKey + 50000))
+            addRuleSpecB[replaceKey + 50000] = 0;
+
+        using (new EditorGUI.DisabledScope(!databaseReady))
+        {
+            addRuleSpecA[replaceKey] = EditorGUILayout.Popup(
+                addRuleSpecA[replaceKey], cachedSpecificityNames, GUILayout.Width(100f));
+            addRuleSpecB[replaceKey + 50000] = EditorGUILayout.Popup(
+                addRuleSpecB[replaceKey + 50000], cachedSpecificityNames, GUILayout.Width(100f));
+        }
+
+        GUI.backgroundColor = new Color(1f, 0.75f, 0.2f);
+        if (GUILayout.Button("↕ Remplacer", GUILayout.Width(90f)))
+        {
+            string newType  = ruleTypeNames[replaceRuleTypeIndex[replaceKey]];
+            string newCondA = databaseReady
+                ? cachedSpecificityDatabase.allSpecificities[
+                    Mathf.Clamp(addRuleSpecA[replaceKey], 0, cachedSpecificityDatabase.allSpecificities.Count - 1)]
+                : string.Empty;
+            string newCondB = databaseReady
+                ? cachedSpecificityDatabase.allSpecificities[
+                    Mathf.Clamp(addRuleSpecB[replaceKey + 50000], 0, cachedSpecificityDatabase.allSpecificities.Count - 1)]
+                : string.Empty;
+
+            rule.ruleTypeString = newType;
+            rule.conditionA     = newCondA;
+            rule.conditionB     = newCondB;
+            rule.targetBinID    = bin.binID;
+            rule.displayText    = BuildRuleDisplayText(newType, newCondA, newCondB, bin.binID);
+            floor.isDirty       = true;
+        }
+        GUI.backgroundColor = Color.white;
+
+        EditorGUILayout.EndHorizontal();
+        EditorGUILayout.EndVertical();
+    }
+
+    /// <summary>
+    /// Draws the "Add Rule" form at the bottom of a bin panel.
+    /// The designer picks a RuleType and conditionA/B from the database, then clicks [+ Ajouter].
+    /// </summary>
+    private void DrawAddRuleForm(FloorDesignerData floor, NightDesignerData night, int nightIndex,
+                                 BinDesignerData bin, int binIdx, int stateKey)
+    {
+        EditorGUILayout.LabelField("── Ajouter une règle ──", EditorStyles.boldLabel);
+
+        bool databaseReady = cachedSpecificityDatabase != null &&
+                             cachedSpecificityDatabase.allSpecificities != null &&
+                             cachedSpecificityDatabase.allSpecificities.Count > 0;
+
+        if (!addRuleTypeIndex.ContainsKey(stateKey))
+            addRuleTypeIndex[stateKey]  = 0;
+        if (!addRuleSpecA.ContainsKey(stateKey))
+            addRuleSpecA[stateKey]      = 0;
+        if (!addRuleSpecB.ContainsKey(stateKey))
+            addRuleSpecB[stateKey]      = 0;
+
+        // Rule type dropdown — labels lisibles depuis les templates de la database
+        addRuleTypeIndex[stateKey] = EditorGUILayout.Popup("Type de règle", addRuleTypeIndex[stateKey], ruleTypeLabels);
+
+        // ConditionA and ConditionB from specificity database
+        using (new EditorGUI.DisabledScope(!databaseReady))
+        {
+            addRuleSpecA[stateKey] = EditorGUILayout.Popup("Condition A", addRuleSpecA[stateKey], cachedSpecificityNames);
+            addRuleSpecB[stateKey] = EditorGUILayout.Popup("Condition B", addRuleSpecB[stateKey], cachedSpecificityNames);
+        }
+
+        string selectedType  = ruleTypeNames[addRuleTypeIndex[stateKey]];
+        string selectedCondA = databaseReady
+            ? cachedSpecificityDatabase.allSpecificities[
+                Mathf.Clamp(addRuleSpecA[stateKey], 0, cachedSpecificityDatabase.allSpecificities.Count - 1)]
+            : string.Empty;
+        string selectedCondB = databaseReady
+            ? cachedSpecificityDatabase.allSpecificities[
+                Mathf.Clamp(addRuleSpecB[stateKey], 0, cachedSpecificityDatabase.allSpecificities.Count - 1)]
+            : string.Empty;
+
+        // Preview of the rule that will be added
+        string preview = BuildRuleDisplayText(selectedType, selectedCondA, selectedCondB, bin.binID);
+        GUIStyle previewStyle = new GUIStyle(EditorStyles.helpBox) { wordWrap = true, fontStyle = FontStyle.Italic };
+        EditorGUILayout.LabelField($"Aperçu : {preview}", previewStyle);
+
+        GUI.backgroundColor = new Color(0.4f, 0.85f, 0.4f);
+        if (GUILayout.Button("+ Ajouter la règle"))
+        {
+            DesignerRuleEntry newRule = new DesignerRuleEntry
+            {
+                ruleTypeString = selectedType,
+                conditionA     = selectedCondA,
+                conditionB     = selectedCondB,
+                targetBinID    = bin.binID,
+                displayText    = preview,
+                complexity     = 1,
+                isComplement   = false
+            };
+            bin.rules.Add(newRule);
+            floor.isDirty = true;
+        }
+        GUI.backgroundColor = Color.white;
+    }
+
+    /// <summary>
+    /// Builds a simple human-readable display text for a rule based on its type and conditions.
+    /// Used for the preview and the displayText stored on saved rules.
+    /// Falls back to a generic "[type] condA → binID" format when no template matches.
+    /// </summary>
+    private string BuildRuleDisplayText(string ruleTypeString, string condA, string condB, string binID)
+    {
+        if (cachedSpecificityDatabase == null || cachedSpecificityDatabase.templates == null)
+            return $"[{ruleTypeString}] {condA} → {binID}";
+
+        if (!System.Enum.TryParse(ruleTypeString, out RuleType parsedType))
+            return $"[{ruleTypeString}] {condA} → {binID}";
+
+        bool needsTwo = !string.IsNullOrEmpty(condB);
+
+        foreach (RuleTemplate t in cachedSpecificityDatabase.templates)
+        {
+            if (t.ruleType != parsedType)
+                continue;
+
+            string text = t.templateText;
+            text = text.Replace("{0}", condA);
+            text = text.Replace("{1}", condB);
+            text = text.Replace("{bin}", binID);
+            return text;
+        }
+
+        return needsTwo
+            ? $"[{ruleTypeString}] {condA} + {condB} → {binID}"
+            : $"[{ruleTypeString}] {condA} → {binID}";
     }
 
     /// <summary>
@@ -551,7 +989,7 @@ public class FloorDesignerWindow : EditorWindow
         // "Save Floor" in the Save Actions section is the primary action for daily use.
         if (GUILayout.Button("Save as new version"))
         {
-            FloorDesignerSaveUtils.SaveFloor(floor, overwrite: false);
+            FloorDesignerSaveUtils.SaveFloor(floor, overwrite: false, database: cachedSpecificityDatabase);
             string lastSaved = GetLastSavedVersionName(floor.floorIndex);
             EditorUtility.DisplayDialog("Saved", $"Saved as {lastSaved}", "OK");
             Repaint();
@@ -580,7 +1018,7 @@ public class FloorDesignerWindow : EditorWindow
             // canonical daily action — the designer saves the current authoritative version.
             // Versioning (v2, v3) is available via "Save as new version" in the Existing Saves
             // section for designers who want to keep multiple snapshots in parallel.
-            FloorDesignerSaveUtils.SaveFloor(floor, overwrite: true);
+            FloorDesignerSaveUtils.SaveFloor(floor, overwrite: true, database: cachedSpecificityDatabase);
             floor.isDirty = false;
             EditorUtility.DisplayDialog("Saved", $"floor_{floor.floorIndex}.json saved.", "OK");
             AddFloorBlockToDesignerScene();
@@ -689,7 +1127,64 @@ public class FloorDesignerWindow : EditorWindow
     // ─── Data Operations ──────────────────────────────────────────────────────
 
     /// <summary>
-    /// Iterates floor indices 0 to MaxLoadedFloorIndex and loads each from disk.
+    /// Distributes specificities from the cached SpecificityDatabase across all 5 nights
+    /// of the given floor. Each night receives rulesPerBin specificities (one per primary rule
+    /// the generator will create). Specificities are drawn without replacement across nights
+    /// to avoid repetition — night 2 never reuses a specificity already assigned to night 1.
+    /// When the database runs out of unused specificities, the pool is recycled from the start.
+    /// This method is called once at floor creation time so every night immediately has a
+    /// concrete starting rule set the designer can review and modify without entering Play mode.
+    /// Does nothing if the database is not loaded or contains no specificities.
+    /// </summary>
+    /// <param name="floor">The floor whose nights will receive auto-assigned specificities.</param>
+    private void AutoAssignPinnedSpecificities(FloorDesignerData floor)
+    {
+        if (cachedSpecificityDatabase == null ||
+            cachedSpecificityDatabase.allSpecificities == null ||
+            cachedSpecificityDatabase.allSpecificities.Count == 0)
+            return;
+
+        // Shuffle a copy of the pool so each floor gets a different starting assignment.
+        List<string> pool = new List<string>(cachedSpecificityDatabase.allSpecificities);
+        ShuffleList(pool);
+
+        int poolIndex = 0;
+
+        foreach (NightDesignerData night in floor.nights)
+        {
+            night.pinnedSpecificities.Clear();
+
+            // Assign one specificity per primary rule slot — rulesPerBin primary rules per bin,
+            // times numberOfBins bins would be the full set, but we use rulesPerBin as the count
+            // for simplicity so each bin has one clear conditionA to start with.
+            int toAssign = Mathf.Clamp(night.rulesPerBin * night.numberOfBins, 1, pool.Count);
+
+            for (int i = 0; i < toAssign; i++)
+            {
+                // Recycle the pool when exhausted so every night gets a full assignment.
+                if (poolIndex >= pool.Count)
+                    poolIndex = 0;
+
+                night.pinnedSpecificities.Add(pool[poolIndex]);
+                poolIndex++;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Fisher–Yates shuffle for a List&lt;string&gt;.
+    /// Used to randomise the specificity pool before distributing across nights
+    /// so each floor creation produces a different default assignment.
+    /// </summary>
+    private static void ShuffleList(List<string> list)
+    {
+        System.Random rng = new System.Random();
+        for (int i = list.Count - 1; i > 0; i--)
+        {
+            int j = rng.Next(i + 1);
+            (list[i], list[j]) = (list[j], list[i]);
+        }
+    }
     /// Stops at the first missing index to avoid loading non-sequential floors
     /// that would produce gaps in the tower list and confuse the difficulty chain.
     /// </summary>
@@ -733,6 +1228,9 @@ public class FloorDesignerWindow : EditorWindow
             failThresholdDeltaPct,
             dayDurationDeltaPct,
             decayRateDeltaPct);
+
+        // Auto-assign pinned specificities so the designer sees a starting rule set immediately.
+        AutoAssignPinnedSpecificities(newFloor);
 
         loadedFloors.Add(newFloor);
         selectedFloorIndex = loadedFloors.Count - 1;
@@ -805,7 +1303,9 @@ public class FloorDesignerWindow : EditorWindow
 
     /// <summary>
     /// Creates floor index 0 with base parameters when no floors exist.
-    /// Calls InitializeNights so the floor immediately has 5 valid night entries.
+    /// Calls InitializeNights so the floor immediately has 5 valid night entries,
+    /// then auto-assigns pinned specificities from the database across all nights so
+    /// the designer immediately sees a concrete rule set to review and modify.
     /// </summary>
     private void CreateBaseFloor()
     {
@@ -825,6 +1325,9 @@ public class FloorDesignerWindow : EditorWindow
             isDirty            = true
         };
         baseFloor.InitializeNights();
+
+        // Auto-assign pinned specificities so the designer sees a starting rule set immediately.
+        AutoAssignPinnedSpecificities(baseFloor);
 
         loadedFloors.Add(baseFloor);
         selectedFloorIndex = 0;
@@ -983,7 +1486,7 @@ public class FloorDesignerWindow : EditorWindow
     private void SaveAllFloors()
     {
         foreach (FloorDesignerData floor in loadedFloors)
-            FloorDesignerSaveUtils.SaveFloor(floor, overwrite: true);
+            FloorDesignerSaveUtils.SaveFloor(floor, overwrite: true, database: cachedSpecificityDatabase);
     }
 
     // ─── Query Helpers ────────────────────────────────────────────────────────

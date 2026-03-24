@@ -2032,7 +2032,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 72.15
+  m_fontSize: 72.1
   m_fontSizeBase: 18
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -2988,7 +2988,7 @@ MonoBehaviour:
   totalFloors: 5
   daysPerFloor: 5
   baseFailThreshold: 20
-  baseDayDuration: 120
+  baseDayDuration: 60
   baseDecayRate: 2
   minRulesPerBin: 1
   maxRulesPerBinCap: 4
@@ -3019,6 +3019,7 @@ MonoBehaviour:
   mainCanvas: {fileID: 66341487}
   dropZoneDetector: {fileID: 66341484}
   documentStackManager: {fileID: 1045035168}
+  specificityDatabase: {fileID: 11400000, guid: fa9b6cf72815b6245bdbed380a47fad1, type: 2}
 --- !u!114 &2040673044
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3070,6 +3071,7 @@ MonoBehaviour:
   gainPerDocument: 5
   speedBonusMultiplier: 0.5
   wrongBinPenalty: 10
+  dayDuration: 60
 --- !u!114 &2040673047
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3105,7 +3107,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::FloorProgressionManager
   baseFloorScaling: 0.15
   baseFailThreshold: 20
-  baseDayDuration: 120
+  baseDayDuration: 60
   baseDecayRate: 2
 --- !u!114 &2040673049
 MonoBehaviour:
@@ -3120,7 +3122,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FloorDifficultyProgression
   baseFailThreshold: 20
-  baseDayDuration: 120
+  baseDayDuration: 60
   baseDecayRate: 2
   baseRulesPerBin: 1
   baseNumberOfBins: 2

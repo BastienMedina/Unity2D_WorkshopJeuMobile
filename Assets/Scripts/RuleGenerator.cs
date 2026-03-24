@@ -47,6 +47,64 @@ public class RuleGenerator : MonoBehaviour
     private List<string> usedSpecificities = new List<string>();
 
     // -------------------------------------------------------------------------
+    // Editor-only static preview helper
+    // -------------------------------------------------------------------------
+
+    /// <summary>
+    /// Generates a human-readable rule preview for each specificity in the given list,
+    /// using the supplied SpecificityDatabase templates. Intended for the Floor Designer
+    /// tool only — never called at runtime. Returns one string per specificity in the form
+    /// the simplest template produces, so the designer can verify which rules a night will
+    /// generate without entering Play mode.
+    /// </summary>
+    /// <param name="specificities">Specificities to preview rules for.</param>
+    /// <param name="database">Database containing templates.</param>
+    /// <param name="binLabels">Ordered bin labels to use instead of raw bin IDs (e.g. "Corbeille A").</param>
+    /// <returns>List of preview strings, one per specificity.</returns>
+    public static List<string> GenerateRulesPreview(
+        List<string> specificities,
+        SpecificityDatabase database,
+        List<string> binLabels)
+    {
+        List<string> previews = new List<string>();
+
+        if (specificities == null || database == null || database.templates == null)
+            return previews;
+
+        // Find the simplest single-condition template (one {0} placeholder, no {1}).
+        RuleTemplate singleTemplate = null;
+        foreach (RuleTemplate t in database.templates)
+        {
+            if (t.templateText.Contains("{0}") && !t.templateText.Contains("{1}"))
+            {
+                singleTemplate = t;
+                break;
+            }
+        }
+
+        string binA = binLabels != null && binLabels.Count > 0 ? binLabels[0] : "Corbeille A";
+        string binB = binLabels != null && binLabels.Count > 1 ? binLabels[1] : "Corbeille B";
+
+        for (int i = 0; i < specificities.Count; i++)
+        {
+            string spec = specificities[i];
+
+            if (string.IsNullOrEmpty(spec))
+                continue;
+
+            string primaryBin = (i % 2 == 0) ? binA : binB;
+
+            string displayText = singleTemplate != null
+                ? singleTemplate.templateText.Replace("{0}", spec)
+                : $"Si [{spec}] → {primaryBin}";
+
+            previews.Add(displayText);
+        }
+
+        return previews;
+    }
+
+    // -------------------------------------------------------------------------
     // Public API
     // -------------------------------------------------------------------------
 
@@ -70,11 +128,16 @@ public class RuleGenerator : MonoBehaviour
     /// 3+ → ConditionalBranch, PositiveDouble, PositiveWithNegative (branched or dual-condition logic).
     /// Higher complexity targets unlock harder rule types so early days stay readable.
     /// </param>
+    /// <param name="pinnedSpecificities">
+    /// Optional list of specificities pinned by the designer in the Floor Designer tool.
+    /// When non-empty, conditionA values are drawn exclusively from this list instead of
+    /// the full SpecificityDatabase pool. Null or empty means normal random selection.
+    /// </param>
     /// <returns>
     /// A list of fully populated RuleData objects (primary + complements), ready for the caller.
     /// Returns an empty list if the database has no valid bin IDs or insufficient specificities.
     /// </returns>
-    public List<RuleData> GenerateRulesForDay(int rulesPerBin, int complexityTarget)
+    public List<RuleData> GenerateRulesForDay(int rulesPerBin, int complexityTarget, List<string> pinnedSpecificities = null)
     {
         // rulesPerBin primary rules go into each bin, plus one auto-generated complement per primary.
         // We collect all rules (primary + complement) in a flat list for the caller.
@@ -83,7 +146,19 @@ public class RuleGenerator : MonoBehaviour
         if (availableBinIDs.Count == 0)
             return generatedRules; // No valid bin IDs — generating any rule would produce an unresolvable target.
 
-        List<string> availableSpecificities = BuildAvailablePool();
+        // When pinnedSpecificities is provided and non-empty, it becomes the exclusive conditionA pool.
+        // This lets the Floor Designer guarantee that specific concepts always appear on a given night
+        // without manually authoring individual rules. The pinned pool is a copy so the generator
+        // can freely remove consumed entries without mutating the caller's list.
+        bool hasPinnedPool = pinnedSpecificities != null && pinnedSpecificities.Count > 0;
+
+        List<string> availableSpecificities = hasPinnedPool
+            ? new List<string>(pinnedSpecificities)
+            : BuildAvailablePool();
+
+        if (hasPinnedPool)
+            Debug.Log($"[RuleGenerator] Using {availableSpecificities.Count} pinned specificities for this day.");
+
         int totalBinCount = availableBinIDs.Count;
 
         // Outer loop over each bin guarantees full coverage:

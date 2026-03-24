@@ -408,7 +408,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FloorDifficultyProgression
   baseFailThreshold: 20
-  baseDayDuration: 120
+  baseDayDuration: 60
   baseDecayRate: 2
   baseRulesPerBin: 1
   baseNumberOfBins: 2

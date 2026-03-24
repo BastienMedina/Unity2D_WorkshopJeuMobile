@@ -66,9 +66,7 @@ public class FloorSaveData
 
 /// <summary>
 /// Serialisable snapshot of one night's configuration within a saved floor.
-/// Stores the generator parameters (numberOfBins, rulesPerBin, maxRuleComplexity) for this night.
-/// Rules are no longer manually authored in the tool — RuleGenerator creates them at runtime
-/// using these parameters, so the rules list has been removed from this class.
+/// Stores the generator parameters and the explicit per-bin rule assignments authored by the designer.
 /// Does NOT contain UI state such as isExpanded — only data that belongs in the save file.
 /// </summary>
 [Serializable]
@@ -80,25 +78,48 @@ public class NightSaveData
     /// <summary>Number of sorting bins active during this night.</summary>
     public int numberOfBins;
 
-    /// <summary>
-    /// How many rules each bin has during this night.
-    /// RuleGenerator reads this field at runtime to determine per-bin rule count.
-    /// </summary>
+    /// <summary>How many rules each bin has during this night (used for difficulty display).</summary>
     public int rulesPerBin;
 
     /// <summary>
     /// Maximum rule complexity score for rules generated during this night (range 1–5).
-    /// RuleGenerator will not produce rules whose complexity exceeds this ceiling.
     /// </summary>
     public int maxRuleComplexity;
 
     /// <summary>
-    /// True when the designer explicitly edited this night's sliders.
+    /// True when the designer explicitly edited this night's difficulty sliders.
     /// False when values were auto-propagated from the previous night.
-    /// Saved here so the tool can restore the wasManuallyEdited state when reloading a floor,
-    /// preventing propagation from silently overwriting intentional customizations.
     /// </summary>
     public bool wasManuallyEdited;
+
+    /// <summary>
+    /// Specificities pinned by the designer for this night.
+    /// When non-empty, RuleGenerator uses this list as the exclusive conditionA pool.
+    /// </summary>
+    public List<string> pinnedSpecificities = new List<string>();
+
+    /// <summary>
+    /// Per-bin rule assignments for this night — authored explicitly by the designer
+    /// in the rule editor panel after the floor's first save.
+    /// Null or empty entries are tolerated for backward compatibility with older saves.
+    /// </summary>
+    public List<BinSaveData> bins = new List<BinSaveData>();
+}
+
+/// <summary>
+/// Serialisable snapshot of the rules assigned to one sorting bin in a saved night.
+/// </summary>
+[Serializable]
+public class BinSaveData
+{
+    /// <summary>Zero-based position of this bin in the night's bin list.</summary>
+    public int binIndex;
+
+    /// <summary>Runtime bin identifier (e.g. "bin_A").</summary>
+    public string binID = string.Empty;
+
+    /// <summary>Rules explicitly assigned to this bin by the designer.</summary>
+    public List<SavedRuleData> rules = new List<SavedRuleData>();
 }
 
 /// <summary>

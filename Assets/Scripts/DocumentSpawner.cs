@@ -50,6 +50,13 @@ public class DocumentSpawner : MonoBehaviour
     /// </summary>
     [SerializeField] private DocumentStackManager documentStackManager;
 
+    /// <summary>
+    /// Database of all available specificities and sentence templates.
+    /// Used here to retrieve the full specificity pool when building neutral-element combinations
+    /// for dual-condition rules — specificities that appear in no active rule condition.
+    /// </summary>
+    [SerializeField] private SpecificityDatabase specificityDatabase;
+
     // -------------------------------------------------------------------------
     // Runtime state
     // -------------------------------------------------------------------------
@@ -131,6 +138,14 @@ public class DocumentSpawner : MonoBehaviour
     /// must carry to satisfy that rule and ONLY that rule. Using exact combinations eliminates
     /// the cross-contamination that occurred when combinations from one rule's conditions were
     /// mixed with another rule's conditions, producing documents valid in multiple bins at once.
+    ///
+    /// Additionally, for every dual-condition rule (one that tests both conditionA and conditionB),
+    /// this method also generates bonus combinations of the form [conditionA, neutralSpec] where
+    /// neutralSpec is a specificity that appears in no active rule's conditionA or conditionB.
+    /// These neutral-element documents test the player's understanding that a document with conditionA
+    /// plus a random irrelevant element is treated differently from one with conditionA plus conditionB,
+    /// without introducing any ambiguity — the neutral element has no rule of its own.
+    ///
     /// After building, calls RemoveUnplaceableCombinations as a safety net to discard any
     /// combination that is either unplaceable (no bin accepts it) or ambiguous (multiple bins accept it).
     /// Called once each time rules change — never during an active spawn loop.
@@ -157,6 +172,22 @@ public class DocumentSpawner : MonoBehaviour
                 validCombinations.Add(exactCombination);
         }
 
+        // Bonus pass — add neutral-element combinations for dual-condition rules.
+        // For example, if a rule says "Si [X] avec [Y], mettre ici", a document with [X, neutral]
+        // (where neutral is in no active rule) must also be spawnable so the player sees that
+        // conditionA alone with an unrecognised element follows the single-condition rule path,
+        // not the dual-condition one. The neutral element provides a realistic distractor.
+        List<List<string>> neutralCombinations = BuildNeutralCombinationsForDualRules();
+        foreach (List<string> neutralCombo in neutralCombinations)
+        {
+            bool isAlreadyPresent = validCombinations.Exists(existing =>
+                existing.Count == neutralCombo.Count &&
+                existing.TrueForAll(neutralCombo.Contains));
+
+            if (!isAlreadyPresent)
+                validCombinations.Add(neutralCombo);
+        }
+
         // Safety net: discard combinations that are unplaceable or map to multiple bins.
         // BuildExactComboForRule produces correct combinations in theory — this pass catches
         // edge cases caused by unusual rule configurations or pool exhaustion fallbacks.
@@ -166,6 +197,96 @@ public class DocumentSpawner : MonoBehaviour
 
         foreach (List<string> combo in validCombinations)
             Debug.Log("  → [" + string.Join(", ", combo) + "]");
+    }
+
+    /// <summary>
+    /// Builds bonus specificity combinations for every active dual-condition rule — rules that test
+    /// both conditionA and conditionB (PositiveDouble, ConditionalBranch, PositiveWithNegative,
+    /// and their complements). For each such rule, produces one combination of the form
+    /// [conditionA, neutralSpec] where neutralSpec is a specificity drawn from the database that
+    /// does not appear as conditionA or conditionB in any active rule.
+    ///
+    /// Why this matters: a player who only sees [conditionA, conditionB] documents can learn
+    /// the rule by memorising one shape. Adding [conditionA, neutralSpec] forces them to reason
+    /// about whether the extra element satisfies the secondary condition or not — the core
+    /// cognitive challenge of the dual-condition mechanic.
+    ///
+    /// Returns an empty list when specificityDatabase is null, when the database pool has no
+    /// neutral specificities left, or when no dual-condition rules are active.
+    /// The caller (RebuildValidCombinations) runs RemoveUnplaceableCombinations afterwards,
+    /// which silently drops any neutral combo that fails the placeability check — no validation
+    /// logic is needed here.
+    /// </summary>
+    /// <returns>A list of [conditionA, neutralSpec] combinations, one per dual-condition rule.</returns>
+    private List<List<string>> BuildNeutralCombinationsForDualRules()
+    {
+        List<List<string>> results = new List<List<string>>();
+
+        if (specificityDatabase == null || specificityDatabase.allSpecificities == null)
+        {
+            Debug.LogWarning("[Spawner] specificityDatabase not assigned — skipping neutral combinations.");
+            return results;
+        }
+
+        // Collect every condition string currently used by any active rule.
+        // A specificity is "neutral" only when it is absent from this set entirely.
+        HashSet<string> ruleSpecificities = CollectAllActiveConditions();
+
+        // Build the pool of neutral candidates — specificities in the database that no rule uses.
+        List<string> neutralPool = new List<string>();
+        foreach (string spec in specificityDatabase.allSpecificities)
+        {
+            if (!string.IsNullOrEmpty(spec) && !ruleSpecificities.Contains(spec))
+                neutralPool.Add(spec);
+        }
+
+        if (neutralPool.Count == 0)
+        {
+            Debug.Log("[Spawner] No neutral specificities available — all database entries are used by active rules.");
+            return results;
+        }
+
+        foreach (RuleData rule in activeRules)
+        {
+            // A dual-condition rule is any rule that has both conditionA and conditionB populated.
+            // This covers PositiveDouble, ConditionalBranch, PositiveWithNegative and their complements.
+            bool isDualCondition = !string.IsNullOrEmpty(rule.conditionA) &&
+                                   !string.IsNullOrEmpty(rule.conditionB);
+
+            if (!isDualCondition)
+                continue;
+
+            // Pick a random neutral specificity — using Random.Range here keeps the pool varied
+            // across days. The same neutral could appear on multiple rules in the same day, which
+            // is acceptable because RemoveUnplaceableCombinations deduplicates the final list.
+            string neutralSpec = neutralPool[Random.Range(0, neutralPool.Count)];
+
+            results.Add(new List<string> { rule.conditionA, neutralSpec });
+        }
+
+        return results;
+    }
+
+    /// <summary>
+    /// Collects every distinct conditionA and conditionB string from all active rules into a HashSet.
+    /// Used by BuildNeutralCombinationsForDualRules to determine which specificities are already
+    /// "owned" by a rule and therefore cannot serve as neutral elements.
+    /// </summary>
+    /// <returns>A HashSet of all condition strings referenced by at least one active rule.</returns>
+    private HashSet<string> CollectAllActiveConditions()
+    {
+        HashSet<string> conditions = new HashSet<string>();
+
+        foreach (RuleData rule in activeRules)
+        {
+            if (!string.IsNullOrEmpty(rule.conditionA))
+                conditions.Add(rule.conditionA);
+
+            if (!string.IsNullOrEmpty(rule.conditionB))
+                conditions.Add(rule.conditionB);
+        }
+
+        return conditions;
     }
 
     /// <summary>

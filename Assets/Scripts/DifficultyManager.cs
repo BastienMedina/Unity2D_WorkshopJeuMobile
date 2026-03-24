@@ -61,7 +61,7 @@ public class DifficultyManager : MonoBehaviour
     /// Base values are the day 1 floor 1 defaults — all scaling is computed
     /// relative to these so the Inspector remains the single source of truth.
     /// </summary>
-    [SerializeField] private float baseDayDuration = 120f;
+    [SerializeField] private float baseDayDuration = 60f;
 
     /// <summary>
     /// Profitability decay per second before any floor bonus is applied.

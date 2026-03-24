@@ -59,7 +59,7 @@ public class FloorProgressionManager : MonoBehaviour
     /// Day duration in seconds before any floor bonus is applied.
     /// Shortened on floors where DayDuration is selected as the bonus type.
     /// </summary>
-    [SerializeField] private float baseDayDuration = 120f;
+    [SerializeField] private float baseDayDuration = 60f;
 
     /// <summary>
     /// Profitability decay per second before any floor bonus is applied.

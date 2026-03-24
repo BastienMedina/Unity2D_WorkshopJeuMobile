@@ -20,7 +20,7 @@ public class FloorDifficultyProgression : MonoBehaviour
     /// <summary>Duration in seconds of a single day on floor 0.
     /// Base value matches ProfitabilityManager default so floor 1 starts at 60s consistently.
     /// </summary>
-    [SerializeField] private float baseDayDuration = 60f;
+    [SerializeField] private float baseDayDuration = 60f; // 60 s = 1 min per day on floor 1
 
     /// <summary>Profitability points lost per second on floor 0.</summary>
     [SerializeField] private float baseDecayRate = 2f;
