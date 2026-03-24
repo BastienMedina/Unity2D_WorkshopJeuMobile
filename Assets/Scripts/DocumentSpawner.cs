@@ -126,13 +126,14 @@ public class DocumentSpawner : MonoBehaviour
     // -------------------------------------------------------------------------
 
     /// <summary>
-    /// Rebuilds validCombinations from the current activeRules, generating document specificity
-    /// sets that are appropriate for each rule type.
-    /// Complement types do not add separate combinations — complement documents are already
-    /// covered by the primary rule's combinations (same specificities, different routing).
-    /// After building, calls RemoveUnplaceableCombinations as a final safety net to guarantee
-    /// the spawn pool never contains a combination that no active rule can accept.
-    /// Called once at the start of each day, never during an active spawn loop.
+    /// Rebuilds validCombinations from the current activeRules.
+    /// Each rule contributes exactly one combination — the minimal set of specificities a document
+    /// must carry to satisfy that rule and ONLY that rule. Using exact combinations eliminates
+    /// the cross-contamination that occurred when combinations from one rule's conditions were
+    /// mixed with another rule's conditions, producing documents valid in multiple bins at once.
+    /// After building, calls RemoveUnplaceableCombinations as a safety net to discard any
+    /// combination that is either unplaceable (no bin accepts it) or ambiguous (multiple bins accept it).
+    /// Called once each time rules change — never during an active spawn loop.
     /// </summary>
     private void RebuildValidCombinations()
     {
@@ -140,73 +141,187 @@ public class DocumentSpawner : MonoBehaviour
 
         foreach (RuleData rule in activeRules)
         {
-            switch (rule.ruleType)
-            {
-                case RuleType.PositiveForced:
-                    // PositiveForced is valid regardless of other specificities —
-                    // both a document with only conditionA and one with conditionA plus another
-                    // specificity are valid spawn targets for this rule.
-                    validCombinations.Add(new List<string> { rule.conditionA });
-                    if (TryGetAnyOtherSpecificity(rule.conditionA, out string otherForced))
-                        validCombinations.Add(new List<string> { rule.conditionA, otherForced });
-                    break;
+            List<string> exactCombination = BuildExactComboForRule(rule);
 
-                case RuleType.PositiveExclusive:
-                    // Only the single conditionA is valid — any extra specificity disqualifies the document.
-                    validCombinations.Add(new List<string> { rule.conditionA });
-                    break;
+            if (exactCombination == null || exactCombination.Count == 0)
+                continue;
 
-                case RuleType.ConditionalBranch:
-                    // Add conditionA alone (routes to secondaryBinID) and both together (routes to targetBinID)
-                    // so both branches of the rule are exercised by spawned documents.
-                    validCombinations.Add(new List<string> { rule.conditionA });
-                    validCombinations.Add(new List<string> { rule.conditionA, rule.conditionB });
-                    break;
+            // Duplicate combinations are skipped — two rules can produce the same document shape
+            // (e.g. a ConditionalBranch and a PositiveForced both using conditionA alone),
+            // and having two identical entries in the pool would over-represent that document type.
+            bool isAlreadyPresent = validCombinations.Exists(existing =>
+                existing.Count == exactCombination.Count &&
+                existing.TrueForAll(exactCombination.Contains));
 
-                case RuleType.PositiveDouble:
-                    // Add both conditionA+B (goes to targetBinID) and conditionA alone (goes to secondaryBinID)
-                    // to cover both branches of the self-complementary rule.
-                    validCombinations.Add(new List<string> { rule.conditionA, rule.conditionB });
-                    validCombinations.Add(new List<string> { rule.conditionA });
-                    break;
-
-                case RuleType.NegativeSimple:
-                    // Must generate a document WITHOUT conditionA — pick any other available specificity.
-                    // A document that has conditionA would be invalid for NegativeSimple,
-                    // so we deliberately exclude it from this combination.
-                    if (TryGetAnyOtherSpecificity(rule.conditionA, out string negSimpleOther))
-                        validCombinations.Add(new List<string> { negSimpleOther });
-                    break;
-
-                case RuleType.PositiveWithNegative:
-                    // Add conditionA alone (has A, no B — satisfies the primary rule).
-                    // Add conditionA + conditionB for the complement rule's validation.
-                    validCombinations.Add(new List<string> { rule.conditionA });
-                    validCombinations.Add(new List<string> { rule.conditionA, rule.conditionB });
-                    break;
-
-                // Complement types: do NOT add separate combinations.
-                // Complement documents are already covered by the primary rule's combinations —
-                // the same specificities route to a different bin depending on the rule, but the
-                // spawned document shapes are identical. Adding duplicates here would skew the
-                // random pick distribution and over-represent complement-case documents.
-                case RuleType.ComplementPositiveForced:
-                case RuleType.ComplementPositiveExclusive:
-                case RuleType.ComplementNegativeSimple:
-                case RuleType.ComplementPositiveWithNegative:
-                    break;
-            }
+            if (!isAlreadyPresent)
+                validCombinations.Add(exactCombination);
         }
 
-        // Guard: if all rules produced no combinations, add one non-empty default
-        // so SpawnDocument always has at least one spawnable document type.
-        if (validCombinations.Count == 0)
-            validCombinations.Add(new List<string>());
-
-        // Final safety net: remove any combination that cannot be placed in any active bin.
-        // This pass runs even when generation logic is correct, providing an absolute guarantee
-        // that no unplaceable document combination can ever reach the spawn pool.
+        // Safety net: discard combinations that are unplaceable or map to multiple bins.
+        // BuildExactComboForRule produces correct combinations in theory — this pass catches
+        // edge cases caused by unusual rule configurations or pool exhaustion fallbacks.
         RemoveUnplaceableCombinations(activeRules);
+
+        Debug.Log("[Spawner] Valid combinations: " + validCombinations.Count);
+
+        foreach (List<string> combo in validCombinations)
+            Debug.Log("  → [" + string.Join(", ", combo) + "]");
+    }
+
+    /// <summary>
+    /// Returns the exact specificity combination a document must have to satisfy this rule —
+    /// no more, no less. Keeping combinations exact prevents a spawned document from
+    /// accidentally satisfying a rule in a different bin, which would create ambiguity.
+    /// For rule types that route documents to a secondary bin (ConditionalBranch, PositiveDouble),
+    /// the combination reflects which branch of the rule the spawned document targets.
+    /// Returns null for unknown rule types — callers must null-check before using the result.
+    /// </summary>
+    /// <param name="rule">The rule to derive the exact combination from.</param>
+    /// <returns>A List of specificity strings, or null if the rule type is unrecognised.</returns>
+    private List<string> BuildExactComboForRule(RuleData rule)
+    {
+        switch (rule.ruleType)
+        {
+            case RuleType.PositiveForced:
+                // Document needs exactly conditionA — PositiveForced ignores extra specificities,
+                // but adding more would risk satisfying positive rules in other bins simultaneously.
+                return new List<string> { rule.conditionA };
+
+            case RuleType.PositiveExclusive:
+                // PositiveExclusive requires ONLY conditionA — any extra specificity disqualifies
+                // the document, so the combination must contain nothing else.
+                return new List<string> { rule.conditionA };
+
+            case RuleType.ConditionalBranch:
+                // ConditionalBranch has two branches: both conditions → targetBinID,
+                // conditionA alone (conditionB absent) → secondaryBinID.
+                // Each rule entry represents one branch — check targetBinID to know which one.
+                // A rule is the "yes" branch when its targetBinID is the primary destination.
+                bool isConditionalYesBranch = rule.targetBinID != rule.secondaryBinID;
+                if (isConditionalYesBranch)
+                    return new List<string> { rule.conditionA, rule.conditionB };
+
+                // No-branch: conditionA present, conditionB must be absent — exact combo is [conditionA].
+                return new List<string> { rule.conditionA };
+
+            case RuleType.PositiveDouble:
+                // PositiveDouble mirrors ConditionalBranch: both conditions → targetBinID,
+                // conditionA alone → secondaryBinID.
+                bool isPositiveDoubleYesBranch = rule.targetBinID != rule.secondaryBinID;
+                if (isPositiveDoubleYesBranch)
+                    return new List<string> { rule.conditionA, rule.conditionB };
+
+                return new List<string> { rule.conditionA };
+
+            case RuleType.NegativeSimple:
+                // NegativeSimple accepts documents WITHOUT conditionA.
+                // Spawn a document that has a DIFFERENT known specificity so it satisfies this
+                // rule but cannot accidentally satisfy a PositiveForced rule for conditionA.
+                // Picking from conditionA values of other active rules guarantees the spawned
+                // specificity is a known, displayable game value — not an arbitrary string.
+                if (TryGetAnyOtherSpecificity(rule.conditionA, out string negativeSimpleOther))
+                    return new List<string> { negativeSimpleOther };
+
+                return null; // No other active specificity exists — cannot spawn for this rule.
+
+            case RuleType.PositiveWithNegative:
+                // Document has conditionA but must NOT have conditionB — exact combo is [conditionA].
+                // conditionB must stay absent, so we never include it in the combination.
+                return new List<string> { rule.conditionA };
+
+            case RuleType.ComplementPositiveForced:
+                // Complement of PositiveForced means the document does NOT have conditionA.
+                // Spawn a document with any other known specificity instead.
+                if (TryGetAnyOtherSpecificity(rule.conditionA, out string complementForcedOther))
+                    return new List<string> { complementForcedOther };
+
+                return null;
+
+            case RuleType.ComplementPositiveExclusive:
+                // Complement of PositiveExclusive means conditionA IS present but WITH at least
+                // one other specificity — the "exclusive" condition is violated by the extra spec.
+                if (TryGetAnyOtherSpecificity(rule.conditionA, out string complementExclusiveOther))
+                    return new List<string> { rule.conditionA, complementExclusiveOther };
+
+                return null;
+
+            case RuleType.ComplementNegativeSimple:
+                // Complement of "no conditionA" means the document HAS conditionA.
+                return new List<string> { rule.conditionA };
+
+            case RuleType.ComplementPositiveWithNegative:
+                // Complement means both conditionA and conditionB are present — the negative
+                // condition (conditionB absent) is violated, routing the document to this complement bin.
+                return new List<string> { rule.conditionA, rule.conditionB };
+
+            default:
+                Debug.LogWarning("[Spawner] Unknown rule type: " + rule.ruleType + " — skipping");
+                return null;
+        }
+    }
+
+    /// <summary>
+    /// Evaluates whether the given specificity combination satisfies the given rule with STRICT
+    /// exact matching. Mirrors SortingBin validation exactly — any divergence would cause documents
+    /// to spawn that cannot be placed in the expected bin, breaking the game's core guarantee.
+    /// Unlike SimulateRuleValidation (used for placeability checks), this method handles
+    /// ConditionalBranch and PositiveDouble with branch awareness: the yes-branch requires
+    /// both conditions, the no-branch requires conditionA alone with conditionB absent.
+    /// </summary>
+    /// <param name="rule">The rule to evaluate.</param>
+    /// <param name="specificities">The specificity list of the candidate document.</param>
+    /// <returns>True if the rule accepts this combination under strict exact matching.</returns>
+    private bool ValidateExactCombination(RuleData rule, List<string> specificities)
+    {
+        switch (rule.ruleType)
+        {
+            case RuleType.PositiveForced:
+                // PositiveForced only requires conditionA to be present — count is irrelevant.
+                return specificities.Contains(rule.conditionA);
+
+            case RuleType.PositiveExclusive:
+                // Exclusive: conditionA must be the ONLY specificity present.
+                return specificities.Contains(rule.conditionA) && specificities.Count == 1;
+
+            case RuleType.ConditionalBranch:
+                // Yes-branch (targetBinID): both conditionA and conditionB present.
+                // No-branch (secondaryBinID): conditionA present, conditionB absent.
+                bool isConditionalYesBranch = rule.targetBinID != rule.secondaryBinID;
+                if (isConditionalYesBranch)
+                    return specificities.Contains(rule.conditionA) && specificities.Contains(rule.conditionB);
+
+                return specificities.Contains(rule.conditionA) && !specificities.Contains(rule.conditionB);
+
+            case RuleType.PositiveDouble:
+                // Identical branch logic to ConditionalBranch.
+                bool isPositiveDoubleYesBranch = rule.targetBinID != rule.secondaryBinID;
+                if (isPositiveDoubleYesBranch)
+                    return specificities.Contains(rule.conditionA) && specificities.Contains(rule.conditionB);
+
+                return specificities.Contains(rule.conditionA) && !specificities.Contains(rule.conditionB);
+
+            case RuleType.NegativeSimple:
+                return !specificities.Contains(rule.conditionA);
+
+            case RuleType.PositiveWithNegative:
+                return specificities.Contains(rule.conditionA) && !specificities.Contains(rule.conditionB);
+
+            case RuleType.ComplementPositiveForced:
+                return !specificities.Contains(rule.conditionA);
+
+            case RuleType.ComplementPositiveExclusive:
+                // Complement of exclusive: conditionA present AND at least one other specificity exists.
+                return specificities.Contains(rule.conditionA) && specificities.Count > 1;
+
+            case RuleType.ComplementNegativeSimple:
+                return specificities.Contains(rule.conditionA);
+
+            case RuleType.ComplementPositiveWithNegative:
+                return specificities.Contains(rule.conditionA) && specificities.Contains(rule.conditionB);
+
+            default:
+                return false;
+        }
     }
 
     /// <summary>
@@ -281,11 +396,21 @@ public class DocumentSpawner : MonoBehaviour
     }
 
     /// <summary>
-    /// Iterates validCombinations and removes any entry for which IsDocumentPlaceable returns false.
-    /// Acts as the final safety net — even when the combination-generation logic is correct,
-    /// this pass provides an absolute guarantee that no unplaceable combination reaches the spawn pool.
-    /// Logs a warning for each removed combination so designers can identify rule configurations
-    /// that produce dead ends and fix them in the SpecificityDatabase or rule setup.
+    /// Iterates validCombinations and removes entries that are either unplaceable or ambiguous.
+    /// After BuildExactComboForRule, each combination should already map to exactly one bin —
+    /// this pass is the safety net that catches edge cases from unusual rule configurations.
+    ///
+    /// A combination is UNPLACEABLE when no rule accepts it (validBinCount == 0): the player
+    /// would receive a document they can never correctly sort, which is unwinnable.
+    /// A combination is AMBIGUOUS when multiple distinct bins accept it (validBinCount > 1):
+    /// the player cannot determine the correct bin, also an unwinnable situation.
+    ///
+    /// Both failure modes are removed here with distinct log messages so designers can
+    /// identify which rule configurations trigger each case.
+    ///
+    /// Uses ValidateExactCombination rather than SimulateRuleValidation — the exact validator
+    /// handles ConditionalBranch and PositiveDouble branch awareness correctly, matching the
+    /// same logic SortingBin uses at runtime to route actual player drops.
     /// </summary>
     /// <param name="allRules">All active rules for the current day.</param>
     private void RemoveUnplaceableCombinations(List<RuleData> allRules)
@@ -295,17 +420,56 @@ public class DocumentSpawner : MonoBehaviour
         {
             List<string> combination = validCombinations[index];
 
-            if (IsDocumentPlaceable(combination, allRules))
+            // Count how many DISTINCT bins accept this combination.
+            // Multiple rules on the same bin both accepting the document is not a problem —
+            // we only care about distinct targetBinIDs to detect routing conflicts.
+            int validBinCount      = 0;
+            string firstValidBinID = string.Empty;
+
+            foreach (RuleData rule in allRules)
+            {
+                if (!ValidateExactCombination(rule, combination))
+                    continue;
+
+                if (firstValidBinID == string.Empty)
+                {
+                    firstValidBinID = rule.targetBinID;
+                    validBinCount   = 1;
+                }
+                else if (rule.targetBinID != firstValidBinID)
+                {
+                    // A second distinct bin accepts this combination — ambiguous routing.
+                    validBinCount++;
+                }
+            }
+
+            if (validBinCount == 0)
+            {
+                // No bin accepts this combination — the document would have no valid destination.
+                Debug.LogWarning("[Spawner] Removed unplaceable: [" +
+                                 string.Join(", ", combination) + "]");
+                validCombinations.RemoveAt(index);
                 continue;
+            }
 
-            // Log a warning before removing — this is a signal for designers that the current
-            // rule configuration produces at least one document type that has no valid destination.
-            Debug.LogWarning("[Spawner] Removed unplaceable combination: " +
-                             string.Join(",", combination));
-
-            validCombinations.RemoveAt(index);
+            if (validBinCount > 1)
+            {
+                // Multiple distinct bins accept this combination — the player cannot determine
+                // the correct bin, so spawning this document would create an unwinnable situation.
+                Debug.LogWarning("[Spawner] Removed ambiguous: [" +
+                                 string.Join(", ", combination) +
+                                 "] valid in " + validBinCount + " bins");
+                validCombinations.RemoveAt(index);
+            }
         }
     }
+
+    /// <summary>
+    /// Returns the number of valid combinations currently in the spawn pool.
+    /// Used by GameManager to diagnose spawn pool depletion after conflict resolution —
+    /// a count of 1 after evolution signals that the removal logic was too aggressive.
+    /// </summary>
+    public int GetValidCombinationCount() => validCombinations.Count;
 
     /// <summary>
     /// Attempts to find any specificity from the active rules that is different from the excluded one.

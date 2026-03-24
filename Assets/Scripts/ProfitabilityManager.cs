@@ -54,11 +54,12 @@ public class ProfitabilityManager : MonoBehaviour
     /// </summary>
     [SerializeField] private float wrongBinPenalty = 10f;
 
-    /// <summary>Total day length in seconds. Default is 120 seconds (2 minutes).
-    /// Not [SerializeField] — value is injected at runtime by GameManager via SetDayDuration
-    /// so FloorProgressionManager can scale it per floor without exposing floor logic to this class.
+    /// <summary>Total day length in seconds.
+    /// 60 seconds per day allows faster playtesting without waiting 2 minutes per day.
+    /// Value remains [SerializeField] so it can be changed in Inspector at any time without touching code.
+    /// Value is overridden at runtime by GameManager via SetDayDuration when floor data is loaded.
     /// </summary>
-    private float dayDuration = 120f;
+    [SerializeField] private float dayDuration = 60f;
 
     // -------------------------------------------------------------------------
     // Runtime state

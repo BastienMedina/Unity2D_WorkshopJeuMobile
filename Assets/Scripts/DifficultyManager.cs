@@ -152,9 +152,13 @@ public class DifficultyManager : MonoBehaviour
         int computedRulesPerBin = minRulesPerBin + Mathf.FloorToInt(dayIndex * 0.5f);
         int clampedRulesPerBin  = Mathf.Clamp(computedRulesPerBin, minRulesPerBin, maxRulesPerBinCap);
 
-        // maxRuleComplexity is clamped between 1 and 5 — values outside this range map to
-        // rule types that either do not exist (< 1) or are already at maximum difficulty (> 5).
-        int computedComplexity = Mathf.RoundToInt(minRuleComplexity + dayIndex * complexityIncreasePerDay);
+        // maxRuleComplexity uses FloorToInt — not RoundToInt — for the same reason as rulesPerBin:
+        // RoundToInt applies banker's rounding (round-half-to-even), which causes 1.5 → 2 but
+        // 2.5 → 2, making the complexity target stagnate for two consecutive days and preventing
+        // ComplexifyExistingRule from finding any candidate (rule.complexity < newComplexityTarget
+        // is false when the target hasn't moved). FloorToInt increments the tier at predictable,
+        // evenly spaced day boundaries so the target strictly increases every 1/complexityIncreasePerDay days.
+        int computedComplexity = minRuleComplexity + Mathf.FloorToInt(dayIndex * complexityIncreasePerDay);
         int clampedComplexity  = Mathf.Clamp(computedComplexity, 1, 5);
 
         int numberOfBins = ComputeNumberOfBins(dayIndex, floorIndex);
