@@ -2,14 +2,15 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// Handles main menu button clicks and loads the correct game scene.
-/// Acts as the single entry-point controller for the game — it owns no game logic,
-/// no floor data, and no persistent state. Its only responsibility is navigation.
+/// Handles main menu navigation: shows/hides the main menu panel and the
+/// floor-selection tower panel. Acts as the single entry-point controller —
+/// it owns no game logic, no floor data, and no persistent state.
 /// </summary>
 public class MainMenuManager : MonoBehaviour
 {
-    // Scene names are SerializeFields so they can be updated in the Inspector
-    // when scenes are renamed in Build Settings without requiring a code change.
+    // -------------------------------------------------------------------------
+    // Inspector — scene names
+    // -------------------------------------------------------------------------
 
     /// <summary>
     /// Scene loaded when the player taps Infinite mode.
@@ -24,33 +25,83 @@ public class MainMenuManager : MonoBehaviour
     [SerializeField] private string historySceneName = "DesignerTowerScene";
 
     // -------------------------------------------------------------------------
-    // Button callbacks — wired via Inspector onClick events, not FindObjectOfType
+    // Inspector — UI panels
     // -------------------------------------------------------------------------
 
-    /// <summary>
-    /// Called by InfiniteButton onClick.
-    /// Infinite mode uses procedural floor generation in TowerScene — no JSON files involved.
-    /// </summary>
-    public void OnInfiniteButtonClicked()
-    {
-        Debug.Log("[MainMenu] Loading Infinite mode: " + infiniteSceneName);
+    /// <summary>Root panel containing the main menu buttons (Play, Options, Quit).</summary>
+    [SerializeField] private GameObject mainMenuPanel;
 
-        // Infinite mode loads TowerScene which generates floors procedurally at runtime
-        // using FloorDifficultyProgression — it never reads designer floor_N.json files.
-        SceneManager.LoadScene(infiniteSceneName);
+    /// <summary>
+    /// Root panel containing the tower floor-selection ScrollRect.
+    /// Hidden by default; revealed when the player taps Play.
+    /// </summary>
+    [SerializeField] private GameObject towerSelectionPanel;
+
+    // -------------------------------------------------------------------------
+    // Unity lifecycle
+    // -------------------------------------------------------------------------
+
+    private void Start()
+    {
+        ShowMainMenu();
+    }
+
+    // -------------------------------------------------------------------------
+    // Panel navigation
+    // -------------------------------------------------------------------------
+
+    /// <summary>Shows the main menu and hides the tower selection panel.</summary>
+    public void ShowMainMenu()
+    {
+        SetPanelActive(mainMenuPanel, true);
+        SetPanelActive(towerSelectionPanel, false);
     }
 
     /// <summary>
-    /// Called by HistoryButton onClick.
-    /// History mode loads manually designed floors from floor_N.json files saved by the
-    /// Floor Designer tool — completely separate from TowerScene's procedural system.
+    /// Called by Play_BTN onClick.
+    /// Hides the main menu and reveals the immersive tower floor-selection view.
     /// </summary>
+    public void OnPlayButtonClicked()
+    {
+        Debug.Log("[MainMenu] Opening tower floor selection.");
+        SetPanelActive(mainMenuPanel, false);
+        SetPanelActive(towerSelectionPanel, true);
+    }
+
+    /// <summary>
+    /// Called by the Back button inside the tower selection panel.
+    /// Returns the player to the main menu screen.
+    /// </summary>
+    public void OnBackButtonClicked()
+    {
+        Debug.Log("[MainMenu] Returning to main menu.");
+        ShowMainMenu();
+    }
+
+    // -------------------------------------------------------------------------
+    // Legacy / extra mode buttons (kept for backward compatibility)
+    // -------------------------------------------------------------------------
+
+    /// <summary>Called by InfiniteButton onClick (if still present).</summary>
+    public void OnInfiniteButtonClicked()
+    {
+        Debug.Log("[MainMenu] Loading Infinite mode: " + infiniteSceneName);
+        SceneManager.LoadScene(infiniteSceneName);
+    }
+
+    /// <summary>Called by HistoryButton onClick (if still present).</summary>
     public void OnHistoryButtonClicked()
     {
         Debug.Log("[MainMenu] Loading History mode: " + historySceneName);
-
-        // History mode loads DesignerTowerScene which reads floor_N.json files and presents
-        // the player with a tower of handcrafted story levels to choose from.
         SceneManager.LoadScene(historySceneName);
+    }
+
+    // -------------------------------------------------------------------------
+    // Helpers
+    // -------------------------------------------------------------------------
+
+    private static void SetPanelActive(GameObject panel, bool active)
+    {
+        if (panel != null) panel.SetActive(active);
     }
 }
