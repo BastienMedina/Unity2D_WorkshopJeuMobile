@@ -206,19 +206,417 @@ public class RuleGenerator : MonoBehaviour
     }
 
     /// <summary>
-    /// Generates exactly one RuleData for the given bin, respecting usedSpecificities
-    /// so that specificities already used this floor are not repeated.
-    /// Allows GameManager to add one rule to a specific bin without regenerating all rules.
+    /// Generates exactly one RuleData for the given bin, then checks the new rule against all
+    /// existing rules for conflicts. If a conflict is detected, generates a PositiveForced
+    /// resolution rule for the conflicting bin so no document is ever valid in two bins at once.
+    /// Returns both the primary rule and the resolution rule as a tuple — the caller must assign
+    /// each to the correct bin. resolutionRule is null when no conflict was found.
+    ///
+    /// Broad-acceptance fallback: NegativeSimple and ComplementPositiveForced accept virtually
+    /// every document that lacks their negated condition, making them structurally irresolvable
+    /// via a single PositiveForced patch when the active specificity pool is small. When such a
+    /// rule is generated and any conflict is detected, the method discards it and rebuilds with
+    /// SelectNarrowRuleType so a targeted rule replaces the broad one. This prevents a situation
+    /// where the spawner's RemoveUnplaceableCombinations would discard nearly all valid combinations,
+    /// leaving only a single document type in the pool.
     /// </summary>
     /// <param name="targetBinID">The bin ID the new rule should target.</param>
     /// <param name="complexityTarget">Determines which RuleTypes are eligible for the new rule.</param>
-    /// <returns>A fully populated RuleData, or null if the specificity pool is exhausted.</returns>
-    public RuleData GenerateSingleRule(string targetBinID, int complexityTarget)
+    /// <param name="existingRules">All rules currently active, used for conflict detection.</param>
+    /// <returns>
+    /// A tuple of (primaryRule, resolutionRule).
+    /// primaryRule is null when the specificity pool is exhausted.
+    /// resolutionRule is null when no conflict was detected or when there is only one active bin.
+    /// </returns>
+    public (RuleData primaryRule, RuleData resolutionRule) GenerateSingleRule(
+        string targetBinID,
+        int complexityTarget,
+        List<RuleData> existingRules = null)
     {
+        // Guard: an empty targetBinID would produce a rule that no bin can ever claim,
+        // silently breaking document routing without a clear error at the call site.
+        if (string.IsNullOrEmpty(targetBinID))
+        {
+            Debug.LogError("[RuleGenerator] targetBinID is null or empty in GenerateSingleRule");
+            return (null, null);
+        }
+
+        Debug.Log("[RuleGenerator] Generating rule for bin: " + targetBinID +
+                  " complexity: " + complexityTarget);
+
         List<string> availablePool = BuildAvailablePool();
         RuleType selectedType      = SelectRuleType(complexityTarget);
 
-        return BuildRule(selectedType, targetBinID, availablePool, availableBinIDs.Count);
+        // targetBinID is passed directly to BuildRule so the generated rule always targets
+        // the caller's intended bin and is never overridden internally.
+        RuleData newRule = BuildRule(selectedType, targetBinID, availablePool, availableBinIDs.Count);
+
+        if (newRule == null)
+            return (null, null);
+
+        // Conflict detection requires at least two active bins — with only one bin there is
+        // nowhere else a document could route to, so resolution is impossible and unnecessary.
+        bool canDetectConflict = existingRules != null &&
+                                 existingRules.Count > 0 &&
+                                 availableBinIDs.Count > 1;
+
+        if (!canDetectConflict)
+            return (newRule, null);
+
+        // STEP 1 — Build test combinations from the existing rules before the new rule is added.
+        // Passing newRule activates the broad-acceptance injection path: if newRule is a
+        // NegativeSimple or ComplementPositiveForced, every single-specificity combination from
+        // the existing pool is added to the test set so the conflict check can detect that the
+        // new rule would claim documents already owned by another bin via simple positive rules.
+        List<List<string>> testCombinations = BuildTestCombinations(existingRules, newRule);
+
+        // STEP 2 — Check each combination for a conflict with the new rule.
+        foreach (List<string> combination in testCombinations)
+        {
+            if (!DoesNewRuleConflictWithExisting(newRule, existingRules, combination))
+                continue;
+
+            // Found a combination that is valid in both the new rule's bin AND an existing bin.
+
+            // Broad-acceptance fallback: NegativeSimple and ComplementPositiveForced conflict with
+            // every document that lacks their negated condition. A single PositiveForced patch on
+            // the conflicting bin would still leave the new rule claiming that document — so the
+            // patch creates a different ambiguity rather than resolving the original one.
+            // The correct fix is to not use the broad type at all: discard it and rebuild
+            // with a narrow rule type that targets exactly one specificity.
+            if (IsBroadAcceptanceType(newRule.ruleType))
+            {
+                Debug.LogWarning("[RuleGenerator] Broad-acceptance rule type " + newRule.ruleType +
+                                 " conflicts on [" + string.Join(", ", combination) + "] — " +
+                                 "discarding and retrying with a narrow rule type.");
+
+                // Rebuild the pool because TryConsumeSpecificity already marked the
+                // broad rule's specificity as used — we need to undo that side-effect.
+                UndoLastConsumedSpecificity(newRule.conditionA);
+
+                List<string> retryPool   = BuildAvailablePool();
+                RuleType     narrowType  = SelectNarrowRuleType(complexityTarget);
+                RuleData     narrowRule  = BuildRule(narrowType, targetBinID, retryPool, availableBinIDs.Count);
+
+                if (narrowRule == null)
+                {
+                    Debug.LogWarning("[RuleGenerator] Narrow rule fallback also failed — pool exhausted.");
+                    return (null, null);
+                }
+
+                // Re-run conflict detection on the narrow rule before returning it.
+                // Narrow rules can still conflict via cross-rule pairings, so the resolution
+                // path below must still execute for the narrow replacement.
+                newRule          = narrowRule;
+                testCombinations = BuildTestCombinations(existingRules, newRule);
+
+                // Restart the conflict scan on the new rule — break out of the current loop.
+                break;
+            }
+
+            // Non-broad conflict: resolve by adding a PositiveForced rule on the conflicting bin.
+            // PositiveForced takes unconditional priority so the ambiguous document always routes
+            // to the bin that already owned that specificity, without touching the new rule.
+            RuleData conflictingRule = existingRules.FirstOrDefault(existingRule =>
+                existingRule.targetBinID != newRule.targetBinID &&
+                ValidateRuleAgainstCombination(existingRule, combination));
+
+            if (conflictingRule == null)
+                continue;
+
+            RuleData resolutionRule = GenerateConflictResolutionRule(conflictingRule, newRule);
+
+            Debug.Log("[RuleGenerator] Conflict detected between new rule on " + newRule.targetBinID +
+                      " and existing rule on " + conflictingRule.targetBinID +
+                      " — resolution rule added for: " + conflictingRule.conditionA);
+
+            return (newRule, resolutionRule);
+        }
+
+        // STEP 3 — Run conflict detection on the (possibly replaced) narrow rule.
+        // This second pass only executes when the broad-acceptance fallback triggered above
+        // and broke out of the first loop with a new testCombinations list.
+        foreach (List<string> combination in testCombinations)
+        {
+            if (!DoesNewRuleConflictWithExisting(newRule, existingRules, combination))
+                continue;
+
+            RuleData conflictingRule = existingRules.FirstOrDefault(existingRule =>
+                existingRule.targetBinID != newRule.targetBinID &&
+                ValidateRuleAgainstCombination(existingRule, combination));
+
+            if (conflictingRule == null)
+                continue;
+
+            RuleData resolutionRule = GenerateConflictResolutionRule(conflictingRule, newRule);
+
+            Debug.Log("[RuleGenerator] Conflict resolved for narrow fallback rule on " +
+                      newRule.targetBinID + " — resolution rule for: " + conflictingRule.conditionA);
+
+            return (newRule, resolutionRule);
+        }
+
+        return (newRule, null);
+    }
+
+    // -------------------------------------------------------------------------
+    // Conflict detection helpers
+    // -------------------------------------------------------------------------
+
+    /// <summary>
+    /// Evaluates a single specificity combination against the new rule and every existing rule
+    /// to detect whether the same document would be valid in two different bins simultaneously.
+    /// A conflict exists when the new rule accepts the combination AND at least one existing rule
+    /// on a different bin also accepts it — this would make the document ambiguous for the player.
+    /// </summary>
+    /// <param name="newRule">The rule just generated, not yet added to the active list.</param>
+    /// <param name="existingRules">All rules already active before this generation call.</param>
+    /// <param name="testSpecificities">The specificity combination to test.</param>
+    /// <returns>True if a conflict exists for this combination; false otherwise.</returns>
+    public bool DoesNewRuleConflictWithExisting(
+        RuleData newRule,
+        List<RuleData> existingRules,
+        List<string> testSpecificities)
+    {
+        // The new rule must first accept this combination — if it doesn't, there is nothing to conflict.
+        if (!ValidateRuleAgainstCombination(newRule, testSpecificities))
+            return false;
+
+        // Check whether any existing rule on a DIFFERENT bin also accepts the same combination.
+        // A conflict exists only when two different bins claim the same document — same-bin overlap is harmless.
+        foreach (RuleData existingRule in existingRules)
+        {
+            bool isDifferentBin     = existingRule.targetBinID != newRule.targetBinID;
+            bool isExistingAccepted = ValidateRuleAgainstCombination(existingRule, testSpecificities);
+
+            if (isDifferentBin && isExistingAccepted)
+                return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Generates all specificity combinations that are currently handled by the existing rule set.
+    /// Tests only combinations relevant to the active rules — exhaustively testing all possible
+    /// specificity combinations would be exponentially expensive and mostly irrelevant.
+    /// Includes single-condition, dual-condition, and cross-rule pairings so every realistic
+    /// document type that could be spawned is covered by the conflict check.
+    ///
+    /// The optional <paramref name="newRule"/> parameter enables broad-acceptance detection:
+    /// rule types whose accept condition is NOT conditionA-positive (NegativeSimple,
+    /// ComplementPositiveForced) accept virtually every combination that doesn't contain
+    /// their negated condition. When such a rule is provided, all single-specificity combinations
+    /// from the existing rule set are injected as additional test cases so the conflict check
+    /// can detect that the new rule would claim documents already owned by another bin.
+    /// Without this, a NegativeSimple rule on [torn] passes all existing cross-rule tests
+    /// because those tests always include [torn] as part of the pairing, making the conflict invisible.
+    /// </summary>
+    /// <param name="existingRules">The rules already active before the new rule is generated.</param>
+    /// <param name="newRule">
+    /// Optional. The rule just generated, not yet added to the active list.
+    /// Used to activate the broad-acceptance injection path for wide-accept rule types.
+    /// Pass null to use the standard combination-only path.
+    /// </param>
+    /// <returns>A list of specificity combinations to test the new rule against.</returns>
+    public List<List<string>> BuildTestCombinations(List<RuleData> existingRules, RuleData newRule = null)
+    {
+        List<List<string>> combinations = new List<List<string>>();
+
+        foreach (RuleData rule in existingRules)
+        {
+            // Every rule uses conditionA — add it alone as the minimal test case.
+            if (!string.IsNullOrEmpty(rule.conditionA))
+                combinations.Add(new List<string> { rule.conditionA });
+
+            // Dual-condition rules define their own pairings — include them so ConditionalBranch,
+            // PositiveDouble, and PositiveWithNegative are also tested as they would be for real documents.
+            bool hasBothConditions = !string.IsNullOrEmpty(rule.conditionA) &&
+                                     !string.IsNullOrEmpty(rule.conditionB);
+
+            if (hasBothConditions)
+                combinations.Add(new List<string> { rule.conditionA, rule.conditionB });
+        }
+
+        // Cross-rule pairings: combine conditionA from one rule with conditionA from another.
+        // This is how a NegativeSimple rule can conflict — the document has some OTHER specificity
+        // that satisfies a positive rule elsewhere while not having the negated condition.
+        for (int outerIndex = 0; outerIndex < existingRules.Count; outerIndex++)
+        {
+            for (int innerIndex = outerIndex + 1; innerIndex < existingRules.Count; innerIndex++)
+            {
+                string conditionFromOuter = existingRules[outerIndex].conditionA;
+                string conditionFromInner = existingRules[innerIndex].conditionA;
+
+                bool areBothValid = !string.IsNullOrEmpty(conditionFromOuter) &&
+                                    !string.IsNullOrEmpty(conditionFromInner);
+                bool areDistinct  = conditionFromOuter != conditionFromInner;
+
+                if (areBothValid && areDistinct)
+                    combinations.Add(new List<string> { conditionFromOuter, conditionFromInner });
+            }
+        }
+
+        // Broad-acceptance injection: NegativeSimple and ComplementPositiveForced accept any document
+        // that does NOT contain their negated condition — their accept surface covers almost every
+        // combination reachable by the other rules. The cross-rule pairings above always include the
+        // negated condition as part of the pair (e.g. [signed, torn]), so NegativeSimple(torn) would
+        // never trigger a conflict against [signed, torn]. We must therefore also test every
+        // single-specificity combination from the pool independently, without pairing it with
+        // the negated condition. This guarantees that NegativeSimple(torn) is tested against
+        // [signed] alone, [urgent] alone, etc. — the exact shapes that will collide with positive
+        // rules on the other bin and that RemoveUnplaceableCombinations would otherwise discard at runtime.
+        if (newRule != null && IsBroadAcceptanceType(newRule.ruleType))
+        {
+            HashSet<string> knownSpecificities = CollectKnownSpecificities(existingRules);
+
+            foreach (string specificity in knownSpecificities)
+            {
+                // Skip the negated condition itself — NegativeSimple(torn) rejects [torn],
+                // so injecting it here would produce a false positive in conflict detection.
+                if (specificity == newRule.conditionA)
+                    continue;
+
+                List<string> singleSpecCombo = new List<string> { specificity };
+
+                // Avoid duplicates that were already added by the primary per-rule pass above.
+                bool alreadyPresent = combinations.Exists(existing =>
+                    existing.Count == 1 && existing[0] == specificity);
+
+                if (!alreadyPresent)
+                    combinations.Add(singleSpecCombo);
+            }
+        }
+
+        return combinations;
+    }
+
+    /// <summary>
+    /// Returns true for rule types whose accept condition spans a broad set of documents —
+    /// specifically those that accept based on the ABSENCE of a condition rather than its presence.
+    /// These types require extended conflict testing because their accept surface cannot be
+    /// derived from their own conditionA alone.
+    /// </summary>
+    /// <param name="ruleType">The rule type to check.</param>
+    /// <returns>True if the rule type has broad-acceptance semantics.</returns>
+    private static bool IsBroadAcceptanceType(RuleType ruleType)
+    {
+        return ruleType == RuleType.NegativeSimple ||
+               ruleType == RuleType.ComplementPositiveForced;
+    }
+
+    /// <summary>
+    /// Collects every distinct conditionA (and conditionB where populated) from the existing
+    /// rule list into a flat set of strings. Used by the broad-acceptance injection path to
+    /// build single-specificity test combinations covering all known game values.
+    /// </summary>
+    /// <param name="existingRules">The rules already active before the new rule is generated.</param>
+    /// <returns>A HashSet of all distinct specificity strings referenced by the existing rules.</returns>
+    private static HashSet<string> CollectKnownSpecificities(List<RuleData> existingRules)
+    {
+        HashSet<string> specificities = new HashSet<string>();
+
+        foreach (RuleData rule in existingRules)
+        {
+            if (!string.IsNullOrEmpty(rule.conditionA))
+                specificities.Add(rule.conditionA);
+
+            if (!string.IsNullOrEmpty(rule.conditionB))
+                specificities.Add(rule.conditionB);
+        }
+
+        return specificities;
+    }
+
+    /// <summary>
+    /// Creates a PositiveForced rule for the bin that owned the conflicting existing rule.
+    /// PositiveForced takes priority over NegativeSimple and other lower-priority types —
+    /// any document with conditionA is forced into this bin regardless of other conditions,
+    /// which eliminates the ambiguity by giving that bin unconditional ownership of conditionA.
+    /// </summary>
+    /// <param name="conflictingExistingRule">The existing rule whose bin needs disambiguation.</param>
+    /// <param name="newRule">The newly generated rule that caused the conflict (unused in logic, kept for logging).</param>
+    /// <returns>A fully populated PositiveForced RuleData targeting the conflicting rule's bin.</returns>
+    public RuleData GenerateConflictResolutionRule(RuleData conflictingExistingRule, RuleData newRule)
+    {
+        RuleData resolutionRule = new RuleData
+        {
+            // PositiveForced overrides all other rules — if a document has conditionA it ALWAYS
+            // goes to this bin regardless of other conditions, resolving the conflict by priority.
+            ruleType    = RuleType.PositiveForced,
+            targetBinID = conflictingExistingRule.targetBinID,
+            conditionA  = conflictingExistingRule.conditionA,
+            // Resolution rules are not complements — they are primary rules added for safety.
+            isComplement = false
+        };
+
+        resolutionRule.displayText = ResolveTemplate(
+            FindMatchingTemplate(RuleType.PositiveForced), resolutionRule, RuleType.PositiveForced);
+
+        resolutionRule.complexity = ComputeComplexity(RuleType.PositiveForced, availableBinIDs.Count);
+
+        return resolutionRule;
+    }
+
+    /// <summary>
+    /// Evaluates whether the given specificity combination satisfies the given rule's accept condition.
+    /// Mirrors the per-type validation helpers in SortingBin exactly — any divergence would produce
+    /// false negatives in conflict detection and allow ambiguous documents to slip through.
+    /// Does not check routing (targetBinID vs binID) because here we only care whether a rule
+    /// *accepts* a document, not which specific bin it routes to.
+    /// </summary>
+    /// <param name="rule">The rule to evaluate.</param>
+    /// <param name="specificities">The specificity combination of the candidate document.</param>
+    /// <returns>True if the rule accepts this combination; false otherwise.</returns>
+    public bool ValidateRuleAgainstCombination(RuleData rule, List<string> specificities)
+    {
+        switch (rule.ruleType)
+        {
+            case RuleType.PositiveForced:
+                // Accepted when conditionA is present — other specificities are irrelevant.
+                return specificities.Contains(rule.conditionA);
+
+            case RuleType.PositiveExclusive:
+                // Accepted only when conditionA is the sole specificity — any extra disqualifies.
+                return specificities.Contains(rule.conditionA) && specificities.Count == 1;
+
+            case RuleType.NegativeSimple:
+                // Accepted when conditionA is absent — the inverse of a positive check.
+                return !specificities.Contains(rule.conditionA);
+
+            case RuleType.PositiveWithNegative:
+                // Accepted when conditionA is present but conditionB is not.
+                return specificities.Contains(rule.conditionA) &&
+                       !specificities.Contains(rule.conditionB);
+
+            case RuleType.ConditionalBranch:
+                // Self-complementary: accepts when conditionA is present (routes to one of two bins).
+                return specificities.Contains(rule.conditionA);
+
+            case RuleType.PositiveDouble:
+                // Self-complementary: accepts when conditionA is present (routes to one of two bins).
+                return specificities.Contains(rule.conditionA);
+
+            case RuleType.ComplementPositiveForced:
+                // Accepted when conditionA is absent — inverse of PositiveForced.
+                return !specificities.Contains(rule.conditionA);
+
+            case RuleType.ComplementPositiveExclusive:
+                // Accepted when conditionA is present AND at least one other specificity also exists.
+                return specificities.Contains(rule.conditionA) && specificities.Count > 1;
+
+            case RuleType.ComplementNegativeSimple:
+                // Accepted when conditionA is present — inverse of NegativeSimple.
+                return specificities.Contains(rule.conditionA);
+
+            case RuleType.ComplementPositiveWithNegative:
+                // Accepted when both conditionA and conditionB are present.
+                return specificities.Contains(rule.conditionA) &&
+                       specificities.Contains(rule.conditionB);
+
+            default:
+                return false;
+        }
     }
 
     /// <summary>
@@ -277,6 +675,47 @@ public class RuleGenerator : MonoBehaviour
     public void SetAvailableBins(List<string> binIDs)
     {
         availableBinIDs = new List<string>(binIDs);
+    }
+
+    /// <summary>
+    /// Selects a rule type that targets exactly one specificity via a positive condition —
+    /// never a broad-acceptance type. Used as fallback when a generated broad-acceptance rule
+    /// (NegativeSimple, ComplementPositiveForced) would conflict irresolvably with existing rules.
+    /// At complexity 1 this mirrors SelectRuleType exactly (PositiveExclusive only).
+    /// At complexity 2+ it allows PositiveForced, which still targets one specificity but
+    /// without the exclusivity constraint — safe alongside complement rules on the other bin.
+    /// At complexity 3+ it also allows PositiveWithNegative, which uses two specificities
+    /// but still has a well-defined, narrow accept surface.
+    /// </summary>
+    /// <param name="complexityTarget">The current complexity tier.</param>
+    /// <returns>A narrow rule type appropriate for the tier.</returns>
+    private RuleType SelectNarrowRuleType(int complexityTarget)
+    {
+        if (complexityTarget <= 1)
+            return RuleType.PositiveExclusive;
+
+        if (complexityTarget == 2)
+        {
+            RuleType[] narrowMedium = { RuleType.PositiveExclusive, RuleType.PositiveForced };
+            return narrowMedium[Random.Range(0, narrowMedium.Length)];
+        }
+
+        // complexityTarget >= 3 — allow hard types that are still narrow.
+        RuleType[] narrowHard = { RuleType.PositiveForced, RuleType.PositiveWithNegative };
+        return narrowHard[Random.Range(0, narrowHard.Length)];
+    }
+
+    /// <summary>
+    /// Removes the given specificity from usedSpecificities so it can be re-consumed
+    /// when a rule is discarded and rebuilt with a different type.
+    /// Only call this immediately after discarding a rule whose conditionA was consumed
+    /// via TryConsumeSpecificity — calling it in any other context will corrupt the pool.
+    /// </summary>
+    /// <param name="specificity">The specificity to release back into the available pool.</param>
+    private void UndoLastConsumedSpecificity(string specificity)
+    {
+        if (!string.IsNullOrEmpty(specificity))
+            usedSpecificities.Remove(specificity);
     }
 
     // -------------------------------------------------------------------------

@@ -1,0 +1,254 @@
+﻿╔═══════════════════════════════════════════════╗
+║           SIMULATION SUMMARY                  ║
+╠═══════════════════════════════════════════════╣
+║ Floor: 1   | Days: 5   | Seed: 415992607    ║
+║ Victories: 0/5  | Defeats: 5/5                     ║
+║ Total documents processed: 65                  ║
+║ Rule types: PositiveExclusive, ComplementPos...║
+║ Max bins reached: 3                            ║
+║ Max complexity reached: 5                      ║
+╠═══════════════════════════════════════════════╣
+║ ⚠️  CRITICAL ISSUES: 3                         ║
+║ • ⚠️ DESIGN MISMATCH: SelectDayEvolution() ...║
+║ • ⚠️ DESIGN MISMATCH: initialProfitability ...║
+║ • ⚠️ DESIGN MISMATCH: BinLayoutManager.maxi...║
+╚═══════════════════════════════════════════════╝
+
+═══════════════════════════════════════════════
+DAY 1 — Floor 1
+═══════════════════════════════════════════════
+
+⚠️ DESIGN MISMATCHES:
+  ⚠️ DESIGN MISMATCH: SelectDayEvolution() has only 2 options (ComplexifyRule, AddNewRule). Design doc specifies 3 (+ AddBin). Simulation uses 3-way random split.
+  ⚠️ DESIGN MISMATCH: initialProfitability = 60f in code. Design doc / FIX 4 spec says 50%. Simulation uses 60f (real code value).
+  ⚠️ DESIGN MISMATCH: BinLayoutManager.maximumBinCount = 5 in code. Design doc says max is 3. Simulation respects code value (5).
+
+📦 DIFFICULTY CHANGES:
+  • Day 1 initialised:
+  •   activeBins: 2  [minNumberOfBins=2]
+  •   rulesPerBin: 1  [baseRulesPerBin=1]
+  •   maxComplexity: 1  [baseMaxRuleComplexity=1]
+  •   floorBase: fail=21,6%, duration=66s, decay=2,24/s
+
+🗂️ BINS & RULES:
+  Bin 1 [bin_1]:
+    - If the document has only torn, place it here
+      (Type: PositiveExclusive, Complexity: 2)
+    - If signed is present with other specificities, place here
+      (Type: ComplementPositiveExclusive [complement], Complexity: 2)
+  Bin 2 [bin_2]:
+    - If torn is present with other specificities, place here
+      (Type: ComplementPositiveExclusive [complement], Complexity: 2)
+    - If the document has only signed, place it here
+      (Type: PositiveExclusive, Complexity: 2)
+
+📄 DOCUMENTS SPAWNED:
+  Total estimated: 13
+  Breakdown by combination:
+    - [torn] × 7
+    - [signed] × 6
+  Most frequent: [torn]
+  Unique combinations: 2
+
+📊 PROFITABILITY:
+  Start: 60,0% → End: 20,0%
+  Decay: -147,8% over 66s  (rate: 2,24/s)
+  Gains: +25,0%  (5 docs × 5,0% each)
+  Fail threshold: 21,6%
+  Min profitability: 20,0%
+  Outcome: Defeat ❌
+
+⚠️ POTENTIAL ISSUES:
+  ✅ No issues detected
+
+═══════════════════════════════════════════════
+DAY 2 — Floor 1
+═══════════════════════════════════════════════
+
+📦 DIFFICULTY CHANGES:
+  • Evolution: AddNewRule
+  •   activeBins: 2 | totalRules: 6
+
+🗂️ BINS & RULES:
+  Bin 1 [bin_1]:
+    - If the document has only torn, place it here
+      (Type: PositiveExclusive, Complexity: 2)
+    - If signed is present with other specificities, place here
+      (Type: ComplementPositiveExclusive [complement], Complexity: 2)
+    - If the document does not have folded, place it here
+      (Type: NegativeSimple, Complexity: 3)
+  Bin 2 [bin_2]:
+    - If torn is present with other specificities, place here
+      (Type: ComplementPositiveExclusive [complement], Complexity: 2)
+    - If the document has only signed, place it here
+      (Type: PositiveExclusive, Complexity: 2)
+    - If the document has folded, place it here
+      (Type: ComplementNegativeSimple [complement], Complexity: 3)
+
+📄 DOCUMENTS SPAWNED:
+  Total estimated: 13
+  Breakdown by combination:
+    - [folded, torn] × 5
+    - [torn] × 4
+    - [folded] × 4
+  Most frequent: [folded, torn]
+  Unique combinations: 3
+
+📊 PROFITABILITY:
+  Start: 60,0% → End: 20,0%
+  Decay: -147,8% over 66s  (rate: 2,24/s)
+  Gains: +25,0%  (5 docs × 5,0% each)
+  Fail threshold: 21,6%
+  Min profitability: 20,0%
+  Outcome: Defeat ❌
+
+⚠️ POTENTIAL ISSUES:
+  ✅ No issues detected
+
+═══════════════════════════════════════════════
+DAY 3 — Floor 1
+═══════════════════════════════════════════════
+
+📦 DIFFICULTY CHANGES:
+  • Evolution: ComplexifyRule
+  •   activeBins: 2 | totalRules: 6
+
+🗂️ BINS & RULES:
+  Bin 1 [bin_1]:
+    - If the document has only torn, place it here
+      (Type: PositiveExclusive, Complexity: 2)
+    - If signed is present with other specificities, place here
+      (Type: ComplementPositiveExclusive [complement], Complexity: 2)
+    - If the document does not have folded, place it here
+      (Type: NegativeSimple, Complexity: 3)
+  Bin 2 [bin_2]:
+    - If torn is present with other specificities, place here
+      (Type: ComplementPositiveExclusive [complement], Complexity: 2)
+    - If the document has only signed, place it here
+      (Type: PositiveExclusive, Complexity: 2)
+    - If the document has folded, place it here
+      (Type: ComplementNegativeSimple [complement], Complexity: 3)
+
+📄 DOCUMENTS SPAWNED:
+  Total estimated: 13
+  Breakdown by combination:
+    - [folded, torn] × 7
+    - [torn] × 4
+    - [folded] × 2
+  Most frequent: [folded, torn]
+  Unique combinations: 3
+
+📊 PROFITABILITY:
+  Start: 60,0% → End: 20,0%
+  Decay: -147,8% over 66s  (rate: 2,24/s)
+  Gains: +25,0%  (5 docs × 5,0% each)
+  Fail threshold: 21,6%
+  Min profitability: 20,0%
+  Outcome: Defeat ❌
+
+⚠️ POTENTIAL ISSUES:
+  ✅ No issues detected
+
+═══════════════════════════════════════════════
+DAY 4 — Floor 1
+═══════════════════════════════════════════════
+
+📦 DIFFICULTY CHANGES:
+  • Evolution: AddNewRule
+  •   activeBins: 2 | totalRules: 8
+
+🗂️ BINS & RULES:
+  Bin 1 [bin_1]:
+    - If the document has only torn, place it here
+      (Type: PositiveExclusive, Complexity: 2)
+    - If signed is present with other specificities, place here
+      (Type: ComplementPositiveExclusive [complement], Complexity: 2)
+    - If the document does not have folded, place it here
+      (Type: NegativeSimple, Complexity: 3)
+    - If the document does not have urgent, place it here
+      (Type: NegativeSimple, Complexity: 3)
+  Bin 2 [bin_2]:
+    - If torn is present with other specificities, place here
+      (Type: ComplementPositiveExclusive [complement], Complexity: 2)
+    - If the document has only signed, place it here
+      (Type: PositiveExclusive, Complexity: 2)
+    - If the document has folded, place it here
+      (Type: ComplementNegativeSimple [complement], Complexity: 3)
+    - If the document has urgent, place it here
+      (Type: ComplementNegativeSimple [complement], Complexity: 3)
+
+📄 DOCUMENTS SPAWNED:
+  Total estimated: 13
+  Breakdown by combination:
+    - [folded, torn, urgent] × 5
+    - [folded, urgent] × 4
+    - [torn] × 4
+  Most frequent: [folded, torn, urgent]
+  Unique combinations: 3
+
+📊 PROFITABILITY:
+  Start: 60,0% → End: 20,0%
+  Decay: -147,8% over 66s  (rate: 2,24/s)
+  Gains: +25,0%  (5 docs × 5,0% each)
+  Fail threshold: 21,6%
+  Min profitability: 20,0%
+  Outcome: Defeat ❌
+
+⚠️ POTENTIAL ISSUES:
+  ✅ No issues detected
+
+═══════════════════════════════════════════════
+DAY 5 — Floor 1
+═══════════════════════════════════════════════
+
+📦 DIFFICULTY CHANGES:
+  • Evolution: AddBin
+  •   activeBins: 3 | totalRules: 9
+
+🗂️ BINS & RULES:
+  Bin 1 [bin_1]:
+    - If the document has only torn, place it here
+      (Type: PositiveExclusive, Complexity: 2)
+    - If signed is present with other specificities, place here
+      (Type: ComplementPositiveExclusive [complement], Complexity: 2)
+    - If the document does not have folded, place it here
+      (Type: NegativeSimple, Complexity: 3)
+    - If the document does not have urgent, place it here
+      (Type: NegativeSimple, Complexity: 3)
+  Bin 2 [bin_2]:
+    - If torn is present with other specificities, place here
+      (Type: ComplementPositiveExclusive [complement], Complexity: 2)
+    - If the document has only signed, place it here
+      (Type: PositiveExclusive, Complexity: 2)
+    - If the document has folded, place it here
+      (Type: ComplementNegativeSimple [complement], Complexity: 3)
+    - If the document has urgent, place it here
+      (Type: ComplementNegativeSimple [complement], Complexity: 3)
+  Bin 3 [bin_3]:
+    - If wet and red_stamp are present go here, otherwise other bin
+      (Type: PositiveDouble, Complexity: 5)
+
+📄 DOCUMENTS SPAWNED:
+  Total estimated: 13
+  Breakdown by combination:
+    - [signed, wet] × 4
+    - [folded, torn, urgent] × 3
+    - [wet] × 2
+    - [red_stamp, signed] × 1
+    - [folded, red_stamp, urgent] × 1
+    - [red_stamp] × 1
+    - [folded, urgent] × 1
+  Most frequent: [signed, wet]
+  Unique combinations: 9
+
+📊 PROFITABILITY:
+  Start: 60,0% → End: 20,0%
+  Decay: -147,8% over 66s  (rate: 2,24/s)
+  Gains: +25,0%  (5 docs × 5,0% each)
+  Fail threshold: 21,6%
+  Min profitability: 20,0%
+  Outcome: Defeat ❌
+
+⚠️ POTENTIAL ISSUES:
+  ✅ No issues detected
+

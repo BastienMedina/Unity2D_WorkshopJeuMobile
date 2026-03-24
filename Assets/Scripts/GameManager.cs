@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -129,6 +130,21 @@ public class GameManager : MonoBehaviour
     /// rulesPerBin and maxRuleComplexity from it without re-querying DifficultyManager.
     /// </summary>
     private FloorSaveData currentFloorSaveData;
+
+    /// <summary>
+    /// Tracks how many bins were active at the end of the previous day's InitializeDay call.
+    /// Compared against the new count after SetActiveBinCount to detect when a new bin was added —
+    /// reading BinLayoutManager.GetActiveBinCount() before and after in the same frame would always
+    /// give equal results once the call updates the internal counter, so a persistent field is required.
+    /// </summary>
+    private int activeBinCount = 0;
+
+    /// <summary>
+    /// Stores the bin ID that received the most recently added rule via AddNewRule evolution.
+    /// Excluded from the next random bin selection so the same bin never gets two rules in a row,
+    /// ensuring rules distribute across all active bins rather than clustering on one.
+    /// </summary>
+    private string lastRuleAssignedBinID = "";
 
     // -------------------------------------------------------------------------
     // Unity lifecycle
@@ -366,6 +382,11 @@ public class GameManager : MonoBehaviour
             isFloorBonusApplied = true;
         }
 
+        // New floor starts fresh: no bin should be excluded on the very first rule assignment
+        // because the previous floor's lastRuleAssignedBinID is stale and irrelevant here.
+        if (isFirstDayOfFloor)
+            lastRuleAssignedBinID = "";
+
         profitabilityManager.StartDay();
 
         // ResetDisplay must be called after StartDay so GetRemainingSeconds returns the
@@ -384,24 +405,32 @@ public class GameManager : MonoBehaviour
         currentDayData = difficultyManager.ComputeDayData(currentDayIndex, currentFloorIndex);
 
         // STEP 3 — Detect bin count change, then activate the correct number of slots.
-        // previousBinCount is read BEFORE SetActiveBinCount so the comparison is valid —
-        // reading it after would always produce equal counts.
-        int previousBinCount = binLayoutManager.GetActiveBinCount();
+        // previousBinCount is read from the persistent field BEFORE SetActiveBinCount so the
+        // comparison is valid — BinLayoutManager.GetActiveBinCount() updates its internal counter
+        // during SetActiveBinCount, making a before/after read within the same frame unreliable.
+        int previousBinCount = activeBinCount;
 
         binLayoutManager.SetActiveBinCount(currentDayData.numberOfBins);
 
-        int newBinCount         = binLayoutManager.GetActiveBinCount();
-        bool isNewBinActivated  = newBinCount > previousBinCount;
+        List<SortingBin> newActiveBins = binLayoutManager.GetActiveBins();
+        int newBinCount                = newActiveBins.Count;
+        bool isNewBinActivated         = newBinCount > previousBinCount;
+
+        // Persist the current count so the next day's InitializeDay reads the correct previous value.
+        activeBinCount = newBinCount;
 
         if (isNewBinActivated)
         {
-            string newBinID = binLayoutManager.GetLastActivatedBinID();
+            // The last bin in activation order is always the newly added one —
+            // BinLayoutManager activates slots in a fixed order, so the highest index is newest.
+            SortingBin newBin = newActiveBins[newBinCount - 1];
+            string newBinID   = newBin.GetBinID();
 
             pendingSummary.newBinAdded       = true;
             pendingSummary.newBinDescription = "New bin: " + newBinID;
         }
 
-        List<SortingBin> activeBins = binLayoutManager.GetActiveBins();
+        List<SortingBin> activeBins = newActiveBins;
 
         // Guard: zero active bins would cause divide-by-zero in the rules-per-bin calculation.
         if (activeBins.Count == 0)
@@ -451,11 +480,14 @@ public class GameManager : MonoBehaviour
         }
 
         // STEP 6 — Ensure every newly activated bin receives at least one rule.
-        // A bin with no rules is confusing and unplayable — the player sees a bin but has
-        // no information about what to sort into it, regardless of the evolution outcome.
+        // A new bin MUST have at least one rule assigned immediately — an empty bin confuses
+        // the player and breaks document spawning because no document will ever match it.
         if (isNewBinActivated)
         {
-            EnsureNewBinHasRule(activeBins);
+            // Last bin in activation order is always the newly added one —
+            // BinLayoutManager activates in a fixed order so the highest index is newest.
+            SortingBin newlyActivatedBin = newActiveBins[newBinCount - 1];
+            EnsureNewBinHasRule(newlyActivatedBin);
         }
 
         // STEP 7 — Distribute rules to bins.
@@ -573,14 +605,24 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            // Pick a random bin to receive the new rule.
-            // Random selection keeps the rule distribution unpredictable across days.
-            SortingBin targetBin = activeBins[UnityEngine.Random.Range(0, activeBins.Count)];
-            string targetBinID   = targetBin.GetBinID();
+            // Pick a random bin to receive the new rule, excluding the last bin that received one.
+            // Excluding the last bin ensures rules distribute across all active bins and the
+            // same bin never gets two rules in a row, keeping distribution fair and unpredictable.
+            string targetBinID = PickRandomBinIDExcluding(lastRuleAssignedBinID);
 
-            RuleData newRule = ruleGenerator.GenerateSingleRule(
+            // Update lastRuleAssignedBinID immediately after selection so the next call
+            // to PickRandomBinIDExcluding correctly excludes this bin.
+            lastRuleAssignedBinID = targetBinID;
+
+            Debug.Log("[GameManager] New rule assigned to: " + targetBinID +
+                      " (excluded: " + lastRuleAssignedBinID + ")");
+
+            // Pass activeRules so GenerateSingleRule can detect conflicts with the existing set
+            // and return a resolution rule when one is needed.
+            var (newRule, resolutionRule) = ruleGenerator.GenerateSingleRule(
                 targetBinID,
-                currentDayData.maxRuleComplexity);
+                currentDayData.maxRuleComplexity,
+                activeRules);
 
             // newRule can be null when the specificity pool is exhausted — skip silently
             // rather than adding a null entry that would crash validation downstream.
@@ -597,23 +639,54 @@ public class GameManager : MonoBehaviour
                           $"condition: {newRule.conditionA} | " +
                           $"complexity: {newRule.complexity}");
             }
+
+            // resolutionRule is non-null only when GenerateSingleRule detected a conflict —
+            // assign it directly to the affected bin so the display updates immediately.
+            if (resolutionRule != null)
+            {
+                activeRules.Add(resolutionRule);
+
+                // Find the bin that owns the conflicting rule so we can push the resolution rule to it.
+                SortingBin resolutionBin = activeBins.FirstOrDefault(
+                    bin => bin.GetBinID() == resolutionRule.targetBinID);
+
+                if (resolutionBin != null)
+                {
+                    // Collect all rules already assigned to that bin plus the new resolution rule
+                    // so AssignRules replaces the full list rather than overwriting with just one entry.
+                    List<RuleData> updatedBinRules = activeRules
+                        .Where(rule => rule.targetBinID == resolutionRule.targetBinID)
+                        .ToList();
+
+                    resolutionBin.AssignRules(updatedBinRules);
+
+                    Debug.Log("[GameManager] Resolution rule assigned to bin: " + resolutionRule.targetBinID);
+                }
+            }
+
+            // Always rebuild the spawn pool after evolution — a new rule changes which combinations
+            // are valid regardless of whether a conflict resolution rule was also added.
+            // Moving this call outside the resolutionRule block prevents the pool from staying stale
+            // when only a primary rule was added and no conflict was detected.
+            documentSpawner.UpdateActiveRules(activeRules);
+
+            Debug.Log("[GameManager] Spawn pool updated. Active rules: " + activeRules.Count +
+                      " Valid combinations: " + documentSpawner.GetValidCombinationCount());
         }
     }
 
     /// <summary>
     /// Guarantees that the newly activated bin always has at least one rule assigned to it.
-    /// Called in the same InitializeDay step that detected the new bin, after evolution has run —
-    /// this ensures the bin gets a rule regardless of whether evolution targeted it or not.
-    /// A bin with no rules is confusing and unplayable; this method is the single enforcement point.
+    /// Calls AssignRules directly on the bin immediately — not only via DistributeRulesToBins —
+    /// because a bin with no rules displays nothing and may not activate correctly, which
+    /// confuses the player and breaks document spawning for that bin.
+    /// Called in the same InitializeDay step that detected the new bin, after evolution has run,
+    /// so the bin gets a rule regardless of whether evolution happened to target it.
     /// </summary>
-    /// <param name="activeBins">The bins active for the current day.</param>
-    private void EnsureNewBinHasRule(List<SortingBin> activeBins)
+    /// <param name="newBin">The SortingBin that was just activated this day.</param>
+    private void EnsureNewBinHasRule(SortingBin newBin)
     {
-        string newBinID = binLayoutManager.GetLastActivatedBinID();
-
-        // Guard: no ID means BinLayoutManager did not record a newly activated slot this call.
-        if (string.IsNullOrEmpty(newBinID))
-            return;
+        string newBinID = newBin.GetBinID();
 
         // Check whether evolution already added a rule to the new bin —
         // if so, adding another one would over-populate it on day 2.
@@ -622,7 +695,15 @@ public class GameManager : MonoBehaviour
         if (newBinAlreadyHasRule)
             return;
 
-        RuleData ruleForNewBin = ruleGenerator.GenerateSingleRule(newBinID, currentDayData.maxRuleComplexity);
+        RuleData ruleForNewBin;
+
+        // Pass activeRules so conflict detection runs even for the forced new-bin rule.
+        // resolutionRule is discarded here — EnsureNewBinHasRule fires before DistributeRulesToBins,
+        // so any resolution rule generated now will be included in the Step 7 distribution.
+        (ruleForNewBin, _) = ruleGenerator.GenerateSingleRule(
+            newBinID,
+            currentDayData.maxRuleComplexity,
+            activeRules);
 
         if (ruleForNewBin == null)
         {
@@ -631,7 +712,13 @@ public class GameManager : MonoBehaviour
             return;
         }
 
+        // Add to activeRules so DistributeRulesToBins (Step 7) and SetAllActiveRules include it.
         activeRules.Add(ruleForNewBin);
+
+        // Assign directly to the bin immediately — new bin MUST have at least one rule
+        // assigned on the same frame it activates so it displays correctly before Step 7 runs.
+        List<RuleData> newBinRules = new List<RuleData> { ruleForNewBin };
+        newBin.AssignRules(newBinRules);
 
         // Update the summary to reflect that the new bin also received a rule.
         // This overwrites the newBinDescription set in Step 3 to include the rule text,
@@ -639,10 +726,8 @@ public class GameManager : MonoBehaviour
         pendingSummary.newRuleAdded       = true;
         pendingSummary.newRuleDescription = "New bin: " + newBinID + " — " + ruleForNewBin.displayText;
 
-        Debug.Log($"[Difficulty] Rule assigned to new bin → " +
-                  $"bin: {newBinID} | " +
-                  $"type: {ruleForNewBin.ruleType} | " +
-                  $"condition: {ruleForNewBin.conditionA}");
+        Debug.Log("[GameManager] New bin activated: " + newBinID +
+                  " with rule: " + ruleForNewBin.displayText);
     }
 
     /// <summary>
@@ -693,6 +778,33 @@ public class GameManager : MonoBehaviour
         }
 
         return highestComplexityRule;
+    }
+
+    /// <summary>
+    /// Returns a random bin ID from the currently active bins, excluding the given bin ID.
+    /// Exclusion prevents the same bin from receiving two rules in a row, distributing new
+    /// rules fairly across all active bins over successive days.
+    /// Falls back to any bin when only one is active — with a single bin, exclusion is
+    /// impossible and that bin must be used regardless.
+    /// </summary>
+    /// <param name="excludedBinID">The bin ID to exclude from selection. Pass empty string to skip exclusion.</param>
+    /// <returns>A randomly selected bin ID, never the excluded one unless it is the only option.</returns>
+    private string PickRandomBinIDExcluding(string excludedBinID)
+    {
+        List<SortingBin> activeBins = binLayoutManager.GetActiveBins();
+
+        List<string> eligibleBinIDs = activeBins
+            .Select(bin => bin.GetBinID())
+            .Where(id => id != excludedBinID)
+            .ToList();
+
+        // With only 1 bin, cannot exclude it — must use it regardless so the game never stalls.
+        if (eligibleBinIDs.Count == 0)
+            return activeBins[0].GetBinID();
+
+        // Random selection excluding the last used bin ensures rules distribute across all bins
+        // and the same bin never gets two rules in a row.
+        return eligibleBinIDs[UnityEngine.Random.Range(0, eligibleBinIDs.Count)];
     }
 
     // -------------------------------------------------------------------------
