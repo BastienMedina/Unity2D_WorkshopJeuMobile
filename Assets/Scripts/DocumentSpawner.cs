@@ -375,6 +375,19 @@ public class DocumentSpawner : MonoBehaviour
                 // condition (conditionB absent) is violated, routing the document to this complement bin.
                 return new List<string> { rule.conditionA, rule.conditionB };
 
+            case RuleType.PositiveOr:
+                // PositiveOr is satisfied by either condition alone.
+                // Return the conditionA variant — the complement covers neither case.
+                return new List<string> { rule.conditionA };
+
+            case RuleType.ComplementPositiveOr:
+                // Neither conditionA nor conditionB — pick any other active specificity.
+                if (TryGetAnyOtherSpecificity(rule.conditionA, out string complementOrOther)
+                    && complementOrOther != rule.conditionB)
+                    return new List<string> { complementOrOther };
+
+                return null;
+
             default:
                 Debug.LogWarning("[Spawner] Unknown rule type: " + rule.ruleType + " — skipping");
                 return null;
@@ -439,6 +452,12 @@ public class DocumentSpawner : MonoBehaviour
 
             case RuleType.ComplementPositiveWithNegative:
                 return specificities.Contains(rule.conditionA) && specificities.Contains(rule.conditionB);
+
+            case RuleType.PositiveOr:
+                return specificities.Contains(rule.conditionA) || specificities.Contains(rule.conditionB);
+
+            case RuleType.ComplementPositiveOr:
+                return !specificities.Contains(rule.conditionA) && !specificities.Contains(rule.conditionB);
 
             default:
                 return false;

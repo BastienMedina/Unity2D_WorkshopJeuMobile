@@ -1,3 +1,63 @@
 {
-    "entries": []
+    "entries": [
+        {
+            "guid": "42bbbebf-6370-4b45-96ed-83fd4184fec5",
+            "label": "tampon_carre → Corbeille 1",
+            "isManuscript": false,
+            "manuscriptText": "Si le document contient un tempon, le mettre dans la corbeille 1",
+            "conditions": [
+                {
+                    "specificity": "tampon_carre",
+                    "connector": "Et",
+                    "targetBinSlot": 1
+                }
+            ],
+            "secondaryBinSlot": 0,
+            "resolvedBin1": "",
+            "resolvedBin2": "",
+            "ruleTypeString": "PositiveForced",
+            "complexity": 1
+        },
+        {
+            "guid": "92c06569-f231-41e6-b1ed-cc81149cc958",
+            "label": "tampon_carre Et pastille_bleu → Corbeille 1",
+            "isManuscript": true,
+            "manuscriptText": "Si le document contient un tempon Et pastille bleu, le mettre dans la corbeille 1",
+            "conditions": [
+                {
+                    "specificity": "tampon_carre",
+                    "connector": "Et",
+                    "targetBinSlot": 1
+                },
+                {
+                    "specificity": "pastille_bleu",
+                    "connector": "Et",
+                    "targetBinSlot": 1
+                }
+            ],
+            "secondaryBinSlot": 0,
+            "resolvedBin1": "",
+            "resolvedBin2": "",
+            "ruleTypeString": "PositiveDouble",
+            "complexity": 2
+        },
+        {
+            "guid": "fa42906b-76e0-4e01-bb80-fbbe58405168",
+            "label": "Si le document contient un pastille vert…",
+            "isManuscript": true,
+            "manuscriptText": "Si le document contient un pastille verte, le mettre dans la corbeille 1",
+            "conditions": [
+                {
+                    "specificity": "pastille_vert",
+                    "connector": "Et",
+                    "targetBinSlot": 1
+                }
+            ],
+            "secondaryBinSlot": 0,
+            "resolvedBin1": "",
+            "resolvedBin2": "",
+            "ruleTypeString": "PositiveForced",
+            "complexity": 1
+        }
+    ]
 }

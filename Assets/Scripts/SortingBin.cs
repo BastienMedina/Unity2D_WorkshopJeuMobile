@@ -74,6 +74,13 @@ public class SortingBin : MonoBehaviour
     public string GetBinID() => binID;
 
     /// <summary>
+    /// Returns a copy of the rules currently assigned to this bin.
+    /// Used by <see cref="RuleComplexityUpgrader"/> to inspect the current rule set
+    /// without exposing the internal list directly.
+    /// </summary>
+    public List<RuleData> GetAssignedRules() => new List<RuleData>(assignedRules);
+
+    /// <summary>
     /// Stores the provided rules as the active rule set for this bin and refreshes the display.
     /// Called by GameManager at the start of each game day.
     /// </summary>
@@ -187,6 +194,8 @@ public class SortingBin : MonoBehaviour
             RuleType.ComplementPositiveExclusive    => ValidateComplementPositiveExclusive(documentData, rule),
             RuleType.ComplementNegativeSimple       => ValidateComplementNegativeSimple(documentData, rule),
             RuleType.ComplementPositiveWithNegative => ValidateComplementPositiveWithNegative(documentData, rule),
+            RuleType.PositiveOr                     => ValidatePositiveOr(documentData, rule),
+            RuleType.ComplementPositiveOr           => ValidateComplementPositiveOr(documentData, rule),
             _                                       => false
         };
     }
@@ -250,11 +259,17 @@ public class SortingBin : MonoBehaviour
     }
 
     /// <summary>
-    /// PositiveDouble: routes to targetBinID when the document contains both conditionA and conditionB,
-    /// or to secondaryBinID when it contains conditionA but NOT conditionB.
-    /// Returns false when conditionA is absent — neither branch applies without the primary condition.
-    /// PositiveDouble is self-complementary: both outcomes are handled by the same rule with two target bins,
-    /// so no separate complement rule is needed.
+    /// PositiveDouble: document is valid in this bin if it contains BOTH conditionA AND conditionB.
+    ///
+    /// When secondaryBinID is empty (library-converter path — "Et" / "Sauf" branch):
+    ///   The rule is a plain two-condition AND gate targeting only targetBinID.
+    ///   The document must have both conditions to be valid here; having only conditionA
+    ///   is handled by a sibling PositiveWithNegative rule on a different bin.
+    ///
+    /// When secondaryBinID is set (legacy self-complementary path):
+    ///   conditionA + conditionB → targetBinID
+    ///   conditionA without conditionB → secondaryBinID
+    ///   Both branches are handled by this single rule with two target bins.
     /// </summary>
     private bool ValidatePositiveDouble(DocumentData documentData, RuleData rule)
     {
@@ -266,16 +281,14 @@ public class SortingBin : MonoBehaviour
 
         bool hasConditionB = documentData.specificities.Contains(rule.conditionB);
 
+        // Library-converter path: no secondaryBinID means this is a plain AND gate.
+        // The document must have both conditions; conditionA-alone is not accepted here.
+        if (string.IsNullOrEmpty(rule.secondaryBinID))
+            return hasConditionB && binID == rule.targetBinID;
+
+        // Legacy self-complementary path: both branches are handled here.
         if (hasConditionB)
             return binID == rule.targetBinID;
-
-        // conditionA present but not conditionB → routes to secondaryBinID.
-        // Guard against misconfiguration the same way ConditionalBranch does.
-        if (string.IsNullOrEmpty(rule.secondaryBinID))
-        {
-            Debug.LogWarning($"[SortingBin] PositiveDouble rule has no secondaryBinID. Rule targetBinID: {rule.targetBinID}");
-            return false;
-        }
 
         return binID == rule.secondaryBinID;
     }
@@ -357,5 +370,25 @@ public class SortingBin : MonoBehaviour
 
         // Both conditions must be present — the complement covers only the "both present" case.
         return hasConditionA && hasConditionB;
+    }
+
+    /// <summary>
+    /// PositiveOr: document is valid if it contains conditionA OR conditionB (at least one).
+    /// Introduced to support the "Ou" connector from the Rule Library structured editor.
+    /// </summary>
+    private bool ValidatePositiveOr(DocumentData documentData, RuleData rule)
+    {
+        return documentData.specificities.Contains(rule.conditionA)
+            || documentData.specificities.Contains(rule.conditionB);
+    }
+
+    /// <summary>
+    /// ComplementPositiveOr: document is valid if it contains NEITHER conditionA NOR conditionB.
+    /// The complement of PositiveOr — together the pair guarantees every document has a destination.
+    /// </summary>
+    private bool ValidateComplementPositiveOr(DocumentData documentData, RuleData rule)
+    {
+        return !documentData.specificities.Contains(rule.conditionA)
+            && !documentData.specificities.Contains(rule.conditionB);
     }
 }

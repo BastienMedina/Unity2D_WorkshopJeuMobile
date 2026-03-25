@@ -183,10 +183,14 @@ public class BinLayoutManager : MonoBehaviour
 
         foreach (RectTransform slot in binSlots)
         {
+            // Guard: the slot RectTransform may have been destroyed during scene teardown
+            // (OnDestroy order is not guaranteed in Unity). Skip destroyed references
+            // silently to avoid MissingReferenceException on Play Mode exit.
+            if (slot == null)
+                continue;
+
             SortingBin sortingBin = slot.GetComponent<SortingBin>();
 
-            // Guard: warn clearly rather than silently skipping a misconfigured slot,
-            // since a missing SortingBin would leave its events permanently subscribed.
             if (sortingBin == null)
             {
                 Debug.LogWarning($"[BinLayoutManager] Slot '{slot.name}' has no SortingBin component. " +
