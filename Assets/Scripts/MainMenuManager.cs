@@ -3,49 +3,44 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 
 /// <summary>
-/// Handles main menu navigation: fades the main menu buttons out and fades
-/// the tower floor-selection panel in when the player taps Play.
-/// Both panels must have a CanvasGroup at their root for the fades to work.
+/// Drives the main menu:
+/// - Play   → loads GameScene immediately.
+/// - Quit   → exits the application.
+/// - Options → slides OPT_UI in from below (y = offscreenY → restY) on first press,
+///             slides it back out on second press.
 /// </summary>
 public class MainMenuManager : MonoBehaviour
 {
     // -------------------------------------------------------------------------
-    // Inspector — scene names
+    // Inspector
     // -------------------------------------------------------------------------
 
-    /// <summary>
-    /// Scene loaded when the player taps Infinite mode.
-    /// Must match the name registered in Build Settings (case-sensitive).
-    /// </summary>
-    [SerializeField] private string infiniteSceneName = "TowerScene";
+    [Header("Scene Names")]
+    /// <summary>Scene loaded when the player taps Play.</summary>
+    [SerializeField] private string gameSceneName = "GameScene";
 
-    /// <summary>
-    /// Scene loaded when the player taps History mode.
-    /// Must match the name registered in Build Settings (case-sensitive).
-    /// </summary>
-    [SerializeField] private string historySceneName = "DesignerTowerScene";
-
-    // -------------------------------------------------------------------------
-    // Inspector — UI panels
-    // -------------------------------------------------------------------------
-
+    [Header("Panels")]
     /// <summary>Root panel containing the main menu buttons (Play, Options, Quit).</summary>
     [SerializeField] private GameObject mainMenuPanel;
 
-    /// <summary>
-    /// Root panel containing the tower floor-selection ScrollRect.
-    /// Hidden by default; revealed with a fade when the player taps Play.
-    /// </summary>
+    /// <summary>Tower floor-selection ScrollRect, revealed by OpenTowerSelection().</summary>
     [SerializeField] private GameObject towerSelectionPanel;
 
-    // -------------------------------------------------------------------------
-    // Inspector — fade settings
-    // -------------------------------------------------------------------------
+    /// <summary>Options panel that slides up from below the screen.</summary>
+    [SerializeField] private RectTransform optUI;
 
     [Header("Fade Settings")]
-
-    /// <summary>Duration of the cross-fade between panels, in seconds.</summary>
+    /// <summary>Duration of the main-menu cross-fade in seconds.</summary>
     [SerializeField] private float fadeDuration = 0.4f;
+
+    [Header("OPT_UI Slide Settings")]
+    /// <summary>Duration of the OPT_UI slide animation in seconds.</summary>
+    [SerializeField] private float slideDuration = 0.45f;
+
+    /// <summary>
+    /// Y anchoredPosition OPT_UI starts from when sliding in (below the screen).
+    /// </summary>
+    [SerializeField] private float optUIOffscreenY = -2000f;
 
     // -------------------------------------------------------------------------
     // Private state
@@ -54,6 +49,10 @@ public class MainMenuManager : MonoBehaviour
     private CanvasGroup _mainMenuGroup;
     private CanvasGroup _towerSelectionGroup;
     private Coroutine   _activeFade;
+    private Coroutine   _activeSlide;
+
+    private float _optUIRestY;
+    private bool  _optUIOpen;
 
     // -------------------------------------------------------------------------
     // Unity lifecycle
@@ -63,11 +62,17 @@ public class MainMenuManager : MonoBehaviour
     {
         _mainMenuGroup       = GetOrAddCanvasGroup(mainMenuPanel);
         _towerSelectionGroup = GetOrAddCanvasGroup(towerSelectionPanel);
+
+        if (optUI != null)
+        {
+            // Cache the designer-set resting position before moving it off-screen.
+            _optUIRestY = optUI.anchoredPosition.y;
+            SetOptUIY(optUIOffscreenY);
+        }
     }
 
     private void Start()
     {
-        // Show menu instantly on first frame — no fade needed.
         ApplyCanvasGroup(_mainMenuGroup,       alpha: 1f, interactable: true);
         ApplyCanvasGroup(_towerSelectionGroup, alpha: 0f, interactable: false);
 
@@ -76,65 +81,116 @@ public class MainMenuManager : MonoBehaviour
     }
 
     // -------------------------------------------------------------------------
-    // Panel navigation — called by Button onClick events
+    // Button callbacks
     // -------------------------------------------------------------------------
 
-    /// <summary>
-    /// Called by Play_BTN onClick.
-    /// Fades the main menu buttons to invisible then fades in the tower floor-selection view.
-    /// </summary>
+    /// <summary>Called by Play_BTN onClick — loads GameScene.</summary>
     public void OnPlayButtonClicked()
     {
-        if (_activeFade != null) StopCoroutine(_activeFade);
-        _activeFade = StartCoroutine(CrossFadePanels(
-            fadeOut: _mainMenuGroup,
-            fadeIn:  _towerSelectionGroup,
-            panelToActivate: towerSelectionPanel));
+        SceneManager.LoadScene(gameSceneName);
+    }
+
+    /// <summary>Called by Quit_BTN onClick — exits the application.</summary>
+    public void OnQuitButtonClicked()
+    {
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+        Application.Quit();
+#endif
     }
 
     /// <summary>
-    /// Called by the Back button inside the tower selection panel.
-    /// Fades the tower view out and restores the main menu.
+    /// Called by Options_BTN onClick.
+    /// Slides OPT_UI in from below on first press; slides it back out on second press.
     /// </summary>
+    public void OnOptionsButtonClicked()
+    {
+        if (_optUIOpen)
+            SlideOptUI(to: optUIOffscreenY, onComplete: () => _optUIOpen = false);
+        else
+            SlideOptUI(to: _optUIRestY,     onComplete: () => _optUIOpen = true);
+    }
+
+    /// <summary>Explicit close — wire to a Close/Back button inside OPT_UI.</summary>
+    public void OnOptionsCloseClicked()
+    {
+        if (_optUIOpen)
+            SlideOptUI(to: optUIOffscreenY, onComplete: () => _optUIOpen = false);
+    }
+
+    // -------------------------------------------------------------------------
+    // Tower selection helpers (kept for TowerScene flow)
+    // -------------------------------------------------------------------------
+
+    /// <summary>Fades BTN_Holder out and reveals TowerScrollView.</summary>
+    public void OpenTowerSelection()
+    {
+        if (_activeFade != null) StopCoroutine(_activeFade);
+        _activeFade = StartCoroutine(CrossFadePanels(
+            fadeOut:         _mainMenuGroup,
+            fadeIn:          _towerSelectionGroup,
+            panelToActivate: towerSelectionPanel));
+    }
+
+    /// <summary>Fades TowerScrollView out and restores BTN_Holder.</summary>
     public void OnBackButtonClicked()
     {
         if (_activeFade != null) StopCoroutine(_activeFade);
         _activeFade = StartCoroutine(CrossFadePanels(
-            fadeOut: _towerSelectionGroup,
-            fadeIn:  _mainMenuGroup,
+            fadeOut:         _towerSelectionGroup,
+            fadeIn:          _mainMenuGroup,
             panelToActivate: mainMenuPanel));
     }
 
     // -------------------------------------------------------------------------
-    // Legacy mode buttons
+    // Slide coroutine
     // -------------------------------------------------------------------------
 
-    /// <summary>Called by InfiniteButton onClick (if still present).</summary>
-    public void OnInfiniteButtonClicked()
+    private void SlideOptUI(float to, System.Action onComplete = null)
     {
-        SceneManager.LoadScene(infiniteSceneName);
+        if (optUI == null) return;
+        if (_activeSlide != null) StopCoroutine(_activeSlide);
+        _activeSlide = StartCoroutine(SlideRoutine(to, onComplete));
     }
 
-    /// <summary>Called by HistoryButton onClick (if still present).</summary>
-    public void OnHistoryButtonClicked()
+    private IEnumerator SlideRoutine(float targetY, System.Action onComplete)
     {
-        SceneManager.LoadScene(historySceneName);
+        float startY  = optUI.anchoredPosition.y;
+        float elapsed = 0f;
+
+        while (elapsed < slideDuration)
+        {
+            elapsed += Time.deltaTime;
+            float t  = Mathf.SmoothStep(0f, 1f, Mathf.Clamp01(elapsed / slideDuration));
+            SetOptUIY(Mathf.LerpUnclamped(startY, targetY, t));
+            yield return null;
+        }
+
+        SetOptUIY(targetY);
+        _activeSlide = null;
+        onComplete?.Invoke();
+    }
+
+    private void SetOptUIY(float y)
+    {
+        Vector2 pos = optUI.anchoredPosition;
+        pos.y = y;
+        optUI.anchoredPosition = pos;
     }
 
     // -------------------------------------------------------------------------
-    // Coroutine
+    // Cross-fade coroutine
     // -------------------------------------------------------------------------
 
     private IEnumerator CrossFadePanels(CanvasGroup fadeOut, CanvasGroup fadeIn, GameObject panelToActivate)
     {
-        // Immediately block interaction on the fading-out panel.
         if (fadeOut != null)
         {
             fadeOut.interactable   = false;
             fadeOut.blocksRaycasts = false;
         }
 
-        // Activate the incoming panel before fading so its layout is ready.
         if (panelToActivate != null)
             panelToActivate.SetActive(true);
 
@@ -145,21 +201,18 @@ public class MainMenuManager : MonoBehaviour
             fadeIn.blocksRaycasts = false;
         }
 
-        float elapsed = 0f;
+        float elapsed  = 0f;
         float startOut = fadeOut != null ? fadeOut.alpha : 0f;
 
         while (elapsed < fadeDuration)
         {
             elapsed += Time.deltaTime;
             float t  = Mathf.Clamp01(elapsed / fadeDuration);
-
             if (fadeOut != null) fadeOut.alpha = Mathf.Lerp(startOut, 0f, t);
             if (fadeIn  != null) fadeIn.alpha  = Mathf.Lerp(0f, 1f, t);
-
             yield return null;
         }
 
-        // Ensure final values are exact.
         if (fadeOut != null) fadeOut.alpha = 0f;
         if (fadeIn  != null)
         {
