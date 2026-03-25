@@ -328,15 +328,15 @@ public class DraggableDocument : MonoBehaviour, IBeginDragHandler, IDragHandler,
 
     /// <summary>
     /// Briefly reduces alpha to signal an invalid drop, then notifies the stack manager
-    /// to restore the document to the top of the stack.
+    /// to destroy the document — dropping in the wrong bin permanently removes the document.
     /// </summary>
     private IEnumerator FlashInvalidThenCancel()
     {
         canvasGroup.alpha = invalidFlashAlpha;
         yield return new WaitForSeconds(invalidFlashDuration);
-        canvasGroup.alpha = 1f;
 
-        // Stack manager handles repositioning; DraggableDocument no longer owns position state.
-        stackManager.OnDocumentDragCancelled(gameObject);
+        // Wrong bin: destroy the document permanently instead of returning it to the stack.
+        // OnDocumentRemoved issues Destroy and triggers a refill, matching the valid-drop flow.
+        stackManager.OnDocumentRemoved(gameObject);
     }
 }
