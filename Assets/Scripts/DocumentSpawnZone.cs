@@ -3,16 +3,24 @@ using UnityEngine;
 /// <summary>
 /// Defines the randomisation space for a visual layer on the document prefab.
 /// Each field is a configurable range — the DocumentVisualizer samples it once per spawn.
-/// Attach one of these per layer inside DocumentVisualizer's inspector list.
+///
+/// The base position is always the RectTransform's anchoredPosition as placed in the prefab.
+/// Only the offsets and rotation ranges need to be configured here.
 /// </summary>
 [System.Serializable]
 public class DocumentSpawnZone
 {
-    /// <summary>Minimum local-space position offset applied to this layer's RectTransform.</summary>
-    public Vector2 positionOffsetMin = Vector2.zero;
+    /// <summary>Minimum random X offset added to the layer's current anchoredPosition (canvas pixels).</summary>
+    public float offsetXMin = 0f;
 
-    /// <summary>Maximum local-space position offset applied to this layer's RectTransform.</summary>
-    public Vector2 positionOffsetMax = Vector2.zero;
+    /// <summary>Maximum random X offset added to the layer's current anchoredPosition (canvas pixels).</summary>
+    public float offsetXMax = 0f;
+
+    /// <summary>Minimum random Y offset added to the layer's current anchoredPosition (canvas pixels).</summary>
+    public float offsetYMin = 0f;
+
+    /// <summary>Maximum random Y offset added to the layer's current anchoredPosition (canvas pixels).</summary>
+    public float offsetYMax = 0f;
 
     /// <summary>Minimum Z-rotation in degrees applied to this layer (negative = counter-clockwise).</summary>
     public float rotationMin = 0f;
@@ -30,12 +38,16 @@ public class DocumentSpawnZone
     // Sampling helpers
     // -------------------------------------------------------------------------
 
-    /// <summary>Returns a random position offset within [positionOffsetMin, positionOffsetMax].</summary>
-    public Vector2 SamplePosition()
+    /// <summary>
+    /// Returns a random (X, Y) offset sampled independently from
+    /// [offsetXMin, offsetXMax] and [offsetYMin, offsetYMax].
+    /// Add this to the RectTransform's original anchoredPosition.
+    /// </summary>
+    public Vector2 SampleOffset()
     {
         return new Vector2(
-            Random.Range(positionOffsetMin.x, positionOffsetMax.x),
-            Random.Range(positionOffsetMin.y, positionOffsetMax.y)
+            Random.Range(offsetXMin, offsetXMax),
+            Random.Range(offsetYMin, offsetYMax)
         );
     }
 

@@ -66,6 +66,13 @@ public class DocumentLayer
     /// </summary>
     public Sprite fallbackSprite;
 
+    /// <summary>
+    /// When true, the fallback sprite is placed through the spawn zone (offset, rotation, color)
+    /// exactly like a matched specificity. When false, the fallback is shown at its prefab
+    /// position with no tint and no rotation — useful for a static background sheet.
+    /// </summary>
+    public bool applyZoneOnFallback = false;
+
     /// <summary>Randomisation parameters (position, rotation, color) applied at spawn time.</summary>
     public DocumentSpawnZone spawnZone;
 
@@ -73,12 +80,21 @@ public class DocumentLayer
     public List<SpecificityVisualEntry> entries = new List<SpecificityVisualEntry>();
 
     // -------------------------------------------------------------------------
+    // Internal state
+    // -------------------------------------------------------------------------
+
+    // Cached anchoredPosition as it was set in the prefab, captured on first apply.
+    // This ensures re-applying visuals always starts from the designer's base position,
+    // not from a previously randomised one.
+    private Vector2? _originalAnchoredPosition;
+
+    // -------------------------------------------------------------------------
     // Public API
     // -------------------------------------------------------------------------
 
     /// <summary>
     /// Searches entries for a matching specificityID and applies the result to targetImage.
-    /// Samples position, rotation and color from spawnZone.
+    /// Samples position offset, rotation and color from spawnZone.
     /// </summary>
     /// <param name="specificityID">The specificity string to look up.</param>
     /// <returns>True if a matching entry was found and applied.</returns>
@@ -104,8 +120,9 @@ public class DocumentLayer
     }
 
     /// <summary>
-    /// Shows the fallback sprite without sampling the zone (position stays at default).
-    /// Called by DocumentVisualizer when no specificity matches this layer but a fallback exists.
+    /// Shows the fallback sprite when no specificity matches this layer.
+    /// If applyZoneOnFallback is true, the spawn zone (offset, rotation, color) is sampled
+    /// just like a normal match. Otherwise the layer is shown at its prefab position with no tint.
     /// </summary>
     public void ApplyFallback()
     {
@@ -115,9 +132,16 @@ public class DocumentLayer
             return;
         }
 
-        targetImage.gameObject.SetActive(true);
-        targetImage.sprite = fallbackSprite;
-        targetImage.color  = Color.white;
+        if (applyZoneOnFallback)
+        {
+            ApplySpriteAndZone(fallbackSprite);
+        }
+        else
+        {
+            targetImage.gameObject.SetActive(true);
+            targetImage.sprite = fallbackSprite;
+            targetImage.color  = Color.white;
+        }
     }
 
     /// <summary>Hides the layer's GameObject when there is nothing to display.</summary>
@@ -139,10 +163,13 @@ public class DocumentLayer
 
         RectTransform rt = targetImage.rectTransform;
 
-        // Store the original anchored position (set in editor) then add the random offset.
-        // This lets designers position layers precisely in the prefab and tune the offset
-        // range independently, rather than treating the zone as the absolute position.
-        rt.anchoredPosition += spawnZone.SamplePosition();
-        rt.localRotation     = Quaternion.Euler(0f, 0f, spawnZone.SampleRotation());
+        // Capture the prefab's base position once, so that repeated calls
+        // to ApplyVisuals always offset from the same origin.
+        if (!_originalAnchoredPosition.HasValue)
+            _originalAnchoredPosition = rt.anchoredPosition;
+
+        // Apply: base position (from prefab) + independent random X/Y offset.
+        rt.anchoredPosition = _originalAnchoredPosition.Value + spawnZone.SampleOffset();
+        rt.localRotation    = Quaternion.Euler(0f, 0f, spawnZone.SampleRotation());
     }
 }

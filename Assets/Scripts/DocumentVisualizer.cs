@@ -129,25 +129,24 @@ public class DocumentVisualizer : MonoBehaviour
         {
             if (layer.targetImage == null) continue;
 
-            RectTransform rt        = layer.targetImage.rectTransform;
-            Vector3       baseWorld = rt.position;
+            RectTransform rt         = layer.targetImage.rectTransform;
             Vector3       lossyScale = rt.lossyScale;
 
-            // Convert canvas-local pixel offsets to world-space units.
-            Vector3 minOffset = new Vector3(
-                layer.spawnZone.positionOffsetMin.x * lossyScale.x,
-                layer.spawnZone.positionOffsetMin.y * lossyScale.y,
-                0f
-            );
-            Vector3 maxOffset = new Vector3(
-                layer.spawnZone.positionOffsetMax.x * lossyScale.x,
-                layer.spawnZone.positionOffsetMax.y * lossyScale.y,
-                0f
-            );
+            // The base position is the RectTransform's world position as placed in the prefab.
+            Vector3 baseWorld = rt.position;
 
-            Vector3 zoneCenter = baseWorld + (minOffset + maxOffset) * 0.5f;
-            float   zoneW      = Mathf.Abs(maxOffset.x - minOffset.x);
-            float   zoneH      = Mathf.Abs(maxOffset.y - minOffset.y);
+            // Convert canvas-local pixel offsets to world-space units.
+            float minX = layer.spawnZone.offsetXMin * lossyScale.x;
+            float maxX = layer.spawnZone.offsetXMax * lossyScale.x;
+            float minY = layer.spawnZone.offsetYMin * lossyScale.y;
+            float maxY = layer.spawnZone.offsetYMax * lossyScale.y;
+
+            Vector3 zoneCenter = baseWorld + new Vector3(
+                (minX + maxX) * 0.5f,
+                (minY + maxY) * 0.5f,
+                0f);
+            float zoneW = Mathf.Abs(maxX - minX);
+            float zoneH = Mathf.Abs(maxY - minY);
 
             Color solidColor = layer.gizmoColor;
             solidColor.a     = 0.12f;

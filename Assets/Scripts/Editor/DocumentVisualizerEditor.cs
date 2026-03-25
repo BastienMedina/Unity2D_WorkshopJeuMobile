@@ -58,13 +58,14 @@ public class DocumentVisualizerEditor : Editor
 
     private void DrawLayerElement(int index)
     {
-        SerializedProperty layerProp     = _layersProp.GetArrayElementAtIndex(index);
-        SerializedProperty nameProp      = layerProp.FindPropertyRelative("layerName");
-        SerializedProperty colorProp     = layerProp.FindPropertyRelative("gizmoColor");
-        SerializedProperty imageProp     = layerProp.FindPropertyRelative("targetImage");
-        SerializedProperty fallbackProp  = layerProp.FindPropertyRelative("fallbackSprite");
-        SerializedProperty zoneProp      = layerProp.FindPropertyRelative("spawnZone");
-        SerializedProperty entriesProp   = layerProp.FindPropertyRelative("entries");
+        SerializedProperty layerProp        = _layersProp.GetArrayElementAtIndex(index);
+        SerializedProperty nameProp         = layerProp.FindPropertyRelative("layerName");
+        SerializedProperty colorProp        = layerProp.FindPropertyRelative("gizmoColor");
+        SerializedProperty imageProp        = layerProp.FindPropertyRelative("targetImage");
+        SerializedProperty fallbackProp     = layerProp.FindPropertyRelative("fallbackSprite");
+        SerializedProperty fallbackZoneProp = layerProp.FindPropertyRelative("applyZoneOnFallback");
+        SerializedProperty zoneProp         = layerProp.FindPropertyRelative("spawnZone");
+        SerializedProperty entriesProp      = layerProp.FindPropertyRelative("entries");
 
         // Assign a default gizmo color when the layer is first created (color is black by default).
         if (colorProp.colorValue == Color.black && index < DefaultLayerColors.Length)
@@ -96,15 +97,34 @@ public class DocumentVisualizerEditor : Editor
         {
             EditorGUI.indentLevel++;
 
-            EditorGUILayout.PropertyField(nameProp,     new GUIContent("Layer Name"));
-            EditorGUILayout.PropertyField(imageProp,    new GUIContent("Target Image"));
-            EditorGUILayout.PropertyField(fallbackProp, new GUIContent("Fallback Sprite"));
+            EditorGUILayout.PropertyField(nameProp,  new GUIContent("Layer Name"));
+            EditorGUILayout.PropertyField(imageProp, new GUIContent("Target Image"));
 
             EditorGUILayout.Space(4);
+
+            // ── Fallback ──────────────────────────────────────────────────────
+            EditorGUILayout.LabelField("Fallback", EditorStyles.miniBoldLabel);
+
+            EditorGUILayout.PropertyField(fallbackProp, new GUIContent("Fallback Sprite",
+                "Sprite shown when no specificity in the document matches this layer.\n" +
+                "Leave empty to hide the layer when unmatched."));
+
+            if (fallbackProp.objectReferenceValue != null)
+            {
+                EditorGUILayout.PropertyField(fallbackZoneProp, new GUIContent("Apply Zone on Fallback",
+                    "If enabled, the fallback sprite is also randomised through the spawn zone " +
+                    "(offset, rotation, color). Disable for a static background sheet."));
+            }
+
+            EditorGUILayout.Space(4);
+
+            // ── Spawn zone ────────────────────────────────────────────────────
             EditorGUILayout.LabelField("Spawn Zone", EditorStyles.miniBoldLabel);
             DrawSpawnZone(zoneProp);
 
             EditorGUILayout.Space(4);
+
+            // ── Specificity entries ───────────────────────────────────────────
             EditorGUILayout.LabelField("Specificity Entries", EditorStyles.miniBoldLabel);
             DrawEntriesSummary(entriesProp);
 
@@ -118,27 +138,36 @@ public class DocumentVisualizerEditor : Editor
 
     private void DrawSpawnZone(SerializedProperty zoneProp)
     {
-        SerializedProperty posMinProp    = zoneProp.FindPropertyRelative("positionOffsetMin");
-        SerializedProperty posMaxProp    = zoneProp.FindPropertyRelative("positionOffsetMax");
-        SerializedProperty rotMinProp    = zoneProp.FindPropertyRelative("rotationMin");
-        SerializedProperty rotMaxProp    = zoneProp.FindPropertyRelative("rotationMax");
-        SerializedProperty colorsProp    = zoneProp.FindPropertyRelative("possibleColors");
+        SerializedProperty offsetXMinProp = zoneProp.FindPropertyRelative("offsetXMin");
+        SerializedProperty offsetXMaxProp = zoneProp.FindPropertyRelative("offsetXMax");
+        SerializedProperty offsetYMinProp = zoneProp.FindPropertyRelative("offsetYMin");
+        SerializedProperty offsetYMaxProp = zoneProp.FindPropertyRelative("offsetYMax");
+        SerializedProperty rotMinProp     = zoneProp.FindPropertyRelative("rotationMin");
+        SerializedProperty rotMaxProp     = zoneProp.FindPropertyRelative("rotationMax");
+        SerializedProperty colorsProp     = zoneProp.FindPropertyRelative("possibleColors");
 
-        // Position range displayed as two fields on one line for compactness.
+        // Offset X range.
         EditorGUILayout.BeginHorizontal();
-        EditorGUILayout.LabelField("Position Min / Max", GUILayout.Width(140));
-        EditorGUILayout.PropertyField(posMinProp, GUIContent.none);
-        EditorGUILayout.PropertyField(posMaxProp, GUIContent.none);
+        EditorGUILayout.LabelField("Offset X  Min / Max", GUILayout.Width(140));
+        offsetXMinProp.floatValue = EditorGUILayout.FloatField(offsetXMinProp.floatValue);
+        offsetXMaxProp.floatValue = EditorGUILayout.FloatField(offsetXMaxProp.floatValue);
+        EditorGUILayout.EndHorizontal();
+
+        // Offset Y range.
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.LabelField("Offset Y  Min / Max", GUILayout.Width(140));
+        offsetYMinProp.floatValue = EditorGUILayout.FloatField(offsetYMinProp.floatValue);
+        offsetYMaxProp.floatValue = EditorGUILayout.FloatField(offsetYMaxProp.floatValue);
         EditorGUILayout.EndHorizontal();
 
         // Rotation range.
         EditorGUILayout.BeginHorizontal();
-        EditorGUILayout.LabelField("Rotation Min / Max", GUILayout.Width(140));
+        EditorGUILayout.LabelField("Rotation  Min / Max", GUILayout.Width(140));
         rotMinProp.floatValue = EditorGUILayout.FloatField(rotMinProp.floatValue);
         rotMaxProp.floatValue = EditorGUILayout.FloatField(rotMaxProp.floatValue);
         EditorGUILayout.EndHorizontal();
 
-        // Color palette.
+        // Color palette — pick at random from this list at spawn.
         EditorGUILayout.PropertyField(colorsProp, new GUIContent("Possible Colors"), true);
     }
 
