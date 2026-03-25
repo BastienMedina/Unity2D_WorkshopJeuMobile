@@ -2300,7 +2300,6 @@ MonoBehaviour:
   delayAfterDing: 0.5
   doorSlideDistance: 300
   doorOpenDuration: 1.5
-  floorNumber: 1
   waitBeforeFadeOut: 1
 --- !u!82 &953272915
 AudioSource:
@@ -2836,7 +2835,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1025518953
 MonoBehaviour:
   m_ObjectHideFlags: 0

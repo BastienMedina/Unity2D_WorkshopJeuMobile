@@ -47,6 +47,14 @@ public class GameManager : MonoBehaviour
     /// <summary>Displays the day-transition overlay between days.</summary>
     [SerializeField] private DayTransitionManager dayTransitionManager;
 
+    /// <summary>
+    /// Plays the correct full-screen animation Canvas for each transition type
+    /// (day end, day fail, floor complete). Fires onSequenceComplete when done
+    /// so GameManager can advance the game state.
+    /// Assign your Sleep Canvas to DayEnd, Elevator Canvas to FloorComplete, etc.
+    /// </summary>
+    [SerializeField] private AnimationSequenceManager animationSequenceManager;
+
     /// <summary>Renders the MM:SS countdown timer below the profitability bar.</summary>
     [SerializeField] private DayTimerUI dayTimerUI;
 
@@ -116,6 +124,12 @@ public class GameManager : MonoBehaviour
     /// (e.g. a retry) would re-apply the floor bonus, compounding it incorrectly.
     /// </summary>
     private bool isFloorBonusApplied = false;
+
+    /// <summary>
+    /// Set to true when the floor-complete animation is playing and SceneManager.LoadScene
+    /// must be deferred until OnAnimationSequenceComplete fires.
+    /// </summary>
+    private bool pendingSceneLoad = false;
 
     /// <summary>
     /// Difficulty change summary built during InitializeDay and passed to PlayTransition
@@ -214,12 +228,11 @@ public class GameManager : MonoBehaviour
         profitabilityManager.onDayFailed            += OnDayFailed;
         profitabilityManager.onTimerUpdated         += OnTimerUpdated;
         dayTransitionManager.onTransitionComplete   += OnTransitionComplete;
+
+        if (animationSequenceManager != null)
+            animationSequenceManager.onSequenceComplete += OnAnimationSequenceComplete;
     }
 
-    /// <summary>
-    /// Mirror of SubscribeToAllEvents — called in OnDestroy to avoid memory leaks
-    /// from dangling delegates referencing a destroyed MonoBehaviour.
-    /// </summary>
     private void UnsubscribeFromAllEvents()
     {
         profitabilityManager.onProfitabilityChanged -= OnProfitabilityChanged;
@@ -227,6 +240,9 @@ public class GameManager : MonoBehaviour
         profitabilityManager.onDayFailed            -= OnDayFailed;
         profitabilityManager.onTimerUpdated         -= OnTimerUpdated;
         dayTransitionManager.onTransitionComplete   -= OnTransitionComplete;
+
+        if (animationSequenceManager != null)
+            animationSequenceManager.onSequenceComplete -= OnAnimationSequenceComplete;
     }
 
     // -------------------------------------------------------------------------
@@ -276,27 +292,46 @@ public class GameManager : MonoBehaviour
         {
             SaveCurrentFloor();
 
-            // Pre-compute the next floor's parameters immediately from the just-saved floor data
-            // so TowerManager can pass them to GameScene without having to re-derive the chain.
-            // The next floor is generated in memory only — it is NOT saved to disk here.
-            // Saving happens only when the player completes that floor.
             FloorSaveData nextFloorData = floorDifficultyProgression.GenerateNextFloorData(
                 currentFloorSaveData);
 
-            // Place the next floor's data in the session holder so TowerManager can read it
-            // when the player taps the new block, without needing to re-run the derivation.
             FloorSessionData.SelectedFloor    = nextFloorData;
             FloorSessionData.IsReplayingFloor = false;
 
-            // Return to TowerScene after completing a floor so the player sees the new block.
-            // SceneManager.LoadScene triggers Unity's scene transition; no further code runs here.
-            SceneManager.LoadScene("TowerScene");
+            // Play the floor-complete animation (elevator) before loading TowerScene.
+            // If no animationSequenceManager is assigned, load immediately as before.
+            if (animationSequenceManager != null)
+            {
+                // Pass the new floor number to ElevatorSequenceController if one is present.
+                ElevatorSequenceController elevator =
+                    animationSequenceManager.GetComponentInChildren<ElevatorSequenceController>(true);
+
+                if (elevator != null)
+                    elevator.FloorNumber = currentFloorIndex + 2; // next floor is 1-based
+
+                pendingSceneLoad = true;
+                animationSequenceManager.PlaySequence(AnimationSequenceManager.TransitionType.FloorComplete);
+                // OnAnimationSequenceComplete will call SceneManager.LoadScene when the sequence ends.
+            }
+            else
+            {
+                SceneManager.LoadScene("TowerScene");
+            }
             return;
         }
 
         // Floor not yet complete — advance to the next day inside GameScene as before.
         // pendingSummary was built during the InitializeDay that started this day.
         dayTransitionManager.PlayTransition(currentDayIndex, currentFloorIndex, pendingSummary);
+
+        // Play the day-end animation canvas (sleep/dodo sequence).
+        // AnimationSequenceManager fires onSequenceComplete → OnAnimationSequenceComplete
+        // when done, which is NOT wired to InitializeDay here — DayTransitionManager.onTransitionComplete
+        // still drives InitializeDay so the existing timing contract is preserved.
+        // If you want the animation to gate InitializeDay instead, remove the
+        // dayTransitionManager subscription and route through OnAnimationSequenceComplete.
+        if (animationSequenceManager != null)
+            animationSequenceManager.PlaySequence(AnimationSequenceManager.TransitionType.DayEnd);
     }
 
     /// <summary>
@@ -326,6 +361,10 @@ public class GameManager : MonoBehaviour
         // which displays "FAILED — Back to Day 1" regardless of day index.
         // Null summary on failure — no difficulty changes to display on a failed day.
         dayTransitionManager.PlayTransition(-1, currentFloorIndex, null);
+
+        // Play the failure animation canvas.
+        if (animationSequenceManager != null)
+            animationSequenceManager.PlaySequence(AnimationSequenceManager.TransitionType.DayFail);
     }
 
     /// <summary>
@@ -336,6 +375,23 @@ public class GameManager : MonoBehaviour
     private void OnTransitionComplete()
     {
         InitializeDay();
+    }
+
+    /// <summary>
+    /// Called by AnimationSequenceManager when the active animation Canvas finishes.
+    /// Currently used only for the FloorComplete path — loading TowerScene is deferred
+    /// until the elevator sequence ends so the player sees the full animation.
+    /// For DayEnd and DayFail, DayTransitionManager.onTransitionComplete still drives
+    /// InitializeDay so the existing timing contract is preserved.
+    /// </summary>
+    private void OnAnimationSequenceComplete()
+    {
+        // Only act on FloorComplete — day transitions are handled by DayTransitionManager.
+        if (pendingSceneLoad)
+        {
+            pendingSceneLoad = false;
+            SceneManager.LoadScene("TowerScene");
+        }
     }
 
     // -------------------------------------------------------------------------
