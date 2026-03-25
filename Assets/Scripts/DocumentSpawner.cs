@@ -688,6 +688,12 @@ public class DocumentSpawner : MonoBehaviour
 
         AssignSpecificitiesToLabel(documentInstance, generatedData.specificities);
 
+        // Apply visual layers (sprites, rotation, tint) based on the document's specificities.
+        // Called after data injection and label assignment — purely visual, no data side-effects.
+        DocumentVisualizer visualizer = documentInstance.GetComponent<DocumentVisualizer>();
+        if (visualizer != null)
+            visualizer.ApplyVisuals(generatedData);
+
         // Hand the document to the stack manager — it owns all positioning and lifetime tracking.
         // DocumentSpawner must not store a reference to the document after this point.
         documentStackManager.EnqueueDocument(documentInstance);

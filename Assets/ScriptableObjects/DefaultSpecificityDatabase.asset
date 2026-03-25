@@ -13,14 +13,31 @@ MonoBehaviour:
   m_Name: DefaultSpecificityDatabase
   m_EditorClassIdentifier: Assembly-CSharp::SpecificityDatabase
   allSpecificities:
-  - green_dot
-  - torn
-  - signed
-  - red_stamp
-  - folded
-  - urgent
-  - confidential
-  - wet
+  - feuille_base
+  - feuille_brulee
+  - feuille_cafe
+  - feuille_dechirure_grande
+  - feuille_dechirure_petite
+  - pastille_bleu
+  - pastille_jaune
+  - pastille_rouge
+  - pastille_vert
+  - pastille_violet
+  - signature_effacee
+  - signature_grande
+  - signature_main
+  - signature_petite
+  - signature_coloree
+  - tampon_carre
+  - tampon_double
+  - tampon_efface
+  - tampon_rectangle
+  - tampon_rond
+  - text_dessin
+  - text_machine
+  - text_main
+  - text_tableau
+  - text_vierge
   templates:
   - templateText: If the document has {0}, it goes here regardless of anything else
     requiredSpecificityCount: 1
