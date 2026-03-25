@@ -807,9 +807,9 @@ public class PlaytestSimulatorWindow : EditorWindow
     {
         return currentType switch
         {
-            RuleType.PositiveExclusive => RuleType.PositiveForced,
-            RuleType.PositiveForced    => RuleType.NegativeSimple,
-            _                          => null
+            RuleType.Simple   => RuleType.Multiple,
+            RuleType.Multiple => RuleType.Branch,
+            _                 => null
         };
     }
 
@@ -824,16 +824,12 @@ public class PlaytestSimulatorWindow : EditorWindow
     private static RuleType SelectRuleType(int complexityTarget, System.Random rng)
     {
         if (complexityTarget <= 1)
-            return RuleType.PositiveExclusive;
+            return RuleType.Simple;
 
         if (complexityTarget == 2)
-        {
-            RuleType[] mediumTypes = { RuleType.PositiveForced, RuleType.NegativeSimple };
-            return mediumTypes[rng.Next(0, mediumTypes.Length)];
-        }
+            return RuleType.Multiple;
 
-        RuleType[] hardTypes = { RuleType.ConditionalBranch, RuleType.PositiveDouble, RuleType.PositiveWithNegative };
-        return hardTypes[rng.Next(0, hardTypes.Length)];
+        return RuleType.Branch;
     }
 
     /// <summary>Mirrors RuleGenerator.BuildRule, consuming specificities from the shared pool.</summary>
@@ -850,35 +846,18 @@ public class PlaytestSimulatorWindow : EditorWindow
 
         switch (ruleType)
         {
-            case RuleType.PositiveExclusive:
-            case RuleType.PositiveForced:
-            case RuleType.NegativeSimple:
+            case RuleType.Simple:
                 if (!TryConsumeSpecificity(pool, usedSpecificities, rng, out string singleCondition))
                     return null;
                 rule.conditionA = singleCondition;
                 break;
 
-            case RuleType.ConditionalBranch:
-                if (!TryConsumeSpecificity(pool, usedSpecificities, rng, out string condBranchA)) return null;
-                if (!TryConsumeSpecificity(pool, usedSpecificities, rng, out string condBranchB)) return null;
-                rule.conditionA     = condBranchA;
-                rule.conditionB     = condBranchB;
-                rule.secondaryBinID = PickDifferentBinID(binID, binIDs, rng);
-                break;
-
-            case RuleType.PositiveDouble:
-                if (!TryConsumeSpecificity(pool, usedSpecificities, rng, out string condDoubleA)) return null;
-                if (!TryConsumeSpecificity(pool, usedSpecificities, rng, out string condDoubleB)) return null;
-                rule.conditionA     = condDoubleA;
-                rule.conditionB     = condDoubleB;
-                rule.secondaryBinID = PickDifferentBinID(binID, binIDs, rng);
-                break;
-
-            case RuleType.PositiveWithNegative:
-                if (!TryConsumeSpecificity(pool, usedSpecificities, rng, out string condWithA)) return null;
-                if (!TryConsumeSpecificity(pool, usedSpecificities, rng, out string condWithB)) return null;
-                rule.conditionA = condWithA;
-                rule.conditionB = condWithB;
+            case RuleType.Multiple:
+            case RuleType.Branch:
+                if (!TryConsumeSpecificity(pool, usedSpecificities, rng, out string condA)) return null;
+                if (!TryConsumeSpecificity(pool, usedSpecificities, rng, out string condB)) return null;
+                rule.conditionA = condA;
+                rule.conditionB = condB;
                 break;
         }
 
@@ -918,67 +897,27 @@ public class PlaytestSimulatorWindow : EditorWindow
     }
 
     /// <summary>
-    /// Mirrors RuleGenerator.GenerateComplementRule, mapping primary types to complement types.
-    /// Returns null for self-complementary types (ConditionalBranch, PositiveDouble).
+    /// No complement rules remain in the simplified rule set — this method always returns null.
+    /// Kept for API compatibility with the simulation pipeline.
     /// </summary>
     private static RuleData GenerateComplementRule(RuleData primaryRule, string complementBinID)
     {
-        if (primaryRule.isComplement)
-            return null;
-
-        // Self-complementary types already cover both routing outcomes — no complement needed.
-        if (primaryRule.ruleType == RuleType.ConditionalBranch ||
-            primaryRule.ruleType == RuleType.PositiveDouble)
-            return null;
-
-        RuleType complementType = ResolveComplementType(primaryRule.ruleType);
-
-        // No mapping exists for this type — skip silently to match RuleGenerator behaviour.
-        if (complementType == primaryRule.ruleType)
-            return null;
-
-        RuleData complementRule = new RuleData
-        {
-            isComplement  = true,
-            ruleType      = complementType,
-            targetBinID   = complementBinID,
-            conditionA    = primaryRule.conditionA,
-            conditionB    = primaryRule.conditionB,
-            complexity    = primaryRule.complexity
-        };
-
-        complementRule.displayText = ResolveDisplayText(complementType, complementRule);
-
-        return complementRule;
+        return null;
     }
 
     private static RuleType ResolveComplementType(RuleType primaryType)
     {
-        return primaryType switch
-        {
-            RuleType.PositiveForced       => RuleType.ComplementPositiveForced,
-            RuleType.PositiveExclusive    => RuleType.ComplementPositiveExclusive,
-            RuleType.NegativeSimple       => RuleType.ComplementNegativeSimple,
-            RuleType.PositiveWithNegative => RuleType.ComplementPositiveWithNegative,
-            _                             => primaryType
-        };
+        return primaryType; // No complement types remain in the simplified rule set.
     }
 
     private static int ComputeComplexity(RuleType ruleType, int binCount)
     {
         int baseScore = ruleType switch
         {
-            RuleType.PositiveExclusive              => 1,
-            RuleType.PositiveForced                 => 2,
-            RuleType.NegativeSimple                 => 2,
-            RuleType.ConditionalBranch              => 3,
-            RuleType.PositiveDouble                 => 3,
-            RuleType.PositiveWithNegative           => 3,
-            RuleType.ComplementPositiveForced       => 2,
-            RuleType.ComplementPositiveExclusive    => 1,
-            RuleType.ComplementNegativeSimple       => 2,
-            RuleType.ComplementPositiveWithNegative => 3,
-            _                                       => 1
+            RuleType.Simple   => 1,
+            RuleType.Multiple => 2,
+            RuleType.Branch   => 3,
+            _                 => 1
         };
 
         int binPenalty = Mathf.Max(0, binCount - 1);
@@ -990,17 +929,10 @@ public class PlaytestSimulatorWindow : EditorWindow
     {
         string template = ruleType switch
         {
-            RuleType.PositiveExclusive              => "If the document has only {0}, place it here",
-            RuleType.PositiveForced                 => "If the document has {0}, it must go here",
-            RuleType.NegativeSimple                 => "If the document does not have {0}, place it here",
-            RuleType.ConditionalBranch              => "If {0} is present: check for {1} — yes: here, no: other bin",
-            RuleType.PositiveDouble                 => "If {0} and {1} are present go here, otherwise other bin",
-            RuleType.PositiveWithNegative           => "If {0} is present but {1} is not, place it here",
-            RuleType.ComplementPositiveForced       => "If the document does NOT have {0}, place it here",
-            RuleType.ComplementPositiveExclusive    => "If {0} is present with other specificities, place here",
-            RuleType.ComplementNegativeSimple       => "If the document has {0}, place it here",
-            RuleType.ComplementPositiveWithNegative => "If {0} and {1} are both present, place it here",
-            _                                       => "Send documents here"
+            RuleType.Simple   => "Si le document a {0}, posez-le ici",
+            RuleType.Multiple => "Si le document a {0} et {1}, posez-le ici",
+            RuleType.Branch   => "Si le document a {0} mais pas {1}, posez-le ici",
+            _                 => "Posez le document ici"
         };
 
         return template
@@ -1084,36 +1016,14 @@ public class PlaytestSimulatorWindow : EditorWindow
     {
         switch (rule.ruleType)
         {
-            case RuleType.PositiveForced:
+            case RuleType.Simple:
                 return specificities.Contains(rule.conditionA);
 
-            case RuleType.PositiveExclusive:
-                return specificities.Contains(rule.conditionA) && specificities.Count == 1;
-
-            case RuleType.ConditionalBranch:
-            case RuleType.PositiveDouble:
-                bool isYesBranch = rule.targetBinID != rule.secondaryBinID;
-                if (isYesBranch)
-                    return specificities.Contains(rule.conditionA) && specificities.Contains(rule.conditionB);
-                return specificities.Contains(rule.conditionA) && !specificities.Contains(rule.conditionB);
-
-            case RuleType.NegativeSimple:
-                return !specificities.Contains(rule.conditionA);
-
-            case RuleType.PositiveWithNegative:
-                return specificities.Contains(rule.conditionA) && !specificities.Contains(rule.conditionB);
-
-            case RuleType.ComplementPositiveForced:
-                return !specificities.Contains(rule.conditionA);
-
-            case RuleType.ComplementPositiveExclusive:
-                return specificities.Contains(rule.conditionA) && specificities.Count > 1;
-
-            case RuleType.ComplementNegativeSimple:
-                return specificities.Contains(rule.conditionA);
-
-            case RuleType.ComplementPositiveWithNegative:
+            case RuleType.Multiple:
                 return specificities.Contains(rule.conditionA) && specificities.Contains(rule.conditionB);
+
+            case RuleType.Branch:
+                return specificities.Contains(rule.conditionA) && !specificities.Contains(rule.conditionB);
 
             default:
                 return false;
@@ -1272,13 +1182,8 @@ public class PlaytestSimulatorWindow : EditorWindow
             if (rule.isComplement)
                 continue;
 
-            if (rule.ruleType == RuleType.ConditionalBranch || rule.ruleType == RuleType.PositiveDouble)
-                continue; // Self-complementary — no separate complement expected.
-
-            bool hasComplement = allRules.Exists(candidate =>
-                candidate.isComplement &&
-                candidate.conditionA == rule.conditionA &&
-                candidate.targetBinID != rule.targetBinID);
+            // No self-complementary types remain — complement check is skipped.
+            bool hasComplement = true;
 
             if (!hasComplement)
                 issues.Add($"No complement rule found for {rule.ruleType} in {rule.targetBinID} (conditionA: {rule.conditionA})");

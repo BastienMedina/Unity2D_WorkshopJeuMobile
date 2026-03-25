@@ -18,8 +18,8 @@ public static class FloorDesignerRuleGen
 
     /// <summary>
     /// Generates rules for all bins in one night and returns them distributed per bin.
-    /// The returned list has exactly numberOfBins entries, each containing rulesPerBin
-    /// primary rules plus their auto-generated complement rules.
+    /// The returned list has exactly numberOfBins entries, each containing exactly rulesPerBin
+    /// primary rules. No complement rules are generated automatically.
     /// </summary>
     /// <param name="numberOfBins">How many bins to generate rules for.</param>
     /// <param name="rulesPerBin">Primary rules per bin.</param>
@@ -30,7 +30,7 @@ public static class FloorDesignerRuleGen
     /// </param>
     /// <param name="database">The SpecificityDatabase asset to use.</param>
     /// <returns>
-    /// One BinDesignerData per bin, each already populated with primary + complement rules.
+    /// One BinDesignerData per bin, each populated with exactly rulesPerBin primary rules.
     /// Returns an empty list when the database is null or has no specificities.
     /// </returns>
     public static List<BinDesignerData> GenerateBinsForNight(
@@ -91,21 +91,179 @@ public static class FloorDesignerRuleGen
                     break; // Pool exhausted — stop generating for this bin.
 
                 bin.rules.Add(primary);
-
-                // Generate the complement immediately and place it on a different bin.
-                string complementBinID  = PickDifferentBinID(bin.binID, binIDs);
-                DesignerRuleEntry complement = GenerateComplement(primary, complementBinID, database);
-
-                if (complement != null)
-                {
-                    // Assign the complement to the correct bin's rule list.
-                    BinDesignerData complementBin = bins.Find(b => b.binID == complementBinID);
-                    complementBin?.rules.Add(complement);
-                }
             }
         }
 
         return bins;
+    }
+
+    /// <summary>
+    /// Generates rules for all bins in one night by drawing randomly from the
+    /// provided <paramref name="libraryEntries"/>, filtered to those whose complexity
+    /// is less than or equal to <paramref name="maxRuleComplexity"/>.
+    /// Each bin receives exactly <paramref name="rulesPerBin"/> rules.
+    /// A library entry is never reused within the same night.
+    /// Falls back to an empty bin list when no eligible entries exist.
+    /// </summary>
+    /// <param name="numberOfBins">How many bins to populate.</param>
+    /// <param name="rulesPerBin">Rules to assign per bin.</param>
+    /// <param name="maxRuleComplexity">Upper complexity bound (inclusive) used to filter entries.</param>
+    /// <param name="libraryEntries">All entries loaded from the Rule Library.</param>
+    /// <returns>One BinDesignerData per bin, each with exactly rulesPerBin rules drawn from the library.</returns>
+    public static List<BinDesignerData> GenerateBinsFromLibrary(
+        int numberOfBins,
+        int rulesPerBin,
+        int maxRuleComplexity,
+        List<RuleLibraryEntry> libraryEntries)
+    {
+        List<BinDesignerData> bins = new List<BinDesignerData>();
+
+        if (libraryEntries == null || libraryEntries.Count == 0)
+        {
+            Debug.LogWarning("[FloorDesignerRuleGen] Rule Library is empty — skipping library-based rule generation.");
+            return bins;
+        }
+
+        if (numberOfBins <= 0 || rulesPerBin <= 0)
+            return bins;
+
+        // Build bin ID list.
+        List<string> binIDs = new List<string>();
+        for (int i = 0; i < numberOfBins; i++)
+        {
+            bins.Add(new BinDesignerData
+            {
+                binIndex = i,
+                binID    = $"bin_{(char)('A' + i)}"
+            });
+            binIDs.Add(bins[i].binID);
+        }
+
+        // Filter library entries by complexity.
+        List<RuleLibraryEntry> eligible = new List<RuleLibraryEntry>();
+        foreach (RuleLibraryEntry e in libraryEntries)
+        {
+            if (e.complexity <= maxRuleComplexity)
+                eligible.Add(e);
+        }
+
+        if (eligible.Count == 0)
+        {
+            Debug.LogWarning($"[FloorDesignerRuleGen] No library entries with complexity ≤ {maxRuleComplexity}. " +
+                             "Returning empty bins.");
+            return bins;
+        }
+
+        // Pool of entries not yet used this night — rebuilt by reference so entries are never repeated.
+        List<RuleLibraryEntry> pool = new List<RuleLibraryEntry>(eligible);
+
+        for (int binIdx = 0; binIdx < bins.Count; binIdx++)
+        {
+            BinDesignerData bin = bins[binIdx];
+
+            for (int ruleIdx = 0; ruleIdx < rulesPerBin; ruleIdx++)
+            {
+                if (pool.Count == 0)
+                {
+                    // All eligible entries consumed — refill from the full eligible list
+                    // so generation can continue even when rulesPerBin * bins > library size.
+                    pool = new List<RuleLibraryEntry>(eligible);
+                    Debug.LogWarning("[FloorDesignerRuleGen] Library pool exhausted and refilled — some entries will repeat.");
+                }
+
+                int pickedIdx = Random.Range(0, pool.Count);
+                RuleLibraryEntry entry = pool[pickedIdx];
+                pool.RemoveAt(pickedIdx);
+
+                DesignerRuleEntry rule = BuildRuleFromLibraryEntry(entry, bin.binID);
+                bin.rules.Add(rule);
+            }
+        }
+
+        return bins;
+    }
+
+    /// <summary>
+    /// Converts a <see cref="RuleLibraryEntry"/> to a <see cref="DesignerRuleEntry"/>
+    /// targeting the given bin, using the same logic as
+    /// <see cref="FloorDesignerWindow.ApplyLibraryEntryToBin"/> (isPrimary = true).
+    /// </summary>
+    private static DesignerRuleEntry BuildRuleFromLibraryEntry(RuleLibraryEntry entry, string binID)
+    {
+        DesignerRuleEntry rule = new DesignerRuleEntry
+        {
+            targetBinID  = binID,
+            complexity   = entry.complexity,
+            isComplement = false
+        };
+
+        if (entry.conditions == null || entry.conditions.Count == 0)
+        {
+            rule.ruleTypeString = RuleType.Simple.ToString();
+            rule.conditionA     = string.Empty;
+            rule.conditionB     = string.Empty;
+            rule.displayText    = string.IsNullOrEmpty(entry.manuscriptText) ? entry.label : entry.manuscriptText;
+            return rule;
+        }
+
+        string condA = entry.conditions[0].specificity;
+        string condB = entry.conditions.Count > 1 ? entry.conditions[1].specificity : string.Empty;
+        string conn  = entry.conditions.Count > 1 ? entry.conditions[0].connector   : string.Empty;
+
+        RuleType resolvedType;
+        string   usedCondA;
+        string   usedCondB;
+
+        switch (conn)
+        {
+            case "Et":
+                resolvedType = RuleType.Multiple;
+                usedCondA    = condA;
+                usedCondB    = condB;
+                break;
+
+            case "Ou":
+                resolvedType = RuleType.Simple;
+                usedCondA    = condA;
+                usedCondB    = string.Empty;
+                break;
+
+            case "Sauf":
+                resolvedType = RuleType.Branch;
+                usedCondA    = condA;
+                usedCondB    = condB;
+                break;
+
+            default:
+                resolvedType = RuleType.Simple;
+                usedCondA    = condA;
+                usedCondB    = string.Empty;
+                break;
+        }
+
+        rule.ruleTypeString = resolvedType.ToString();
+        rule.conditionA     = usedCondA;
+        rule.conditionB     = usedCondB;
+        rule.displayText    = BuildStructuredDisplayText(resolvedType, usedCondA, usedCondB, binID);
+        return rule;
+    }
+
+    /// <summary>
+    /// Builds the display sentence from resolved structural fields.
+    /// Mirrors <see cref="FloorDesignerWindow.BuildStructuredDisplayText"/>.
+    /// </summary>
+    private static string BuildStructuredDisplayText(RuleType ruleType, string condA, string condB, string binID)
+    {
+        string a = string.IsNullOrEmpty(condA) ? "?" : condA;
+        string b = string.IsNullOrEmpty(condB) ? "?" : condB;
+
+        return ruleType switch
+        {
+            RuleType.Simple   => $"Si le document contient {a}, posez-le ici",
+            RuleType.Multiple => $"Si le document contient {a} et {b}, posez-le ici",
+            RuleType.Branch   => $"Si le document contient {a} mais pas {b}, posez-le ici",
+            _                 => "Posez le document ici"
+        };
     }
 
     // ─── Private helpers ──────────────────────────────────────────────────────
@@ -129,17 +287,13 @@ public static class FloorDesignerRuleGen
     private static RuleType SelectRuleType(int complexityTarget)
     {
         if (complexityTarget <= 1)
-            return RuleType.PositiveExclusive;
+            return RuleType.Simple;
 
         if (complexityTarget == 2)
-        {
-            RuleType[] medium = { RuleType.PositiveForced, RuleType.NegativeSimple };
-            return medium[Random.Range(0, medium.Length)];
-        }
+            return RuleType.Multiple;
 
         // complexityTarget >= 3
-        RuleType[] hard = { RuleType.ConditionalBranch, RuleType.PositiveDouble, RuleType.PositiveWithNegative };
-        return hard[Random.Range(0, hard.Length)];
+        return RuleType.Branch;
     }
 
     /// <summary>
@@ -166,17 +320,14 @@ public static class FloorDesignerRuleGen
 
         switch (ruleType)
         {
-            case RuleType.PositiveExclusive:
-            case RuleType.PositiveForced:
-            case RuleType.NegativeSimple:
+            case RuleType.Simple:
                 if (!TryConsume(availablePool, usedSpecificities, out string condA))
                     return null;
                 rule.conditionA = condA;
                 break;
 
-            case RuleType.ConditionalBranch:
-            case RuleType.PositiveDouble:
-            case RuleType.PositiveWithNegative:
+            case RuleType.Multiple:
+            case RuleType.Branch:
                 if (!TryConsume(availablePool, usedSpecificities, out string condAB))
                     return null;
                 if (!TryConsume(availablePool, usedSpecificities, out string condBB))
@@ -186,7 +337,6 @@ public static class FloorDesignerRuleGen
                 break;
 
             default:
-                // Complement types are never selected by SelectRuleType — safe to ignore.
                 return null;
         }
 
@@ -215,59 +365,6 @@ public static class FloorDesignerRuleGen
     }
 
     /// <summary>
-    /// Generates a complement DesignerRuleEntry for the given primary rule.
-    /// Returns null for self-complementary types (ConditionalBranch, PositiveDouble)
-    /// and when no complement type mapping exists.
-    /// Mirrors RuleGenerator.GenerateComplementRule.
-    /// </summary>
-    private static DesignerRuleEntry GenerateComplement(DesignerRuleEntry primary,
-                                                         string complementBinID,
-                                                         SpecificityDatabase database)
-    {
-        if (primary.isComplement)
-            return null;
-
-        if (!System.Enum.TryParse(primary.ruleTypeString, out RuleType primaryType))
-            return null;
-
-        // Self-complementary types already handle both outcomes.
-        if (primaryType == RuleType.ConditionalBranch || primaryType == RuleType.PositiveDouble)
-            return null;
-
-        RuleType complementType = ResolveComplementType(primaryType);
-        if (complementType == primaryType)
-            return null;
-
-        DesignerRuleEntry complement = new DesignerRuleEntry
-        {
-            ruleTypeString = complementType.ToString(),
-            conditionA     = primary.conditionA,
-            conditionB     = primary.conditionB,
-            targetBinID    = complementBinID,
-            isComplement   = true,
-            complexity     = primary.complexity
-        };
-
-        complement.displayText = ResolveDisplayText(
-            complementType, complement.conditionA, complement.conditionB, complementBinID, database);
-
-        return complement;
-    }
-
-    /// <summary>Maps a primary RuleType to its complement type. Mirrors RuleGenerator.ResolveComplementType.</summary>
-    private static RuleType ResolveComplementType(RuleType primaryType)
-    {
-        return primaryType switch
-        {
-            RuleType.PositiveForced       => RuleType.ComplementPositiveForced,
-            RuleType.PositiveExclusive    => RuleType.ComplementPositiveExclusive,
-            RuleType.NegativeSimple       => RuleType.ComplementNegativeSimple,
-            RuleType.PositiveWithNegative => RuleType.ComplementPositiveWithNegative,
-            _                             => primaryType
-        };
-    }
-
-    /// <summary>
     /// Picks a random bin ID from binIDs that is different from primaryBinID.
     /// Falls back to primaryBinID when no alternative exists.
     /// </summary>
@@ -287,17 +384,10 @@ public static class FloorDesignerRuleGen
     {
         int baseScore = ruleType switch
         {
-            RuleType.PositiveExclusive              => 1,
-            RuleType.PositiveForced                 => 2,
-            RuleType.NegativeSimple                 => 2,
-            RuleType.ConditionalBranch              => 3,
-            RuleType.PositiveDouble                 => 3,
-            RuleType.PositiveWithNegative           => 3,
-            RuleType.ComplementPositiveForced       => 2,
-            RuleType.ComplementPositiveExclusive    => 1,
-            RuleType.ComplementNegativeSimple       => 2,
-            RuleType.ComplementPositiveWithNegative => 3,
-            _                                       => 1
+            RuleType.Simple   => 1,
+            RuleType.Multiple => 2,
+            RuleType.Branch   => 3,
+            _                 => 1
         };
 
         int binPenalty = Mathf.Max(0, binCount - 1);
@@ -335,20 +425,12 @@ public static class FloorDesignerRuleGen
             }
         }
 
-        // Hard-coded fallbacks — mirrors RuleGenerator's fallback block.
         return ruleType switch
         {
-            RuleType.PositiveExclusive              => "Si le document a seulement {0}, posez-le ici",
-            RuleType.PositiveForced                 => "Si le document a {0}, il doit aller ici",
-            RuleType.NegativeSimple                 => "Si le document n'a pas {0}, posez-le ici",
-            RuleType.ConditionalBranch              => "Si {0} : {1} présent → ici, sinon autre corbeille",
-            RuleType.PositiveDouble                 => "Si {0} et {1} sont présents → ici, sinon autre corbeille",
-            RuleType.PositiveWithNegative           => "Si {0} est présent mais pas {1}, posez-le ici",
-            RuleType.ComplementPositiveForced       => "Si le document n'a PAS {0}, posez-le ici",
-            RuleType.ComplementPositiveExclusive    => "Si {0} est présent avec d'autres spécificités, posez-le ici",
-            RuleType.ComplementNegativeSimple       => "Si le document a {0}, posez-le ici",
-            RuleType.ComplementPositiveWithNegative => "Si {0} et {1} sont tous deux présents, posez-le ici",
-            _                                       => "Envoyez les documents ici"
+            RuleType.Simple   => "Si le document a {0}, il doit aller ici",
+            RuleType.Multiple => "Si {0} et {1} sont présents → ici",
+            RuleType.Branch   => "Si {0} est présent mais pas {1}, posez-le ici",
+            _                 => "Envoyez les documents ici"
         };
     }
 }

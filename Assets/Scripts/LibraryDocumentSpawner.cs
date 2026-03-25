@@ -166,36 +166,18 @@ public class LibraryDocumentSpawner : MonoBehaviour
 
         switch (rule.ruleType)
         {
-            case RuleType.PositiveForced:
-            case RuleType.PositiveExclusive:
+            case RuleType.Simple:
                 if (!string.IsNullOrEmpty(rule.conditionA))
                     result.Add(new List<string> { rule.conditionA });
                 break;
 
-            case RuleType.PositiveDouble:
-                // Library-converter path (no secondaryBinID): plain AND gate.
-                // The document must have both conditions — generate only the two-condition combo.
+            case RuleType.Multiple:
                 if (!string.IsNullOrEmpty(rule.conditionA) && !string.IsNullOrEmpty(rule.conditionB))
                     result.Add(new List<string> { rule.conditionA, rule.conditionB });
-
-                // Legacy self-complementary path (secondaryBinID set):
-                // conditionA-alone routes to secondaryBinID — also spawn that variant.
-                if (!string.IsNullOrEmpty(rule.secondaryBinID) && !string.IsNullOrEmpty(rule.conditionA))
-                    result.Add(new List<string> { rule.conditionA });
                 break;
 
-            case RuleType.PositiveOr:
-                // Either condition alone satisfies the rule — spawn both document variants.
-                if (!string.IsNullOrEmpty(rule.conditionA))
-                    result.Add(new List<string> { rule.conditionA });
-                if (!string.IsNullOrEmpty(rule.conditionB))
-                    result.Add(new List<string> { rule.conditionB });
-                break;
-
-            case RuleType.PositiveWithNegative:
+            case RuleType.Branch:
                 // conditionA must be present; conditionB must be absent.
-                // The spawner only sets conditionA — the purge step discards this combo
-                // if another bin's rule also accepts conditionA (conflict guard).
                 if (!string.IsNullOrEmpty(rule.conditionA))
                     result.Add(new List<string> { rule.conditionA });
                 break;
@@ -260,28 +242,13 @@ public class LibraryDocumentSpawner : MonoBehaviour
     {
         switch (rule.ruleType)
         {
-            case RuleType.PositiveForced:
+            case RuleType.Simple:
                 return specs.Contains(rule.conditionA);
 
-            case RuleType.PositiveExclusive:
-                return specs.Contains(rule.conditionA) && specs.Count == 1;
+            case RuleType.Multiple:
+                return specs.Contains(rule.conditionA) && specs.Contains(rule.conditionB);
 
-            case RuleType.PositiveDouble:
-                if (string.IsNullOrEmpty(rule.secondaryBinID))
-                    // Library-converter path: plain AND gate, targetBinID only.
-                    return specs.Contains(rule.conditionA) && specs.Contains(rule.conditionB);
-
-                // Legacy self-complementary path.
-                if (specs.Contains(rule.conditionA) && specs.Contains(rule.conditionB))
-                    return true;   // matches targetBinID branch
-                if (specs.Contains(rule.conditionA) && !specs.Contains(rule.conditionB))
-                    return true;   // matches secondaryBinID branch
-                return false;
-
-            case RuleType.PositiveOr:
-                return specs.Contains(rule.conditionA) || specs.Contains(rule.conditionB);
-
-            case RuleType.PositiveWithNegative:
+            case RuleType.Branch:
                 return specs.Contains(rule.conditionA) && !specs.Contains(rule.conditionB);
 
             default:

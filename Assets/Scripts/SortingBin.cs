@@ -184,19 +184,10 @@ public class SortingBin : MonoBehaviour
     {
         return rule.ruleType switch
         {
-            RuleType.PositiveForced                 => ValidatePositiveForced(documentData, rule),
-            RuleType.PositiveExclusive              => ValidatePositiveExclusive(documentData, rule),
-            RuleType.ConditionalBranch              => ValidateConditionalBranch(documentData, rule),
-            RuleType.PositiveDouble                 => ValidatePositiveDouble(documentData, rule),
-            RuleType.NegativeSimple                 => ValidateNegativeSimple(documentData, rule),
-            RuleType.PositiveWithNegative           => ValidatePositiveWithNegative(documentData, rule),
-            RuleType.ComplementPositiveForced       => ValidateComplementPositiveForced(documentData, rule),
-            RuleType.ComplementPositiveExclusive    => ValidateComplementPositiveExclusive(documentData, rule),
-            RuleType.ComplementNegativeSimple       => ValidateComplementNegativeSimple(documentData, rule),
-            RuleType.ComplementPositiveWithNegative => ValidateComplementPositiveWithNegative(documentData, rule),
-            RuleType.PositiveOr                     => ValidatePositiveOr(documentData, rule),
-            RuleType.ComplementPositiveOr           => ValidateComplementPositiveOr(documentData, rule),
-            _                                       => false
+            RuleType.Simple   => ValidateSimple(documentData, rule),
+            RuleType.Multiple => ValidateMultiple(documentData, rule),
+            RuleType.Branch   => ValidateBranch(documentData, rule),
+            _                 => false
         };
     }
 
@@ -205,190 +196,32 @@ public class SortingBin : MonoBehaviour
     // -------------------------------------------------------------------------
 
     /// <summary>
-    /// PositiveForced: document is valid if it contains conditionA, regardless of any other specificities.
-    /// "Forced" means presence of the one condition overrides all other checks — the simplest positive match.
+    /// Simple: document is valid if it contains conditionA, regardless of any other specificities.
     /// </summary>
-    private bool ValidatePositiveForced(DocumentData documentData, RuleData rule)
+    private bool ValidateSimple(DocumentData documentData, RuleData rule)
     {
         return documentData.specificities.Contains(rule.conditionA);
     }
 
     /// <summary>
-    /// PositiveExclusive: document is valid only if it contains conditionA AND has no other specificities.
-    /// The document must have exactly this one trait — additional specificities disqualify it.
+    /// Multiple: document is valid if it contains BOTH conditionA AND conditionB.
     /// </summary>
-    private bool ValidatePositiveExclusive(DocumentData documentData, RuleData rule)
-    {
-        bool hasConditionA   = documentData.specificities.Contains(rule.conditionA);
-        bool hasOnlyOneEntry = documentData.specificities.Count == 1;
-
-        // Both checks are required: conditionA must be present AND it must be the only specificity.
-        // Checking only the count would match any single-specificity document regardless of its value.
-        return hasConditionA && hasOnlyOneEntry;
-    }
-
-    /// <summary>
-    /// ConditionalBranch: routes to targetBinID when both conditionA and conditionB are present,
-    /// or to secondaryBinID when conditionA is present but conditionB is absent.
-    /// Returns false if conditionA is not present at all, or if the relevant bin ID is unresolved.
-    /// ConditionalBranch is self-complementary — both outcomes are handled within this single rule.
-    /// </summary>
-    private bool ValidateConditionalBranch(DocumentData documentData, RuleData rule)
-    {
-        bool hasConditionA = documentData.specificities.Contains(rule.conditionA);
-
-        // conditionA is the entry condition — without it, neither branch applies.
-        if (!hasConditionA)
-            return false;
-
-        bool hasConditionB = documentData.specificities.Contains(rule.conditionB);
-
-        if (hasConditionB)
-            return binID == rule.targetBinID;
-
-        // conditionA present but conditionB absent → routes to secondaryBinID.
-        // Guard against a missing secondaryBinID: a missing ID would silently route to no bin,
-        // producing a document the player can never sort correctly.
-        if (string.IsNullOrEmpty(rule.secondaryBinID))
-        {
-            Debug.LogWarning($"[SortingBin] ConditionalBranch rule has no secondaryBinID. Rule targetBinID: {rule.targetBinID}");
-            return false;
-        }
-
-        return binID == rule.secondaryBinID;
-    }
-
-    /// <summary>
-    /// PositiveDouble: document is valid in this bin if it contains BOTH conditionA AND conditionB.
-    ///
-    /// When secondaryBinID is empty (library-converter path — "Et" / "Sauf" branch):
-    ///   The rule is a plain two-condition AND gate targeting only targetBinID.
-    ///   The document must have both conditions to be valid here; having only conditionA
-    ///   is handled by a sibling PositiveWithNegative rule on a different bin.
-    ///
-    /// When secondaryBinID is set (legacy self-complementary path):
-    ///   conditionA + conditionB → targetBinID
-    ///   conditionA without conditionB → secondaryBinID
-    ///   Both branches are handled by this single rule with two target bins.
-    /// </summary>
-    private bool ValidatePositiveDouble(DocumentData documentData, RuleData rule)
-    {
-        bool hasConditionA = documentData.specificities.Contains(rule.conditionA);
-
-        // conditionA must be present — PositiveDouble is meaningless without the primary condition.
-        if (!hasConditionA)
-            return false;
-
-        bool hasConditionB = documentData.specificities.Contains(rule.conditionB);
-
-        // Library-converter path: no secondaryBinID means this is a plain AND gate.
-        // The document must have both conditions; conditionA-alone is not accepted here.
-        if (string.IsNullOrEmpty(rule.secondaryBinID))
-            return hasConditionB && binID == rule.targetBinID;
-
-        // Legacy self-complementary path: both branches are handled here.
-        if (hasConditionB)
-            return binID == rule.targetBinID;
-
-        return binID == rule.secondaryBinID;
-    }
-
-    /// <summary>
-    /// NegativeSimple: document is valid if it does NOT contain conditionA.
-    /// Absence of the condition is the sorting trigger — the inverse of a positive check.
-    /// </summary>
-    private bool ValidateNegativeSimple(DocumentData documentData, RuleData rule)
-    {
-        return !documentData.specificities.Contains(rule.conditionA);
-    }
-
-    /// <summary>
-    /// PositiveWithNegative: document is valid if it contains conditionA AND does NOT contain conditionB.
-    /// The document must have the primary trait but explicitly lack the secondary one.
-    /// This pair with ComplementPositiveWithNegative guarantees any document with conditionA
-    /// always has exactly one valid destination.
-    /// </summary>
-    private bool ValidatePositiveWithNegative(DocumentData documentData, RuleData rule)
-    {
-        bool hasConditionA = documentData.specificities.Contains(rule.conditionA);
-
-        // conditionA must be present — without it this rule does not apply at all.
-        if (!hasConditionA)
-            return false;
-
-        // conditionB must be absent — its presence routes the document to the complement bin instead.
-        bool hasConditionB = documentData.specificities.Contains(rule.conditionB);
-        return !hasConditionB;
-    }
-
-    /// <summary>
-    /// ComplementPositiveForced: document is valid if it does NOT contain conditionA.
-    /// This is the complement of PositiveForced — together they cover all possible documents.
-    /// </summary>
-    private bool ValidateComplementPositiveForced(DocumentData documentData, RuleData rule)
-    {
-        // Complement of PositiveForced: the absence of conditionA is the routing trigger.
-        return !documentData.specificities.Contains(rule.conditionA);
-    }
-
-    /// <summary>
-    /// ComplementPositiveExclusive: document is valid if it contains conditionA
-    /// AND has at least one other specificity (Count > 1).
-    /// Complement means conditionA is present but the document is not exclusive —
-    /// it carries additional specificities beyond conditionA.
-    /// </summary>
-    private bool ValidateComplementPositiveExclusive(DocumentData documentData, RuleData rule)
-    {
-        bool hasConditionA           = documentData.specificities.Contains(rule.conditionA);
-        bool hasAdditionalSpecificity = documentData.specificities.Count > 1;
-
-        // conditionA must be present and there must be at least one additional specificity —
-        // a document with only conditionA belongs in the primary PositiveExclusive bin, not here.
-        return hasConditionA && hasAdditionalSpecificity;
-    }
-
-    /// <summary>
-    /// ComplementNegativeSimple: document is valid if it contains conditionA.
-    /// Complement of NegativeSimple is simply having conditionA — the two rules together cover all cases.
-    /// </summary>
-    private bool ValidateComplementNegativeSimple(DocumentData documentData, RuleData rule)
-    {
-        // Simply having conditionA is the inverse of the NegativeSimple rule which requires its absence.
-        return documentData.specificities.Contains(rule.conditionA);
-    }
-
-    /// <summary>
-    /// ComplementPositiveWithNegative: document is valid if it contains BOTH conditionA AND conditionB.
-    /// Covers the case where both conditions are present — the primary PositiveWithNegative rule
-    /// handles conditionA-without-conditionB, and this complement handles conditionA-with-conditionB,
-    /// guaranteeing every document that has conditionA always has exactly one valid destination.
-    /// </summary>
-    private bool ValidateComplementPositiveWithNegative(DocumentData documentData, RuleData rule)
-    {
-        bool hasConditionA = documentData.specificities.Contains(rule.conditionA);
-        bool hasConditionB = documentData.specificities.Contains(rule.conditionB);
-
-        // Both conditions must be present — the complement covers only the "both present" case.
-        return hasConditionA && hasConditionB;
-    }
-
-    /// <summary>
-    /// PositiveOr: document is valid if it contains conditionA OR conditionB (at least one).
-    /// Introduced to support the "Ou" connector from the Rule Library structured editor.
-    /// </summary>
-    private bool ValidatePositiveOr(DocumentData documentData, RuleData rule)
+    private bool ValidateMultiple(DocumentData documentData, RuleData rule)
     {
         return documentData.specificities.Contains(rule.conditionA)
-            || documentData.specificities.Contains(rule.conditionB);
+            && documentData.specificities.Contains(rule.conditionB);
     }
 
     /// <summary>
-    /// ComplementPositiveOr: document is valid if it contains NEITHER conditionA NOR conditionB.
-    /// The complement of PositiveOr — together the pair guarantees every document has a destination.
+    /// Branch: document is valid if it contains conditionA but does NOT contain conditionB.
     /// </summary>
-    private bool ValidateComplementPositiveOr(DocumentData documentData, RuleData rule)
+    private bool ValidateBranch(DocumentData documentData, RuleData rule)
     {
-        return !documentData.specificities.Contains(rule.conditionA)
-            && !documentData.specificities.Contains(rule.conditionB);
+        bool hasConditionA = documentData.specificities.Contains(rule.conditionA);
+
+        if (!hasConditionA)
+            return false;
+
+        return !documentData.specificities.Contains(rule.conditionB);
     }
 }

@@ -303,90 +303,15 @@ public class DocumentSpawner : MonoBehaviour
     {
         switch (rule.ruleType)
         {
-            case RuleType.PositiveForced:
-                // Document needs exactly conditionA — PositiveForced ignores extra specificities,
-                // but adding more would risk satisfying positive rules in other bins simultaneously.
+            case RuleType.Simple:
                 return new List<string> { rule.conditionA };
 
-            case RuleType.PositiveExclusive:
-                // PositiveExclusive requires ONLY conditionA — any extra specificity disqualifies
-                // the document, so the combination must contain nothing else.
-                return new List<string> { rule.conditionA };
-
-            case RuleType.ConditionalBranch:
-                // ConditionalBranch has two branches: both conditions → targetBinID,
-                // conditionA alone (conditionB absent) → secondaryBinID.
-                // Each rule entry represents one branch — check targetBinID to know which one.
-                // A rule is the "yes" branch when its targetBinID is the primary destination.
-                bool isConditionalYesBranch = rule.targetBinID != rule.secondaryBinID;
-                if (isConditionalYesBranch)
-                    return new List<string> { rule.conditionA, rule.conditionB };
-
-                // No-branch: conditionA present, conditionB must be absent — exact combo is [conditionA].
-                return new List<string> { rule.conditionA };
-
-            case RuleType.PositiveDouble:
-                // PositiveDouble mirrors ConditionalBranch: both conditions → targetBinID,
-                // conditionA alone → secondaryBinID.
-                bool isPositiveDoubleYesBranch = rule.targetBinID != rule.secondaryBinID;
-                if (isPositiveDoubleYesBranch)
-                    return new List<string> { rule.conditionA, rule.conditionB };
-
-                return new List<string> { rule.conditionA };
-
-            case RuleType.NegativeSimple:
-                // NegativeSimple accepts documents WITHOUT conditionA.
-                // Spawn a document that has a DIFFERENT known specificity so it satisfies this
-                // rule but cannot accidentally satisfy a PositiveForced rule for conditionA.
-                // Picking from conditionA values of other active rules guarantees the spawned
-                // specificity is a known, displayable game value — not an arbitrary string.
-                if (TryGetAnyOtherSpecificity(rule.conditionA, out string negativeSimpleOther))
-                    return new List<string> { negativeSimpleOther };
-
-                return null; // No other active specificity exists — cannot spawn for this rule.
-
-            case RuleType.PositiveWithNegative:
-                // Document has conditionA but must NOT have conditionB — exact combo is [conditionA].
-                // conditionB must stay absent, so we never include it in the combination.
-                return new List<string> { rule.conditionA };
-
-            case RuleType.ComplementPositiveForced:
-                // Complement of PositiveForced means the document does NOT have conditionA.
-                // Spawn a document with any other known specificity instead.
-                if (TryGetAnyOtherSpecificity(rule.conditionA, out string complementForcedOther))
-                    return new List<string> { complementForcedOther };
-
-                return null;
-
-            case RuleType.ComplementPositiveExclusive:
-                // Complement of PositiveExclusive means conditionA IS present but WITH at least
-                // one other specificity — the "exclusive" condition is violated by the extra spec.
-                if (TryGetAnyOtherSpecificity(rule.conditionA, out string complementExclusiveOther))
-                    return new List<string> { rule.conditionA, complementExclusiveOther };
-
-                return null;
-
-            case RuleType.ComplementNegativeSimple:
-                // Complement of "no conditionA" means the document HAS conditionA.
-                return new List<string> { rule.conditionA };
-
-            case RuleType.ComplementPositiveWithNegative:
-                // Complement means both conditionA and conditionB are present — the negative
-                // condition (conditionB absent) is violated, routing the document to this complement bin.
+            case RuleType.Multiple:
                 return new List<string> { rule.conditionA, rule.conditionB };
 
-            case RuleType.PositiveOr:
-                // PositiveOr is satisfied by either condition alone.
-                // Return the conditionA variant — the complement covers neither case.
+            case RuleType.Branch:
+                // Branch: conditionA present, conditionB must be absent.
                 return new List<string> { rule.conditionA };
-
-            case RuleType.ComplementPositiveOr:
-                // Neither conditionA nor conditionB — pick any other active specificity.
-                if (TryGetAnyOtherSpecificity(rule.conditionA, out string complementOrOther)
-                    && complementOrOther != rule.conditionB)
-                    return new List<string> { complementOrOther };
-
-                return null;
 
             default:
                 Debug.LogWarning("[Spawner] Unknown rule type: " + rule.ruleType + " — skipping");
@@ -409,55 +334,16 @@ public class DocumentSpawner : MonoBehaviour
     {
         switch (rule.ruleType)
         {
-            case RuleType.PositiveForced:
-                // PositiveForced only requires conditionA to be present — count is irrelevant.
+            case RuleType.Simple:
                 return specificities.Contains(rule.conditionA);
 
-            case RuleType.PositiveExclusive:
-                // Exclusive: conditionA must be the ONLY specificity present.
-                return specificities.Contains(rule.conditionA) && specificities.Count == 1;
+            case RuleType.Multiple:
+                return specificities.Contains(rule.conditionA) &&
+                       specificities.Contains(rule.conditionB);
 
-            case RuleType.ConditionalBranch:
-                // Yes-branch (targetBinID): both conditionA and conditionB present.
-                // No-branch (secondaryBinID): conditionA present, conditionB absent.
-                bool isConditionalYesBranch = rule.targetBinID != rule.secondaryBinID;
-                if (isConditionalYesBranch)
-                    return specificities.Contains(rule.conditionA) && specificities.Contains(rule.conditionB);
-
-                return specificities.Contains(rule.conditionA) && !specificities.Contains(rule.conditionB);
-
-            case RuleType.PositiveDouble:
-                // Identical branch logic to ConditionalBranch.
-                bool isPositiveDoubleYesBranch = rule.targetBinID != rule.secondaryBinID;
-                if (isPositiveDoubleYesBranch)
-                    return specificities.Contains(rule.conditionA) && specificities.Contains(rule.conditionB);
-
-                return specificities.Contains(rule.conditionA) && !specificities.Contains(rule.conditionB);
-
-            case RuleType.NegativeSimple:
-                return !specificities.Contains(rule.conditionA);
-
-            case RuleType.PositiveWithNegative:
-                return specificities.Contains(rule.conditionA) && !specificities.Contains(rule.conditionB);
-
-            case RuleType.ComplementPositiveForced:
-                return !specificities.Contains(rule.conditionA);
-
-            case RuleType.ComplementPositiveExclusive:
-                // Complement of exclusive: conditionA present AND at least one other specificity exists.
-                return specificities.Contains(rule.conditionA) && specificities.Count > 1;
-
-            case RuleType.ComplementNegativeSimple:
-                return specificities.Contains(rule.conditionA);
-
-            case RuleType.ComplementPositiveWithNegative:
-                return specificities.Contains(rule.conditionA) && specificities.Contains(rule.conditionB);
-
-            case RuleType.PositiveOr:
-                return specificities.Contains(rule.conditionA) || specificities.Contains(rule.conditionB);
-
-            case RuleType.ComplementPositiveOr:
-                return !specificities.Contains(rule.conditionA) && !specificities.Contains(rule.conditionB);
+            case RuleType.Branch:
+                return specificities.Contains(rule.conditionA) &&
+                       !specificities.Contains(rule.conditionB);
 
             default:
                 return false;
@@ -498,37 +384,16 @@ public class DocumentSpawner : MonoBehaviour
     {
         switch (rule.ruleType)
         {
-            case RuleType.PositiveForced:
+            case RuleType.Simple:
                 return specificities.Contains(rule.conditionA);
 
-            case RuleType.PositiveExclusive:
-                return specificities.Contains(rule.conditionA) && specificities.Count == 1;
+            case RuleType.Multiple:
+                return specificities.Contains(rule.conditionA) &&
+                       specificities.Contains(rule.conditionB);
 
-            case RuleType.ConditionalBranch:
-                // ConditionalBranch always accepts when conditionA is present (routes to one of its two bins).
-                return specificities.Contains(rule.conditionA);
-
-            case RuleType.PositiveDouble:
-                // PositiveDouble always accepts when conditionA is present (routes to one of its two bins).
-                return specificities.Contains(rule.conditionA);
-
-            case RuleType.NegativeSimple:
-                return !specificities.Contains(rule.conditionA);
-
-            case RuleType.PositiveWithNegative:
-                return specificities.Contains(rule.conditionA) && !specificities.Contains(rule.conditionB);
-
-            case RuleType.ComplementPositiveForced:
-                return !specificities.Contains(rule.conditionA);
-
-            case RuleType.ComplementPositiveExclusive:
-                return specificities.Contains(rule.conditionA) && specificities.Count > 1;
-
-            case RuleType.ComplementNegativeSimple:
-                return specificities.Contains(rule.conditionA);
-
-            case RuleType.ComplementPositiveWithNegative:
-                return specificities.Contains(rule.conditionA) && specificities.Contains(rule.conditionB);
+            case RuleType.Branch:
+                return specificities.Contains(rule.conditionA) &&
+                       !specificities.Contains(rule.conditionB);
 
             default:
                 return false;

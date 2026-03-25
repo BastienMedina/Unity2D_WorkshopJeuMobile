@@ -58,6 +58,47 @@
             "resolvedBin2": "",
             "ruleTypeString": "PositiveForced",
             "complexity": 1
+        },
+        {
+            "guid": "4690d85e-277e-4b46-b9f9-c7933bf9879c",
+            "label": "pastille_bleu Sauf signature_effacee → Corbeille…",
+            "isManuscript": false,
+            "manuscriptText": "",
+            "conditions": [
+                {
+                    "specificity": "pastille_bleu",
+                    "connector": "Sauf",
+                    "targetBinSlot": 1
+                },
+                {
+                    "specificity": "signature_effacee",
+                    "connector": "Et",
+                    "targetBinSlot": 1
+                }
+            ],
+            "secondaryBinSlot": 2,
+            "resolvedBin1": "",
+            "resolvedBin2": "",
+            "ruleTypeString": "PositiveForced",
+            "complexity": 1
+        },
+        {
+            "guid": "42c5cf07-1cdf-4550-a6e5-541aaebe65d6",
+            "label": "Nouvelle règle",
+            "isManuscript": false,
+            "manuscriptText": "",
+            "conditions": [
+                {
+                    "specificity": "",
+                    "connector": "Et",
+                    "targetBinSlot": 1
+                }
+            ],
+            "secondaryBinSlot": 0,
+            "resolvedBin1": "",
+            "resolvedBin2": "",
+            "ruleTypeString": "Simple",
+            "complexity": 1
         }
     ]
 }

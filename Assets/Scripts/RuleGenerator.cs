@@ -576,8 +576,7 @@ public class RuleGenerator : MonoBehaviour
     /// <returns>True if the rule type has broad-acceptance semantics.</returns>
     private static bool IsBroadAcceptanceType(RuleType ruleType)
     {
-        return ruleType == RuleType.NegativeSimple ||
-               ruleType == RuleType.ComplementPositiveForced;
+        return false; // No broad-acceptance types remain in the simplified rule set.
     }
 
     /// <summary>
@@ -616,19 +615,16 @@ public class RuleGenerator : MonoBehaviour
     {
         RuleData resolutionRule = new RuleData
         {
-            // PositiveForced overrides all other rules — if a document has conditionA it ALWAYS
-            // goes to this bin regardless of other conditions, resolving the conflict by priority.
-            ruleType    = RuleType.PositiveForced,
-            targetBinID = conflictingExistingRule.targetBinID,
-            conditionA  = conflictingExistingRule.conditionA,
-            // Resolution rules are not complements — they are primary rules added for safety.
+            ruleType     = RuleType.Simple,
+            targetBinID  = conflictingExistingRule.targetBinID,
+            conditionA   = conflictingExistingRule.conditionA,
             isComplement = false
         };
 
         resolutionRule.displayText = ResolveTemplate(
-            FindMatchingTemplate(RuleType.PositiveForced), resolutionRule, RuleType.PositiveForced);
+            FindMatchingTemplate(RuleType.Simple), resolutionRule, RuleType.Simple);
 
-        resolutionRule.complexity = ComputeComplexity(RuleType.PositiveForced, availableBinIDs.Count);
+        resolutionRule.complexity = ComputeComplexity(RuleType.Simple, availableBinIDs.Count);
 
         return resolutionRule;
     }
@@ -647,47 +643,16 @@ public class RuleGenerator : MonoBehaviour
     {
         switch (rule.ruleType)
         {
-            case RuleType.PositiveForced:
-                // Accepted when conditionA is present — other specificities are irrelevant.
+            case RuleType.Simple:
                 return specificities.Contains(rule.conditionA);
 
-            case RuleType.PositiveExclusive:
-                // Accepted only when conditionA is the sole specificity — any extra disqualifies.
-                return specificities.Contains(rule.conditionA) && specificities.Count == 1;
-
-            case RuleType.NegativeSimple:
-                // Accepted when conditionA is absent — the inverse of a positive check.
-                return !specificities.Contains(rule.conditionA);
-
-            case RuleType.PositiveWithNegative:
-                // Accepted when conditionA is present but conditionB is not.
-                return specificities.Contains(rule.conditionA) &&
-                       !specificities.Contains(rule.conditionB);
-
-            case RuleType.ConditionalBranch:
-                // Self-complementary: accepts when conditionA is present (routes to one of two bins).
-                return specificities.Contains(rule.conditionA);
-
-            case RuleType.PositiveDouble:
-                // Self-complementary: accepts when conditionA is present (routes to one of two bins).
-                return specificities.Contains(rule.conditionA);
-
-            case RuleType.ComplementPositiveForced:
-                // Accepted when conditionA is absent — inverse of PositiveForced.
-                return !specificities.Contains(rule.conditionA);
-
-            case RuleType.ComplementPositiveExclusive:
-                // Accepted when conditionA is present AND at least one other specificity also exists.
-                return specificities.Contains(rule.conditionA) && specificities.Count > 1;
-
-            case RuleType.ComplementNegativeSimple:
-                // Accepted when conditionA is present — inverse of NegativeSimple.
-                return specificities.Contains(rule.conditionA);
-
-            case RuleType.ComplementPositiveWithNegative:
-                // Accepted when both conditionA and conditionB are present.
+            case RuleType.Multiple:
                 return specificities.Contains(rule.conditionA) &&
                        specificities.Contains(rule.conditionB);
+
+            case RuleType.Branch:
+                return specificities.Contains(rule.conditionA) &&
+                       !specificities.Contains(rule.conditionB);
 
             default:
                 return false;
@@ -711,17 +676,13 @@ public class RuleGenerator : MonoBehaviour
         if (primaryRule.isComplement)
             return null;
 
-        // Self-complementary types already handle both possible outcomes within the same rule.
-        // Generating a complement for them would create a duplicate routing path and break
-        // the guarantee that each document matches exactly one bin.
-        if (primaryRule.ruleType == RuleType.ConditionalBranch ||
-            primaryRule.ruleType == RuleType.PositiveDouble)
-            return null;
+        // Self-complementary types — no longer exist in the simplified set.
+        if (false) return null;
 
         RuleType complementType = ResolveComplementType(primaryRule.ruleType);
 
         if (complementType == primaryRule.ruleType)
-            return null; // No complement mapping exists for this type — skip silently.
+            return null;
 
         RuleData complementRule = new RuleData
         {
@@ -767,17 +728,12 @@ public class RuleGenerator : MonoBehaviour
     private RuleType SelectNarrowRuleType(int complexityTarget)
     {
         if (complexityTarget <= 1)
-            return RuleType.PositiveExclusive;
+            return RuleType.Simple;
 
         if (complexityTarget == 2)
-        {
-            RuleType[] narrowMedium = { RuleType.PositiveExclusive, RuleType.PositiveForced };
-            return narrowMedium[Random.Range(0, narrowMedium.Length)];
-        }
+            return RuleType.Multiple;
 
-        // complexityTarget >= 3 — allow hard types that are still narrow.
-        RuleType[] narrowHard = { RuleType.PositiveForced, RuleType.PositiveWithNegative };
-        return narrowHard[Random.Range(0, narrowHard.Length)];
+        return RuleType.Branch;
     }
 
     /// <summary>
@@ -834,14 +790,7 @@ public class RuleGenerator : MonoBehaviour
     /// <returns>The complement RuleType, or the original type if no mapping exists.</returns>
     private RuleType ResolveComplementType(RuleType primaryType)
     {
-        return primaryType switch
-        {
-            RuleType.PositiveForced         => RuleType.ComplementPositiveForced,
-            RuleType.PositiveExclusive      => RuleType.ComplementPositiveExclusive,
-            RuleType.NegativeSimple         => RuleType.ComplementNegativeSimple,
-            RuleType.PositiveWithNegative   => RuleType.ComplementPositiveWithNegative,
-            _                               => primaryType // Self-complementary or unknown — no mapping.
-        };
+        return primaryType; // No complement types — kept for API compatibility.
     }
 
     /// <summary>
@@ -904,9 +853,9 @@ public class RuleGenerator : MonoBehaviour
     {
         return currentType switch
         {
-            RuleType.PositiveExclusive => RuleType.PositiveForced,
-            RuleType.PositiveForced    => RuleType.NegativeSimple,
-            _                          => null // NegativeSimple and above have no simple linear upgrade.
+            RuleType.Simple   => RuleType.Multiple,
+            RuleType.Multiple => RuleType.Branch,
+            _                 => null
         };
     }
 
@@ -965,17 +914,13 @@ public class RuleGenerator : MonoBehaviour
     private RuleType SelectRuleType(int complexityTarget)
     {
         if (complexityTarget <= 1)
-            return RuleType.PositiveExclusive;
+            return RuleType.Simple;
 
         if (complexityTarget == 2)
-        {
-            RuleType[] mediumTypes = { RuleType.PositiveForced, RuleType.NegativeSimple };
-            return mediumTypes[Random.Range(0, mediumTypes.Length)];
-        }
+            return RuleType.Multiple;
 
-        // complexityTarget >= 3 — hardest types with branching or dual-condition logic.
-        RuleType[] hardTypes = { RuleType.ConditionalBranch, RuleType.PositiveDouble, RuleType.PositiveWithNegative };
-        return hardTypes[Random.Range(0, hardTypes.Length)];
+        // complexityTarget >= 3
+        return RuleType.Branch;
     }
 
     /// <summary>
@@ -995,44 +940,20 @@ public class RuleGenerator : MonoBehaviour
 
         switch (ruleType)
         {
-            case RuleType.PositiveExclusive:
-            case RuleType.PositiveForced:
-            case RuleType.NegativeSimple:
+            case RuleType.Simple:
                 if (!TryConsumeSpecificity(availableSpecificities, out string singleCondition))
                     return null;
                 rule.conditionA = singleCondition;
                 break;
 
-            case RuleType.ConditionalBranch:
-                if (!TryConsumeSpecificity(availableSpecificities, out string condBranchA))
+            case RuleType.Multiple:
+            case RuleType.Branch:
+                if (!TryConsumeSpecificity(availableSpecificities, out string condAB))
                     return null;
-                if (!TryConsumeSpecificity(availableSpecificities, out string condBranchB))
+                if (!TryConsumeSpecificity(availableSpecificities, out string condBB))
                     return null;
-                rule.conditionA     = condBranchA;
-                rule.conditionB     = condBranchB;
-                // ConditionalBranch routes to a second bin when conditionB is absent.
-                // The secondary bin is picked as a different bin so the two targets are always distinct.
-                rule.secondaryBinID = PickSecondaryBinID(binID);
-                break;
-
-            case RuleType.PositiveDouble:
-                if (!TryConsumeSpecificity(availableSpecificities, out string condDoubleA))
-                    return null;
-                if (!TryConsumeSpecificity(availableSpecificities, out string condDoubleB))
-                    return null;
-                rule.conditionA     = condDoubleA;
-                rule.conditionB     = condDoubleB;
-                // PositiveDouble routes to secondaryBinID when only conditionA is present (no conditionB).
-                rule.secondaryBinID = PickSecondaryBinID(binID);
-                break;
-
-            case RuleType.PositiveWithNegative:
-                if (!TryConsumeSpecificity(availableSpecificities, out string condWithA))
-                    return null;
-                if (!TryConsumeSpecificity(availableSpecificities, out string condWithB))
-                    return null;
-                rule.conditionA = condWithA;
-                rule.conditionB = condWithB;
+                rule.conditionA = condAB;
+                rule.conditionB = condBB;
                 break;
         }
 
@@ -1099,23 +1020,13 @@ public class RuleGenerator : MonoBehaviour
     {
         int baseScore = ruleType switch
         {
-            RuleType.PositiveExclusive              => 1,
-            RuleType.PositiveForced                 => 2,
-            RuleType.NegativeSimple                 => 2,
-            RuleType.ConditionalBranch              => 3,
-            RuleType.PositiveDouble                 => 3,
-            RuleType.PositiveWithNegative           => 3,
-            RuleType.ComplementPositiveForced       => 2,
-            RuleType.ComplementPositiveExclusive    => 1,
-            RuleType.ComplementNegativeSimple       => 2,
-            RuleType.ComplementPositiveWithNegative => 3,
-            _                                       => 1
+            RuleType.Simple   => 1,
+            RuleType.Multiple => 2,
+            RuleType.Branch   => 3,
+            _                 => 1
         };
 
-        // Each additional bin beyond the first adds one point — the player must track more
-        // destinations simultaneously, increasing working memory load.
         int binPenalty = Mathf.Max(0, binCount - 1);
-
         return Mathf.Clamp(baseScore + binPenalty, minimumComplexity, maximumComplexity);
     }
 
@@ -1137,21 +1048,12 @@ public class RuleGenerator : MonoBehaviour
                 return template;
         }
 
-        // Fallback: no designer-authored template matched this rule type.
-        // These defaults are intentionally minimal — they are not a substitute for proper setup.
         string fallbackText = ruleType switch
         {
-            RuleType.PositiveExclusive              => "If the document has only {0}, place it here",
-            RuleType.PositiveForced                 => "If the document has {0}, it must go here",
-            RuleType.NegativeSimple                 => "If the document does not have {0}, place it here",
-            RuleType.ConditionalBranch              => "If {0} is present: check for {1} — yes: here, no: other bin",
-            RuleType.PositiveDouble                 => "If {0} and {1} are present go here, otherwise other bin",
-            RuleType.PositiveWithNegative           => "If {0} is present but {1} is not, place it here",
-            RuleType.ComplementPositiveForced       => "If the document does NOT have {0}, place it here",
-            RuleType.ComplementPositiveExclusive    => "If {0} is present with other specificities, place here",
-            RuleType.ComplementNegativeSimple       => "If the document has {0}, place it here",
-            RuleType.ComplementPositiveWithNegative => "If {0} and {1} are both present, place it here",
-            _                                       => "Send documents here"
+            RuleType.Simple   => "Si le document a {0}, posez-le ici",
+            RuleType.Multiple => "Si le document a {0} et {1}, posez-le ici",
+            RuleType.Branch   => "Si le document a {0} mais pas {1}, posez-le ici",
+            _                 => "Posez le document ici"
         };
 
         return new RuleTemplate { templateText = fallbackText, ruleType = ruleType };
@@ -1172,19 +1074,12 @@ public class RuleGenerator : MonoBehaviour
 
         switch (ruleType)
         {
-            case RuleType.PositiveExclusive:
-            case RuleType.PositiveForced:
-            case RuleType.NegativeSimple:
-            case RuleType.ComplementPositiveForced:
-            case RuleType.ComplementPositiveExclusive:
-            case RuleType.ComplementNegativeSimple:
+            case RuleType.Simple:
                 resolvedText = resolvedText.Replace("{0}", rule.conditionA);
                 break;
 
-            case RuleType.ConditionalBranch:
-            case RuleType.PositiveDouble:
-            case RuleType.PositiveWithNegative:
-            case RuleType.ComplementPositiveWithNegative:
+            case RuleType.Multiple:
+            case RuleType.Branch:
                 resolvedText = resolvedText.Replace("{0}", rule.conditionA);
                 resolvedText = resolvedText.Replace("{1}", rule.conditionB);
                 break;

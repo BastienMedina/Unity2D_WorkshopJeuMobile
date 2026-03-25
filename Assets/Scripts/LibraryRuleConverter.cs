@@ -76,7 +76,7 @@ public static class LibraryRuleConverter
     // ─── Manuscript conversion ───────────────────────────────────────────────────
 
     /// <summary>
-    /// Produces a single PositiveForced rule whose displayText is the manuscript sentence.
+    /// Produces a single Simple rule whose displayText is the manuscript sentence.
     /// conditionA is intentionally empty — manuscript rules are display-only.
     /// </summary>
     private static List<RuleData> ConvertManuscript(RuleLibraryEntry entry, string bin1)
@@ -85,7 +85,7 @@ public static class LibraryRuleConverter
         {
             new RuleData
             {
-                ruleType     = RuleType.PositiveForced,
+                ruleType     = RuleType.Simple,
                 conditionA   = string.Empty,
                 conditionB   = string.Empty,
                 targetBinID  = bin1,
@@ -113,7 +113,7 @@ public static class LibraryRuleConverter
             return new List<RuleData>();
         }
 
-        // Single condition → one PositiveForced rule targeting bin1.
+        // Single condition → one Simple rule targeting bin1.
         if (nodes.Count == 1)
         {
             string condA = nodes[0].specificity;
@@ -123,7 +123,7 @@ public static class LibraryRuleConverter
                 return new List<RuleData>();
             }
 
-            RuleData rule = BuildRule(RuleType.PositiveForced, condA, string.Empty, bin1, entry.complexity, database);
+            RuleData rule = BuildRule(RuleType.Simple, condA, string.Empty, bin1, entry.complexity, database);
             if (!string.IsNullOrEmpty(manuscriptDisplayText))
                 rule.displayText = manuscriptDisplayText;
             return new List<RuleData> { rule };
@@ -147,7 +147,7 @@ public static class LibraryRuleConverter
             "Sauf" => ConvertSauf(specA, specB, bin1, bin2, entry.complexity, database),
             _      => new List<RuleData>
                       {
-                          BuildRule(RuleType.PositiveForced, specA, string.Empty, bin1, entry.complexity, database)
+                          BuildRule(RuleType.Simple, specA, string.Empty, bin1, entry.complexity, database)
                       }
         };
 
@@ -167,21 +167,20 @@ public static class LibraryRuleConverter
     /// <summary>
     /// ET: both conditions together → bin1 only (1 rule).
     /// Documents must have BOTH conditionA AND conditionB to enter bin1.
-    /// The other bin must be handled by a separate library entry.
     /// </summary>
     private static List<RuleData> ConvertEt(
         string condA, string condB, string bin1, int complexity, SpecificityDatabase database)
     {
         return new List<RuleData>
         {
-            BuildRule(RuleType.PositiveDouble, condA, condB, bin1, complexity, database)
+            BuildRule(RuleType.Multiple, condA, condB, bin1, complexity, database)
         };
     }
 
     /// <summary>
     /// OU: each condition routes independently to its own bin (2 rules).
-    ///   conditionA → bin1  (PositiveForced)
-    ///   conditionB → bin2  (PositiveForced)
+    ///   conditionA → bin1  (Simple)
+    ///   conditionB → bin2  (Simple)
     /// If bin2 is empty, only the bin1 rule is produced.
     /// </summary>
     private static List<RuleData> ConvertOu(
@@ -189,11 +188,11 @@ public static class LibraryRuleConverter
     {
         List<RuleData> rules = new List<RuleData>
         {
-            BuildRule(RuleType.PositiveForced, condA, string.Empty, bin1, complexity, database)
+            BuildRule(RuleType.Simple, condA, string.Empty, bin1, complexity, database)
         };
 
         if (!string.IsNullOrEmpty(bin2))
-            rules.Add(BuildRule(RuleType.PositiveForced, condB, string.Empty, bin2, complexity, database));
+            rules.Add(BuildRule(RuleType.Simple, condB, string.Empty, bin2, complexity, database));
         else
             Debug.LogWarning("[LibraryRuleConverter] Ou entry has no bin2 — conditionB has no target bin.");
 
@@ -202,8 +201,8 @@ public static class LibraryRuleConverter
 
     /// <summary>
     /// SAUF: conditionA is shared; conditionB presence determines the bin (2 rules).
-    ///   conditionA WITHOUT conditionB → bin1  (PositiveWithNegative)
-    ///   conditionA WITH    conditionB → bin2  (PositiveDouble)
+    ///   conditionA WITHOUT conditionB → bin1  (Branch)
+    ///   conditionA WITH    conditionB → bin2  (Multiple)
     /// If bin2 is empty, only the bin1 rule is produced.
     /// </summary>
     private static List<RuleData> ConvertSauf(
@@ -211,11 +210,11 @@ public static class LibraryRuleConverter
     {
         List<RuleData> rules = new List<RuleData>
         {
-            BuildRule(RuleType.PositiveWithNegative, condA, condB, bin1, complexity, database)
+            BuildRule(RuleType.Branch, condA, condB, bin1, complexity, database)
         };
 
         if (!string.IsNullOrEmpty(bin2))
-            rules.Add(BuildRule(RuleType.PositiveDouble, condA, condB, bin2, complexity, database));
+            rules.Add(BuildRule(RuleType.Multiple, condA, condB, bin2, complexity, database));
 
         return rules;
     }
@@ -266,11 +265,10 @@ public static class LibraryRuleConverter
 
         return ruleType switch
         {
-            RuleType.PositiveForced       => "Si le document contient {0}, posez-le ici",
-            RuleType.PositiveDouble       => "Si le document contient {0} et {1}, posez-le ici",
-            RuleType.PositiveOr           => "Si le document contient {0} ou {1}, posez-le ici",
-            RuleType.PositiveWithNegative => "Si le document contient {0} mais pas {1}, posez-le ici",
-            _                             => "Posez le document ici"
+            RuleType.Simple   => "Si le document contient {0}, posez-le ici",
+            RuleType.Multiple => "Si le document contient {0} et {1}, posez-le ici",
+            RuleType.Branch   => "Si le document contient {0} mais pas {1}, posez-le ici",
+            _                 => "Posez le document ici"
         };
     }
 }

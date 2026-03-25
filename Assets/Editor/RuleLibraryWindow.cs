@@ -88,34 +88,20 @@ public class RuleLibraryWindow : EditorWindow
     /// <summary>Labels for the two bin slots shown in the terminal-node dropdown.</summary>
     private static readonly string[] BinSlotLabels = { "Corbeille 1", "Corbeille 2" };
 
-    /// <summary>All non-complement RuleType values displayed in the type dropdown.</summary>
+    /// <summary>All RuleType values displayed in the type dropdown.</summary>
     private static readonly RuleType[] PrimaryRuleTypes =
     {
-        RuleType.PositiveForced,
-        RuleType.PositiveExclusive,
-        RuleType.ConditionalBranch,
-        RuleType.PositiveDouble,
-        RuleType.NegativeSimple,
-        RuleType.PositiveWithNegative,
-        RuleType.ComplementPositiveForced,
-        RuleType.ComplementPositiveExclusive,
-        RuleType.ComplementNegativeSimple,
-        RuleType.ComplementPositiveWithNegative
+        RuleType.Simple,
+        RuleType.Multiple,
+        RuleType.Branch,
     };
 
     /// <summary>Human-readable labels aligned with PrimaryRuleTypes array.</summary>
     private static readonly string[] RuleTypeLabels =
     {
-        "Condition positive (forcée)",
-        "Condition exclusive (seule)",
-        "Branche conditionnelle",
-        "Double condition",
-        "Négation simple",
-        "Condition avec exclusion",
-        "Complément — Positif forcé",
-        "Complément — Exclusif",
-        "Complément — Négation simple",
-        "Complément — Avec exclusion"
+        "Simple (contient A)",
+        "Multiple (contient A et B)",
+        "Branche (A mais pas B)",
     };
 
     /// <summary>Logical connector options shown between condition nodes.</summary>
@@ -730,7 +716,7 @@ public class RuleLibraryWindow : EditorWindow
             guid           = Guid.NewGuid().ToString(),
             label          = "Nouvelle règle",
             isManuscript   = false,
-            ruleTypeString = RuleType.PositiveForced.ToString(),
+            ruleTypeString = RuleType.Simple.ToString(),
             complexity     = 1,
             conditions     = new List<ConditionNode> { new ConditionNode() }
         };
@@ -913,17 +899,10 @@ public class RuleLibraryWindow : EditorWindow
     {
         return ruleType switch
         {
-            RuleType.PositiveForced                 => "Condition positive (forcée)",
-            RuleType.PositiveExclusive              => "Condition exclusive",
-            RuleType.ConditionalBranch              => "Branche conditionnelle",
-            RuleType.PositiveDouble                 => "Double condition",
-            RuleType.NegativeSimple                 => "Négation simple",
-            RuleType.PositiveWithNegative           => "Condition avec exclusion",
-            RuleType.ComplementPositiveForced       => "Complément — Positif forcé",
-            RuleType.ComplementPositiveExclusive    => "Complément — Exclusif",
-            RuleType.ComplementNegativeSimple       => "Complément — Négation",
-            RuleType.ComplementPositiveWithNegative => "Complément — Avec exclusion",
-            _                                       => ruleType.ToString()
+            RuleType.Simple   => "Simple (contient A)",
+            RuleType.Multiple => "Multiple (contient A et B)",
+            RuleType.Branch   => "Branche (A mais pas B)",
+            _                 => ruleType.ToString()
         };
     }
 

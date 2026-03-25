@@ -96,39 +96,40 @@ public class FloorDesignerWindow : EditorWindow
     /// </summary>
     private bool showNightComparison;
 
-    // ─── Rule editor transient state (not persisted) ──────────────────────────
+    // ─── Rule Library state (chargée depuis RuleLibraryData.json) ────────────
+
+    /// <summary>Toutes les entrées de la Rule Library chargées depuis le JSON.</summary>
+    private List<RuleLibraryEntry> libraryEntries = new List<RuleLibraryEntry>();
 
     /// <summary>
-    /// Per-night, per-bin: index of the selected RuleType in the "add rule" dropdown.
-    /// Key = nightIndex * 10 + binIndex. Resets on editor reload.
+    /// Labels affichés dans les popups du formulaire d'ajout/remplacement.
+    /// Format : "[complexité★] label de l'entrée"
     /// </summary>
-    private Dictionary<int, int> addRuleTypeIndex = new Dictionary<int, int>();
+    private string[] libraryEntryLabels = new string[0];
 
     /// <summary>
-    /// Per-night, per-bin: conditionA text field value for the "add rule" form.
+    /// Per-night, per-bin: index de l'entrée sélectionnée dans le dropdown d'ajout.
+    /// Key = nightIndex * 10 + binIndex.
     /// </summary>
-    private Dictionary<int, string> addRuleConditionA = new Dictionary<int, string>();
+    private Dictionary<int, int> addLibraryEntryIndex = new Dictionary<int, int>();
 
     /// <summary>
-    /// Per-night, per-bin: conditionB text field value for the "add rule" form.
+    /// Per-night, per-bin: index de la corbeille secondaire choisie pour les règles Ou/Sauf.
+    /// Key = nightIndex * 10 + binIndex.
     /// </summary>
-    private Dictionary<int, string> addRuleConditionB = new Dictionary<int, string>();
+    private Dictionary<int, int> addSecondaryBinIndex = new Dictionary<int, int>();
 
     /// <summary>
-    /// Per-night, per-bin: index of the selected specificity in the conditionA dropdown.
-    /// </summary>
-    private Dictionary<int, int> addRuleSpecA = new Dictionary<int, int>();
-
-    /// <summary>
-    /// Per-night, per-bin: index of the selected specificity in the conditionB dropdown.
-    /// </summary>
-    private Dictionary<int, int> addRuleSpecB = new Dictionary<int, int>();
-
-    /// <summary>
-    /// Per-night, per-bin, per-rule: index for the "replace" rule type dropdown.
+    /// Per-night, per-bin, per-rule: index de l'entrée sélectionnée dans le dropdown de remplacement.
     /// Key = nightIndex * 1000 + binIndex * 100 + ruleIndex.
     /// </summary>
-    private Dictionary<int, int> replaceRuleTypeIndex = new Dictionary<int, int>();
+    private Dictionary<int, int> replaceLibraryEntryIndex = new Dictionary<int, int>();
+
+    /// <summary>
+    /// Per-night, per-bin, per-rule: index de la corbeille secondaire pour les remplacements Ou/Sauf.
+    /// Key = nightIndex * 1000 + binIndex * 100 + ruleIndex.
+    /// </summary>
+    private Dictionary<int, int> replaceSecondaryBinIndex = new Dictionary<int, int>();
 
     /// <summary>
     /// Opens the Floor Designer window from the Unity top menu.
@@ -156,6 +157,7 @@ public class FloorDesignerWindow : EditorWindow
         LoadSpecificityDatabase();
         LoadAllFloors();
         BuildRuleTypeLabels();
+        LoadRuleLibrary();
     }
 
     /// <summary>
@@ -267,21 +269,79 @@ public class FloorDesignerWindow : EditorWindow
             {
                 label = type switch
                 {
-                    RuleType.PositiveExclusive              => "Si seulement {0} → ici",
-                    RuleType.PositiveForced                 => "Si {0} → ici",
-                    RuleType.NegativeSimple                 => "Si pas {0} → ici",
-                    RuleType.ConditionalBranch              => "Si {0} : {1} présent → ici, sinon autre",
-                    RuleType.PositiveDouble                 => "Si {0} et {1} → ici, sinon autre",
-                    RuleType.PositiveWithNegative           => "Si {0} mais pas {1} → ici",
-                    RuleType.ComplementPositiveForced       => "Si pas {0} → ici (complément)",
-                    RuleType.ComplementPositiveExclusive    => "Si {0} + autres → ici (complément)",
-                    RuleType.ComplementNegativeSimple       => "Si {0} → ici (complément)",
-                    RuleType.ComplementPositiveWithNegative => "Si {0} et {1} → ici (complément)",
-                    _                                       => enumName
+                    RuleType.Simple   => "Si {0} → ici",
+                    RuleType.Multiple => "Si {0} et {1} → ici",
+                    RuleType.Branch   => "Si {0} mais pas {1} → ici",
+                    _                 => enumName
                 };
             }
 
             ruleTypeLabels[i] = label;
+        }
+    }
+
+    // ─── Rule Library Loader ──────────────────────────────────────────────────
+
+    /// <summary>
+    /// Chemin vers le JSON de la Rule Library — identique au chemin utilisé par RuleLibraryWindow.
+    /// </summary>
+    private static string RuleLibraryFilePath =>
+        System.IO.Path.Combine(Application.dataPath, "Editor", "RuleLibraryData.json");
+
+    /// <summary>
+    /// Charge toutes les entrées de la Rule Library depuis le JSON et reconstruit les labels
+    /// affichés dans les dropdowns d'ajout/remplacement de règle.
+    ///
+    /// Format du label : "[★ × complexité] label"
+    /// Les entrées sans conditions structurées (manuscript pur) sont exclues car elles n'ont
+    /// pas de logique d'assignation utilisable dans le Floor Designer.
+    /// </summary>
+    private void LoadRuleLibrary()
+    {
+        libraryEntries = new List<RuleLibraryEntry>();
+
+        if (!System.IO.File.Exists(RuleLibraryFilePath))
+        {
+            Debug.LogWarning("[FloorDesigner] RuleLibraryData.json introuvable — aucune règle de bibliothèque disponible.");
+            libraryEntryLabels = new string[] { "(Bibliothèque vide)" };
+            return;
+        }
+
+        try
+        {
+            string json = System.IO.File.ReadAllText(RuleLibraryFilePath);
+            RuleLibraryFile file = JsonUtility.FromJson<RuleLibraryFile>(json);
+
+            if (file == null || file.entries == null)
+            {
+                libraryEntryLabels = new string[] { "(Bibliothèque vide)" };
+                return;
+            }
+
+            // Filtre : garder uniquement les entrées avec des conditions structurées.
+            foreach (RuleLibraryEntry entry in file.entries)
+            {
+                bool hasConditions = entry.conditions != null && entry.conditions.Count > 0;
+                if (hasConditions)
+                    libraryEntries.Add(entry);
+            }
+
+            // Construction des labels pour le popup.
+            libraryEntryLabels = new string[libraryEntries.Count];
+            for (int i = 0; i < libraryEntries.Count; i++)
+            {
+                RuleLibraryEntry e       = libraryEntries[i];
+                string           stars   = new string('★', e.complexity);
+                string           connector = e.conditions.Count > 1 ? $" [{e.conditions[0].connector}]" : string.Empty;
+                libraryEntryLabels[i]    = $"[{stars}]{connector} {e.label}";
+            }
+
+            Debug.Log($"[FloorDesigner] {libraryEntries.Count} règles chargées depuis la bibliothèque.");
+        }
+        catch (System.Exception ex)
+        {
+            Debug.LogError($"[FloorDesigner] Erreur de chargement de la bibliothèque : {ex.Message}");
+            libraryEntryLabels = new string[] { "(Erreur de chargement)" };
         }
     }
 
@@ -781,24 +841,22 @@ public class FloorDesignerWindow : EditorWindow
     }
 
     /// <summary>
-    /// Draws one row for an existing rule: display text, [×] remove button, and a [↕] replace inline form.
+    /// Dessine une ligne pour une règle existante : texte de résumé, bouton [×] suppression,
+    /// et formulaire inline de remplacement piochant dans la Rule Library.
+    /// Pour les règles doubles (Ou/Sauf), affiche un sélecteur de corbeille secondaire.
     /// </summary>
     private void DrawRuleRow(FloorDesignerData floor, NightDesignerData night, int nightIndex,
                              BinDesignerData bin, int binIdx, int ruleIdx, int stateKey)
     {
-        DesignerRuleEntry rule = bin.rules[ruleIdx];
-        int replaceKey = nightIndex * 1000 + binIdx * 100 + ruleIdx;
+        DesignerRuleEntry rule      = bin.rules[ruleIdx];
+        int               replaceKey = nightIndex * 1000 + binIdx * 100 + ruleIdx;
 
         EditorGUILayout.BeginVertical(EditorStyles.helpBox);
         EditorGUILayout.BeginHorizontal();
 
-        // Rule summary label
-        string ruleLabel = string.IsNullOrEmpty(rule.displayText)
-            ? $"[{rule.ruleTypeString}]  {rule.conditionA}"
-            : rule.displayText;
+        string ruleLabel = BuildStructuredLabel(rule);
         EditorGUILayout.LabelField(ruleLabel, GUILayout.ExpandWidth(true));
 
-        // Remove button
         GUI.backgroundColor = new Color(1f, 0.4f, 0.4f);
         if (GUILayout.Button("×", GUILayout.Width(24f)))
         {
@@ -810,157 +868,414 @@ public class FloorDesignerWindow : EditorWindow
             return;
         }
         GUI.backgroundColor = Color.white;
-
         EditorGUILayout.EndHorizontal();
 
-        // ── Inline Replace form ───────────────────────────────────────────────
-        if (!replaceRuleTypeIndex.ContainsKey(replaceKey))
-            replaceRuleTypeIndex[replaceKey] = 0;
+        // ── Formulaire de remplacement ────────────────────────────────────────
+        if (!replaceLibraryEntryIndex.ContainsKey(replaceKey))
+            replaceLibraryEntryIndex[replaceKey] = 0;
 
-        EditorGUILayout.LabelField("Remplacer par :", EditorStyles.miniLabel);
-        EditorGUILayout.BeginHorizontal();
+        bool libraryReady = libraryEntries.Count > 0;
 
-        replaceRuleTypeIndex[replaceKey] = EditorGUILayout.Popup(
-            replaceRuleTypeIndex[replaceKey], ruleTypeLabels, GUILayout.Width(300f));
+        EditorGUILayout.LabelField("Remplacer par (bibliothèque) :", EditorStyles.miniLabel);
 
-        bool databaseReady = cachedSpecificityDatabase != null &&
-                             cachedSpecificityDatabase.allSpecificities != null &&
-                             cachedSpecificityDatabase.allSpecificities.Count > 0;
-
-        // ConditionA dropdown from database
-        if (!addRuleSpecA.ContainsKey(replaceKey))
-            addRuleSpecA[replaceKey] = 0;
-        if (!addRuleSpecB.ContainsKey(replaceKey + 50000))
-            addRuleSpecB[replaceKey + 50000] = 0;
-
-        using (new EditorGUI.DisabledScope(!databaseReady))
+        using (new EditorGUI.DisabledScope(!libraryReady))
         {
-            addRuleSpecA[replaceKey] = EditorGUILayout.Popup(
-                addRuleSpecA[replaceKey], cachedSpecificityNames, GUILayout.Width(100f));
-            addRuleSpecB[replaceKey + 50000] = EditorGUILayout.Popup(
-                addRuleSpecB[replaceKey + 50000], cachedSpecificityNames, GUILayout.Width(100f));
+            replaceLibraryEntryIndex[replaceKey] = EditorGUILayout.Popup(
+                replaceLibraryEntryIndex[replaceKey], libraryEntryLabels, GUILayout.ExpandWidth(true));
         }
 
-        GUI.backgroundColor = new Color(1f, 0.75f, 0.2f);
-        if (GUILayout.Button("↕ Remplacer", GUILayout.Width(90f)))
-        {
-            string newType  = ruleTypeNames[replaceRuleTypeIndex[replaceKey]];
-            string newCondA = databaseReady
-                ? cachedSpecificityDatabase.allSpecificities[
-                    Mathf.Clamp(addRuleSpecA[replaceKey], 0, cachedSpecificityDatabase.allSpecificities.Count - 1)]
-                : string.Empty;
-            string newCondB = databaseReady
-                ? cachedSpecificityDatabase.allSpecificities[
-                    Mathf.Clamp(addRuleSpecB[replaceKey + 50000], 0, cachedSpecificityDatabase.allSpecificities.Count - 1)]
-                : string.Empty;
+        int              repIdx   = Mathf.Clamp(replaceLibraryEntryIndex[replaceKey], 0, libraryEntries.Count - 1);
+        RuleLibraryEntry repEntry = libraryReady ? libraryEntries[repIdx] : null;
+        bool             repDouble = repEntry != null && IsDoubleConnector(repEntry);
 
-            rule.ruleTypeString = newType;
-            rule.conditionA     = newCondA;
-            rule.conditionB     = newCondB;
-            rule.targetBinID    = bin.binID;
-            rule.displayText    = BuildRuleDisplayText(newType, newCondA, newCondB, bin.binID);
-            floor.isDirty       = true;
+        BinDesignerData repSecondaryBin = null;
+        if (repDouble)
+            repSecondaryBin = DrawSecondaryBinSelector(night, bin, replaceKey, replaceSecondaryBinIndex);
+
+        // Aperçu du remplacement
+        if (repEntry != null)
+        {
+            string repPreview = BuildDoublePreview(repEntry, bin.binID, repSecondaryBin?.binID ?? "?");
+            GUIStyle miniPreview = new GUIStyle(EditorStyles.miniLabel) { wordWrap = true, fontStyle = FontStyle.Italic };
+            EditorGUILayout.LabelField($"→ {repPreview}", miniPreview);
+        }
+
+        bool canReplace = libraryReady && (!repDouble || repSecondaryBin != null);
+
+        EditorGUILayout.BeginHorizontal();
+        GUILayout.FlexibleSpace();
+        GUI.backgroundColor = new Color(1f, 0.75f, 0.2f);
+        using (new EditorGUI.DisabledScope(!canReplace))
+        {
+            if (GUILayout.Button("↕ Remplacer", GUILayout.Width(110f)))
+            {
+                // Remplace la règle courante sur ce bin par la règle primaire du nouvel entry.
+                ApplyLibraryEntryToBin(repEntry, bin, rule, isPrimary: true);
+
+                // Si double : ajoute aussi la règle secondaire sur l'autre corbeille.
+                if (repDouble && repSecondaryBin != null)
+                {
+                    DesignerRuleEntry secondary = new DesignerRuleEntry();
+                    ApplyLibraryEntryToBin(repEntry, repSecondaryBin, secondary, isPrimary: false);
+                    repSecondaryBin.rules.Add(secondary);
+                }
+
+                floor.isDirty = true;
+            }
         }
         GUI.backgroundColor = Color.white;
-
         EditorGUILayout.EndHorizontal();
+
         EditorGUILayout.EndVertical();
     }
 
     /// <summary>
-    /// Draws the "Add Rule" form at the bottom of a bin panel.
-    /// The designer picks a RuleType and conditionA/B from the database, then clicks [+ Ajouter].
+    /// Dessine le formulaire d'ajout de règle au bas d'un panneau de corbeille.
+    ///
+    /// Pour les règles simples (condition seule, Et) : un seul popup bibliothèque suffit.
+    /// Pour les règles doubles (Ou, Sauf) : affiche en plus un sélecteur de corbeille secondaire
+    /// parmi les autres corbeilles de la même nuit. Au clic Ajouter :
+    ///   - Ou  : condA → corbeille courante  /  condB → corbeille secondaire
+    ///   - Sauf: condA sans condB → corbeille courante  /  condA+condB → corbeille secondaire
+    ///
+    /// Inclut un bouton [↻] pour recharger la bibliothèque sans fermer la fenêtre.
     /// </summary>
     private void DrawAddRuleForm(FloorDesignerData floor, NightDesignerData night, int nightIndex,
                                  BinDesignerData bin, int binIdx, int stateKey)
     {
-        EditorGUILayout.LabelField("── Ajouter une règle ──", EditorStyles.boldLabel);
+        EditorGUILayout.Space(2f);
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.LabelField("── Ajouter depuis la bibliothèque ──", EditorStyles.boldLabel);
+        if (GUILayout.Button("↻", GUILayout.Width(24f)))
+            LoadRuleLibrary();
+        EditorGUILayout.EndHorizontal();
 
-        bool databaseReady = cachedSpecificityDatabase != null &&
-                             cachedSpecificityDatabase.allSpecificities != null &&
-                             cachedSpecificityDatabase.allSpecificities.Count > 0;
+        bool libraryReady = libraryEntries.Count > 0;
 
-        if (!addRuleTypeIndex.ContainsKey(stateKey))
-            addRuleTypeIndex[stateKey]  = 0;
-        if (!addRuleSpecA.ContainsKey(stateKey))
-            addRuleSpecA[stateKey]      = 0;
-        if (!addRuleSpecB.ContainsKey(stateKey))
-            addRuleSpecB[stateKey]      = 0;
-
-        // Rule type dropdown — labels lisibles depuis les templates de la database
-        addRuleTypeIndex[stateKey] = EditorGUILayout.Popup("Type de règle", addRuleTypeIndex[stateKey], ruleTypeLabels);
-
-        // ConditionA and ConditionB from specificity database
-        using (new EditorGUI.DisabledScope(!databaseReady))
+        if (!libraryReady)
         {
-            addRuleSpecA[stateKey] = EditorGUILayout.Popup("Condition A", addRuleSpecA[stateKey], cachedSpecificityNames);
-            addRuleSpecB[stateKey] = EditorGUILayout.Popup("Condition B", addRuleSpecB[stateKey], cachedSpecificityNames);
+            EditorGUILayout.HelpBox(
+                "Aucune règle trouvée dans la bibliothèque.\nOuvrez Tools → Rule Library pour créer des règles.",
+                MessageType.Warning);
+            return;
         }
 
-        string selectedType  = ruleTypeNames[addRuleTypeIndex[stateKey]];
-        string selectedCondA = databaseReady
-            ? cachedSpecificityDatabase.allSpecificities[
-                Mathf.Clamp(addRuleSpecA[stateKey], 0, cachedSpecificityDatabase.allSpecificities.Count - 1)]
-            : string.Empty;
-        string selectedCondB = databaseReady
-            ? cachedSpecificityDatabase.allSpecificities[
-                Mathf.Clamp(addRuleSpecB[stateKey], 0, cachedSpecificityDatabase.allSpecificities.Count - 1)]
-            : string.Empty;
+        if (!addLibraryEntryIndex.ContainsKey(stateKey))
+            addLibraryEntryIndex[stateKey] = 0;
 
-        // Preview of the rule that will be added
-        string preview = BuildRuleDisplayText(selectedType, selectedCondA, selectedCondB, bin.binID);
+        addLibraryEntryIndex[stateKey] = EditorGUILayout.Popup(
+            "Règle", addLibraryEntryIndex[stateKey], libraryEntryLabels);
+
+        int              selectedIdx   = Mathf.Clamp(addLibraryEntryIndex[stateKey], 0, libraryEntries.Count - 1);
+        RuleLibraryEntry selectedEntry = libraryEntries[selectedIdx];
+        bool             isDouble      = IsDoubleConnector(selectedEntry);
+
+        // ── Sélecteur de corbeille secondaire (Ou / Sauf uniquement) ─────────
+        BinDesignerData secondaryBin = null;
+
+        if (isDouble)
+        {
+            secondaryBin = DrawSecondaryBinSelector(night, bin, stateKey, addSecondaryBinIndex);
+        }
+
+        // ── Aperçu ────────────────────────────────────────────────────────────
+        string bin1Label = bin.binID;
+        string bin2Label = secondaryBin != null ? secondaryBin.binID : "?";
+        string preview   = BuildDoublePreview(selectedEntry, bin1Label, bin2Label);
+
         GUIStyle previewStyle = new GUIStyle(EditorStyles.helpBox) { wordWrap = true, fontStyle = FontStyle.Italic };
         EditorGUILayout.LabelField($"Aperçu : {preview}", previewStyle);
 
+        // ── Bouton Ajouter ────────────────────────────────────────────────────
+        bool canAdd = !isDouble || secondaryBin != null;
+
         GUI.backgroundColor = new Color(0.4f, 0.85f, 0.4f);
-        if (GUILayout.Button("+ Ajouter la règle"))
+        using (new EditorGUI.DisabledScope(!canAdd))
         {
-            DesignerRuleEntry newRule = new DesignerRuleEntry
+            if (GUILayout.Button("+ Ajouter la règle"))
             {
-                ruleTypeString = selectedType,
-                conditionA     = selectedCondA,
-                conditionB     = selectedCondB,
-                targetBinID    = bin.binID,
-                displayText    = preview,
-                complexity     = 1,
-                isComplement   = false
-            };
-            bin.rules.Add(newRule);
-            floor.isDirty = true;
+                AddRuleFromLibraryEntry(selectedEntry, bin, secondaryBin, floor);
+            }
         }
         GUI.backgroundColor = Color.white;
+
+        if (isDouble && secondaryBin == null)
+            EditorGUILayout.HelpBox("Sélectionnez une corbeille secondaire pour cette règle.", MessageType.Info);
     }
 
     /// <summary>
-    /// Builds a simple human-readable display text for a rule based on its type and conditions.
-    /// Used for the preview and the displayText stored on saved rules.
-    /// Falls back to a generic "[type] condA → binID" format when no template matches.
+    /// Builds a structured French label from a DesignerRuleEntry's fields.
+    /// Always generated at draw time — never relies on the saved displayText,
+    /// which may contain stale English phrases from the old auto-generation system.
+    ///
+    /// Format by RuleType:
+    ///   PositiveForced          → "Si {condA} → {bin}"
+    ///   PositiveDouble          → "Si {condA} et {condB} → {bin}"
+    ///   PositiveWithNegative    → "Si {condA} sauf si {condB} → {bin}"
+    ///   PositiveOr              → "Si {condA} ou {condB} → {bin}"
+    ///   PositiveExclusive       → "Si uniquement {condA} → {bin}"
+    ///   NegativeSimple          → "Si pas {condA} → {bin}"
+    ///   Complement*             → préfixe "Complément : " + règle de base
     /// </summary>
-    private string BuildRuleDisplayText(string ruleTypeString, string condA, string condB, string binID)
+    private static string BuildStructuredLabel(DesignerRuleEntry rule)
     {
-        if (cachedSpecificityDatabase == null || cachedSpecificityDatabase.templates == null)
-            return $"[{ruleTypeString}] {condA} → {binID}";
+        string a   = string.IsNullOrEmpty(rule.conditionA) ? "?" : rule.conditionA;
+        string b   = string.IsNullOrEmpty(rule.conditionB) ? "?" : rule.conditionB;
+        string bin = string.IsNullOrEmpty(rule.targetBinID) ? "?" : rule.targetBinID;
 
-        if (!System.Enum.TryParse(ruleTypeString, out RuleType parsedType))
-            return $"[{ruleTypeString}] {condA} → {binID}";
+        if (!System.Enum.TryParse(rule.ruleTypeString, out RuleType type))
+            return $"{a} → {bin}";
 
-        bool needsTwo = !string.IsNullOrEmpty(condB);
-
-        foreach (RuleTemplate t in cachedSpecificityDatabase.templates)
+        return type switch
         {
-            if (t.ruleType != parsedType)
-                continue;
+            RuleType.Simple   => $"Si {a} → {bin}",
+            RuleType.Multiple => $"Si {a} et {b} → {bin}",
+            RuleType.Branch   => $"Si {a} sauf si {b} → {bin}",
+            _                 => $"{a} → {bin}"
+        };
+    }
 
-            string text = t.templateText;
-            text = text.Replace("{0}", condA);
-            text = text.Replace("{1}", condB);
-            text = text.Replace("{bin}", binID);
-            return text;
+    /// <summary>
+    /// Construit le texte d'affichage d'une règle à partir des champs structurés résolus
+    /// (ruleType, conditionA, conditionB, binID).
+    /// Utilisé par <see cref="ApplyLibraryEntryToBin"/> pour garantir que le texte affiché
+    /// correspond toujours à la logique réelle de la règle issue de la Rule Library.
+    /// </summary>
+    private static string BuildStructuredDisplayText(RuleType ruleType, string condA, string condB, string binID)
+    {
+        string a = string.IsNullOrEmpty(condA) ? "?" : condA;
+        string b = string.IsNullOrEmpty(condB) ? "?" : condB;
+
+        return ruleType switch
+        {
+            RuleType.Simple   => $"Si le document contient {a}, posez-le ici",
+            RuleType.Multiple => $"Si le document contient {a} et {b}, posez-le ici",
+            RuleType.Branch   => $"Si le document contient {a} mais pas {b}, posez-le ici",
+            _                 => "Posez le document ici"
+        };
+    }
+
+    /// <summary>
+    /// Construit un texte d'aperçu lisible pour une entrée de la bibliothèque.
+    /// Utilise le manuscriptText si disponible, sinon génère un résumé structuré
+    /// à partir des conditions et du connecteur.
+    /// </summary>
+    private string BuildLibraryEntryPreview(RuleLibraryEntry entry, string binID)
+    {
+        // Priorité au texte manuscrit s'il existe — c'est la phrase que le designer a écrite.
+        if (!string.IsNullOrEmpty(entry.manuscriptText))
+            return entry.manuscriptText;
+
+        if (entry.conditions == null || entry.conditions.Count == 0)
+            return $"{entry.label} → {binID}";
+
+        if (entry.conditions.Count == 1)
+            return $"Si {entry.conditions[0].specificity} → {binID}";
+
+        string condA      = entry.conditions[0].specificity;
+        string connector  = entry.conditions[0].connector;
+        string condB      = entry.conditions[1].specificity;
+
+        return connector switch
+        {
+            "Et"   => $"Si {condA} et {condB} → {binID}",
+            "Ou"   => $"Si {condA} ou {condB} → {binID} / corbeille 2",
+            "Sauf" => $"Si {condA} sauf si {condB} → {binID} / corbeille 2",
+            _      => $"Si {condA} [{connector}] {condB} → {binID}"
+        };
+    }
+
+    // ─── Double-connector helpers ─────────────────────────────────────────────
+
+    /// <summary>
+    /// Retourne true si l'entrée utilise un connecteur Ou ou Sauf — c'est-à-dire
+    /// qu'elle génère deux règles sur deux corbeilles distinctes.
+    /// </summary>
+    private static bool IsDoubleConnector(RuleLibraryEntry entry)
+    {
+        if (entry.conditions == null || entry.conditions.Count < 2)
+            return false;
+
+        string conn = entry.conditions[0].connector;
+        return conn == "Ou" || conn == "Sauf";
+    }
+
+    /// <summary>
+    /// Dessine un Popup "Corbeille secondaire" parmi les corbeilles de la même nuit,
+    /// en excluant la corbeille courante.
+    /// Retourne la <see cref="BinDesignerData"/> choisie, ou null si aucune autre corbeille.
+    /// </summary>
+    private BinDesignerData DrawSecondaryBinSelector(
+        NightDesignerData night,
+        BinDesignerData   currentBin,
+        int               stateKey,
+        Dictionary<int, int> indexDict)
+    {
+        // Corbeilles disponibles = toutes sauf la corbeille courante.
+        List<BinDesignerData> otherBins   = new List<BinDesignerData>();
+        List<string>          otherLabels = new List<string>();
+
+        foreach (BinDesignerData b in night.bins)
+        {
+            if (b.binID == currentBin.binID)
+                continue;
+            otherBins.Add(b);
+            otherLabels.Add(b.binID);
         }
 
-        return needsTwo
-            ? $"[{ruleTypeString}] {condA} + {condB} → {binID}"
-            : $"[{ruleTypeString}] {condA} → {binID}";
+        if (otherBins.Count == 0)
+        {
+            EditorGUILayout.HelpBox("Aucune autre corbeille disponible dans cette nuit.", MessageType.Warning);
+            return null;
+        }
+
+        if (!indexDict.ContainsKey(stateKey))
+            indexDict[stateKey] = 0;
+
+        indexDict[stateKey] = EditorGUILayout.Popup(
+            "Corbeille secondaire", indexDict[stateKey], otherLabels.ToArray());
+
+        int safeIdx = Mathf.Clamp(indexDict[stateKey], 0, otherBins.Count - 1);
+        return otherBins[safeIdx];
+    }
+
+    /// <summary>
+    /// Construit un texte d'aperçu lisible qui montre les deux branches d'une règle double.
+    ///
+    /// Ou   : "Si condA → bin1 | Si condB → bin2"
+    /// Sauf : "Si condA (sans condB) → bin1 | Si condA + condB → bin2"
+    /// Autres : délègue à BuildLibraryEntryPreview.
+    /// </summary>
+    private string BuildDoublePreview(RuleLibraryEntry entry, string bin1, string bin2)
+    {
+        if (!IsDoubleConnector(entry))
+            return BuildLibraryEntryPreview(entry, bin1);
+
+        string condA = entry.conditions[0].specificity;
+        string condB = entry.conditions[1].specificity;
+        string conn  = entry.conditions[0].connector;
+
+        return conn switch
+        {
+            "Ou"   => $"Si {condA} → {bin1}  |  Si {condB} → {bin2}",
+            "Sauf" => $"Si {condA} sans {condB} → {bin1}  |  Si {condA} + {condB} → {bin2}",
+            _      => BuildLibraryEntryPreview(entry, bin1)
+        };
+    }
+
+    /// <summary>
+    /// Crée et enregistre les DesignerRuleEntry depuis une entrée de bibliothèque.
+    ///
+    /// Règle simple (condition seule, Et) : une règle sur <paramref name="primaryBin"/>.
+    /// Règle double (Ou, Sauf)            : une règle primaire sur <paramref name="primaryBin"/>
+    ///                                      + une règle secondaire sur <paramref name="secondaryBin"/>.
+    /// </summary>
+    private void AddRuleFromLibraryEntry(
+        RuleLibraryEntry entry,
+        BinDesignerData  primaryBin,
+        BinDesignerData  secondaryBin,
+        FloorDesignerData floor)
+    {
+        // Règle primaire → corbeille courante.
+        DesignerRuleEntry primary = new DesignerRuleEntry();
+        ApplyLibraryEntryToBin(entry, primaryBin, primary, isPrimary: true);
+        primaryBin.rules.Add(primary);
+
+        // Règle secondaire → corbeille secondaire (Ou/Sauf uniquement).
+        if (IsDoubleConnector(entry) && secondaryBin != null)
+        {
+            DesignerRuleEntry secondary = new DesignerRuleEntry();
+            ApplyLibraryEntryToBin(entry, secondaryBin, secondary, isPrimary: false);
+            secondaryBin.rules.Add(secondary);
+        }
+
+        floor.isDirty = true;
+    }
+
+    /// <summary>
+    /// Traduit une <see cref="RuleLibraryEntry"/> en une <see cref="DesignerRuleEntry"/>
+    /// et l'applique à la corbeille cible.
+    ///
+    /// <paramref name="isPrimary"/> distingue les deux branches d'une règle double :
+    ///   Sauf primaire   → PositiveWithNegative(condA, condB)  — condA sans condB
+    ///   Sauf secondaire → PositiveDouble(condA, condB)         — condA avec condB
+    ///   Ou   primaire   → PositiveForced(condA)
+    ///   Ou   secondaire → PositiveForced(condB)
+    /// </summary>
+    private void ApplyLibraryEntryToBin(
+        RuleLibraryEntry  entry,
+        BinDesignerData   bin,
+        DesignerRuleEntry target,
+        bool              isPrimary = true)
+    {
+        if (entry.conditions == null || entry.conditions.Count == 0)
+        {
+            target.ruleTypeString = RuleType.Simple.ToString();
+            target.conditionA     = string.Empty;
+            target.conditionB     = string.Empty;
+            target.targetBinID    = bin.binID;
+            target.displayText    = string.IsNullOrEmpty(entry.manuscriptText) ? entry.label : entry.manuscriptText;
+            target.complexity     = entry.complexity;
+            target.isComplement   = false;
+            return;
+        }
+
+        string condA = entry.conditions[0].specificity;
+        string condB = entry.conditions.Count > 1 ? entry.conditions[1].specificity : string.Empty;
+        string conn  = entry.conditions.Count > 1 ? entry.conditions[0].connector   : string.Empty;
+
+        RuleType resolvedType;
+        string   usedCondA;
+        string   usedCondB;
+
+        switch (conn)
+        {
+            case "Et":
+                resolvedType = RuleType.Multiple;
+                usedCondA    = condA;
+                usedCondB    = condB;
+                break;
+
+            case "Ou":
+                resolvedType = RuleType.Simple;
+                usedCondA    = isPrimary ? condA : condB;
+                usedCondB    = string.Empty;
+                break;
+
+            case "Sauf":
+                if (isPrimary)
+                {
+                    resolvedType = RuleType.Branch;
+                    usedCondA    = condA;
+                    usedCondB    = condB;
+                }
+                else
+                {
+                    resolvedType = RuleType.Multiple;
+                    usedCondA    = condA;
+                    usedCondB    = condB;
+                }
+                break;
+
+            default:
+                resolvedType = RuleType.Simple;
+                usedCondA    = condA;
+                usedCondB    = string.Empty;
+                break;
+        }
+
+        // Always derive the display text from the resolved structural fields so the text
+        // shown per-bin in the Floor Manager and at runtime always matches the rule logic,
+        // regardless of whether a manuscriptText exists on the library entry.
+        string displayText = BuildStructuredDisplayText(resolvedType, usedCondA, usedCondB, bin.binID);
+
+        target.ruleTypeString = resolvedType.ToString();
+        target.conditionA     = usedCondA;
+        target.conditionB     = usedCondB;
+        target.targetBinID    = bin.binID;
+        target.displayText    = displayText;
+        target.complexity     = entry.complexity;
+        target.isComplement   = false;
     }
 
     /// <summary>
@@ -989,7 +1304,8 @@ public class FloorDesignerWindow : EditorWindow
         // "Save Floor" in the Save Actions section is the primary action for daily use.
         if (GUILayout.Button("Save as new version"))
         {
-            FloorDesignerSaveUtils.SaveFloor(floor, overwrite: false, database: cachedSpecificityDatabase);
+            FloorDesignerSaveUtils.SaveFloor(floor, overwrite: false,
+                database: cachedSpecificityDatabase, libraryEntries: libraryEntries);
             string lastSaved = GetLastSavedVersionName(floor.floorIndex);
             EditorUtility.DisplayDialog("Saved", $"Saved as {lastSaved}", "OK");
             Repaint();
@@ -1018,7 +1334,8 @@ public class FloorDesignerWindow : EditorWindow
             // canonical daily action — the designer saves the current authoritative version.
             // Versioning (v2, v3) is available via "Save as new version" in the Existing Saves
             // section for designers who want to keep multiple snapshots in parallel.
-            FloorDesignerSaveUtils.SaveFloor(floor, overwrite: true, database: cachedSpecificityDatabase);
+            FloorDesignerSaveUtils.SaveFloor(floor, overwrite: true,
+                database: cachedSpecificityDatabase, libraryEntries: libraryEntries);
             floor.isDirty = false;
             EditorUtility.DisplayDialog("Saved", $"floor_{floor.floorIndex}.json saved.", "OK");
             AddFloorBlockToDesignerScene();
@@ -1486,7 +1803,8 @@ public class FloorDesignerWindow : EditorWindow
     private void SaveAllFloors()
     {
         foreach (FloorDesignerData floor in loadedFloors)
-            FloorDesignerSaveUtils.SaveFloor(floor, overwrite: true, database: cachedSpecificityDatabase);
+            FloorDesignerSaveUtils.SaveFloor(floor, overwrite: true,
+                database: cachedSpecificityDatabase, libraryEntries: libraryEntries);
     }
 
     // ─── Query Helpers ────────────────────────────────────────────────────────

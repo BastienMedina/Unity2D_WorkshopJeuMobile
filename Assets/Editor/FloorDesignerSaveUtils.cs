@@ -35,13 +35,14 @@ public static class FloorDesignerSaveUtils
     /// <param name="overwrite">True to replace the canonical floor_N.json; false to create a new version.</param>
     /// <param name="database">The SpecificityDatabase used for auto-generation on first save. May be null (skips gen).</param>
     public static void SaveFloor(FloorDesignerData designerData, bool overwrite,
-                                 SpecificityDatabase database = null)
+                                 SpecificityDatabase database = null,
+                                 List<RuleLibraryEntry> libraryEntries = null)
     {
         EnsureSaveFolderExists();
 
         // Auto-generate rules into empty bins before the first save so the designer
         // immediately sees a populated rule set to review and edit in the rule editor panel.
-        AutoGenerateEmptyNights(designerData, database);
+        AutoGenerateEmptyNights(designerData, database, libraryEntries);
 
         FloorSaveData saveData = ConvertToSaveData(designerData);
         string filePath = BuildSavePath(designerData.floorIndex, overwrite);
@@ -64,15 +65,18 @@ public static class FloorDesignerSaveUtils
     }
 
     /// <summary>
-    /// For each night whose bins are empty, generates rules using FloorDesignerRuleGen
-    /// and populates the bin lists in-place before the data is serialised.
+    /// For each night whose bins are empty, generates rules from the Rule Library when entries
+    /// are provided, otherwise falls back to procedural generation from the SpecificityDatabase.
     /// Nights that already have at least one bin with rules are left untouched —
     /// this prevents a re-save from overwriting the designer's manual edits.
-    /// Does nothing when database is null.
+    /// Does nothing when both <paramref name="libraryEntries"/> and <paramref name="database"/> are null.
     /// </summary>
-    private static void AutoGenerateEmptyNights(FloorDesignerData floor, SpecificityDatabase database)
+    private static void AutoGenerateEmptyNights(FloorDesignerData floor, SpecificityDatabase database,
+                                                List<RuleLibraryEntry> libraryEntries = null)
     {
-        if (database == null)
+        bool hasLibrary = libraryEntries != null && libraryEntries.Count > 0;
+
+        if (!hasLibrary && database == null)
             return;
 
         foreach (NightDesignerData night in floor.nights)
@@ -91,20 +95,36 @@ public static class FloorDesignerSaveUtils
             if (hasAnyRule)
                 continue;
 
-            // Night has no rules yet — generate them from the difficulty parameters.
-            List<BinDesignerData> generatedBins = FloorDesignerRuleGen.GenerateBinsForNight(
-                night.numberOfBins,
-                night.rulesPerBin,
-                night.maxRuleComplexity,
-                night.pinnedSpecificities,
-                database);
+            // Night has no rules yet — generate from the library if available,
+            // otherwise fall back to procedural generation from the SpecificityDatabase.
+            List<BinDesignerData> generatedBins;
+
+            if (hasLibrary)
+            {
+                generatedBins = FloorDesignerRuleGen.GenerateBinsFromLibrary(
+                    night.numberOfBins,
+                    night.rulesPerBin,
+                    night.maxRuleComplexity,
+                    libraryEntries);
+
+                Debug.Log($"[FloorDesigner] Library-based rules generated for night {night.nightIndex + 1}: " +
+                          $"{generatedBins.Count} bins, complexity ≤ {night.maxRuleComplexity}.");
+            }
+            else
+            {
+                generatedBins = FloorDesignerRuleGen.GenerateBinsForNight(
+                    night.numberOfBins,
+                    night.rulesPerBin,
+                    night.maxRuleComplexity,
+                    night.pinnedSpecificities,
+                    database);
+
+                Debug.Log($"[FloorDesigner] Procedural rules generated for night {night.nightIndex + 1}: " +
+                          $"{generatedBins.Count} bins, complexity ≤ {night.maxRuleComplexity}.");
+            }
 
             // Replace the (empty) bin list with the generated one.
             night.bins = generatedBins;
-
-            Debug.Log($"[FloorDesigner] Auto-generated rules for night {night.nightIndex + 1}: " +
-                      $"{generatedBins.Count} bins, " +
-                      $"complexity ≤ {night.maxRuleComplexity}.");
         }
     }
 
