@@ -84,12 +84,12 @@
         },
         {
             "guid": "42c5cf07-1cdf-4550-a6e5-541aaebe65d6",
-            "label": "Nouvelle règle",
+            "label": "Pastille verte",
             "isManuscript": false,
-            "manuscriptText": "",
+            "manuscriptText": "Quand il y a une pastille pastille vert alors mettez le document dans le tuyau 1",
             "conditions": [
                 {
-                    "specificity": "",
+                    "specificity": "pastille_vert",
                     "connector": "Et",
                     "targetBinSlot": 1
                 }
@@ -99,6 +99,101 @@
             "resolvedBin2": "",
             "ruleTypeString": "Simple",
             "complexity": 1
+        },
+        {
+            "guid": "b9e49cd4-5503-45d5-857f-bf7061ff8361",
+            "label": "Pastille bleu",
+            "isManuscript": false,
+            "manuscriptText": "Quand il y a une pastille bleue alors mettez le document dans le tuyau 2",
+            "conditions": [
+                {
+                    "specificity": "pastille_bleu",
+                    "connector": "Et",
+                    "targetBinSlot": 1
+                }
+            ],
+            "secondaryBinSlot": 0,
+            "resolvedBin1": "",
+            "resolvedBin2": "",
+            "ruleTypeString": "Simple",
+            "complexity": 1
+        },
+        {
+            "guid": "5bbb7812-8529-49ce-8fb7-aece6c9639d2",
+            "label": "Pastille verte sauf tampon",
+            "isManuscript": false,
+            "manuscriptText": "Quand il y a une pastille pastille vert alors mettez le document dans le tuyau 1\n    -  Sauf s'il y a tampon alors mettrez le dans le tuyau 2",
+            "conditions": [
+                {
+                    "specificity": "pastille_vert",
+                    "connector": "Sauf",
+                    "targetBinSlot": 1
+                },
+                {
+                    "specificity": "tampon_carre",
+                    "connector": "Et",
+                    "targetBinSlot": 2
+                }
+            ],
+            "secondaryBinSlot": 2,
+            "resolvedBin1": "",
+            "resolvedBin2": "",
+            "ruleTypeString": "Branch",
+            "complexity": 3
+        },
+        {
+            "guid": "a74093d7-9e34-42d8-beb5-06fc4a75c714",
+            "label": "Pastille violet",
+            "isManuscript": false,
+            "manuscriptText": "Quand il y a une pastille bleue alors mettez le document dans le tuyau 2",
+            "conditions": [
+                {
+                    "specificity": "pastille_violet",
+                    "connector": "Et",
+                    "targetBinSlot": 1
+                }
+            ],
+            "secondaryBinSlot": 0,
+            "resolvedBin1": "",
+            "resolvedBin2": "",
+            "ruleTypeString": "Simple",
+            "complexity": 1
+        },
+        {
+            "guid": "0da07f2b-bd16-4733-8a32-b436e9c2d916",
+            "label": "Tuyau poubelle",
+            "isManuscript": true,
+            "manuscriptText": "Si le document ne correspond à aucune règle alors mettez le dans le tuyau poubelle",
+            "conditions": [
+                {
+                    "specificity": "feuille_base",
+                    "connector": "Et",
+                    "targetBinSlot": 1
+                }
+            ],
+            "secondaryBinSlot": 0,
+            "resolvedBin1": "",
+            "resolvedBin2": "",
+            "ruleTypeString": "Simple",
+            "complexity": 1
+        },
+        {
+            "guid": "4fb4cd7c-e8be-4e14-843e-e4d74dfd0219",
+            "label": "Prioritaire Tampon rectangle",
+            "isManuscript": false,
+            "manuscriptText": "",
+            "conditions": [
+                {
+                    "specificity": "tampon_rectangle",
+                    "connector": "Et",
+                    "targetBinSlot": 1
+                }
+            ],
+            "secondaryBinSlot": 0,
+            "resolvedBin1": "",
+            "resolvedBin2": "",
+            "ruleTypeString": "Simple",
+            "complexity": 2
         }
     ]
 }
