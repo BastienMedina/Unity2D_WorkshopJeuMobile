@@ -319,7 +319,7 @@ public class GameManager : MonoBehaviour
             }
             else
             {
-                SceneManager.LoadScene("TowerScene");
+                SceneManager.LoadScene("Menu_Principal");
             }
             return;
         }
@@ -401,7 +401,7 @@ public class GameManager : MonoBehaviour
         if (pendingSceneLoad)
         {
             pendingSceneLoad = false;
-            SceneManager.LoadScene("TowerScene");
+            SceneManager.LoadScene("Menu_Principal");
         }
     }
 

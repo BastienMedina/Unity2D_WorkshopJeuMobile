@@ -62,8 +62,9 @@ public class DesignerTowerPreview : MonoBehaviour
     // ─── Runtime State ────────────────────────────────────────────────────────
 
     /// <summary>
-    /// Absolute path of the directory where floor JSON files are read from.
-    /// Matches the path written by FloorDesignerSaveUtils so both tools share the same folder.
+    /// Absolute path of the persistentDataPath floors folder.
+    /// StreamingAssetsInstaller copies designer floors here at startup via UnityWebRequest
+    /// so System.IO can read them on all platforms including Android.
     /// </summary>
     private string saveFolderPath => Application.persistentDataPath + "/floors/";
 
@@ -92,8 +93,7 @@ public class DesignerTowerPreview : MonoBehaviour
     /// </summary>
     public void LoadAndDisplayFloors()
     {
-        // Log the exact path being scanned so a path mismatch with FloorDesignerSaveUtils
-        // is immediately visible in the Console — one wrong character silences all floors.
+        // Log the exact path being scanned so a mismatch is immediately visible in the Console.
         Debug.Log("[DesignerTower] Looking for floors in: " + saveFolderPath);
 
         // Null guards: any unassigned Inspector field will cause a silent NullReferenceException
@@ -229,8 +229,9 @@ public class DesignerTowerPreview : MonoBehaviour
     }
 
     /// <summary>
-    /// Reads floor_0.json, floor_1.json, etc. from the save folder until the first missing index.
-    /// Returns an empty list (never throws) when the folder does not exist or has no floor files.
+    /// Reads floor_0.json, floor_1.json, etc. from persistentDataPath/floors/ until the first
+    /// missing index. Returns an empty list when the folder does not exist or has no floor files.
+    /// StreamingAssetsInstaller populates this folder at startup so the data is always available.
     /// </summary>
     private List<FloorSaveData> ReadAllFloorFiles()
     {
@@ -254,10 +255,6 @@ public class DesignerTowerPreview : MonoBehaviour
                 if (data != null)
                 {
                     floors.Add(data);
-
-                    // Log after deserialization to verify JsonUtility round-tripped the fields
-                    // correctly. If floorIndex shows -1 or isCompleted is always false when it
-                    // should not be, the JSON field names do not match FloorSaveData.
                     Debug.Log("[DesignerTower] Loaded floor " + data.floorIndex
                         + " completed: " + data.isCompleted);
                 }
@@ -269,10 +266,7 @@ public class DesignerTowerPreview : MonoBehaviour
             }
         }
 
-        // Log count immediately after scanning so a zero here confirms the path is correct
-        // but no files were written, distinguishing a path bug from a save bug.
         Debug.Log("[DesignerTower] Floor files found: " + floors.Count);
-
         return floors;
     }
 

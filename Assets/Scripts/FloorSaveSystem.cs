@@ -8,10 +8,11 @@ using UnityEngine;
 /// One JSON file is written per floor, named "floor_N.json", inside the persistent data folder.
 /// Does NOT generate floors, does NOT manage UI, and does NOT interpret save data in any way.
 ///
-/// Editor priority: when running inside the Unity Editor, LoadFloor and FloorExists first check
-/// Assets/Editor/FloorDesigns/ (written by the Floor Designer tool). This ensures the latest
-/// designer-authored version is always used during Editor playtests without any manual copy step.
-/// On device builds, only persistentDataPath is used.
+/// Designer floors originate from StreamingAssets/FloorDesigns/ but are copied to
+/// persistentDataPath/floors/ at startup by <see cref="StreamingAssetsInstaller"/> using
+/// UnityWebRequest — the only API that can read StreamingAssets on Android (files inside APK).
+/// All reads and writes in this class therefore target persistentDataPath exclusively,
+/// keeping the I/O layer simple and cross-platform.
 /// </summary>
 public class FloorSaveSystem : MonoBehaviour
 {
@@ -26,34 +27,20 @@ public class FloorSaveSystem : MonoBehaviour
     // Constants
     // -------------------------------------------------------------------------
 
-    private const string SaveFolderName      = "/floors/";
-    private const string FilePrefix          = "floor_";
-    private const string FileExtension       = ".json";
-
-    /// <summary>
-    /// Project-relative path of the folder written by the Floor Designer tool.
-    /// Used as a priority source when running in the Unity Editor so the designer
-    /// never has to manually copy files to persistentDataPath after each save.
-    /// </summary>
-    private const string DesignerFolderRelative = "Assets/Editor/FloorDesigns";
+    private const string SaveFolderName = "/floors/";
+    private const string FilePrefix     = "floor_";
+    private const string FileExtension  = ".json";
 
     // -------------------------------------------------------------------------
     // Runtime state
     // -------------------------------------------------------------------------
 
     /// <summary>
-    /// Absolute path to the folder where floor JSON files are written at runtime.
-    /// Uses Application.persistentDataPath — the correct Android-compatible location
-    /// for user-generated save data (Application.dataPath is read-only on Android).
+    /// Absolute path to the folder where floor JSON files are read and written at runtime.
+    /// Uses Application.persistentDataPath — writable on all platforms including Android.
+    /// StreamingAssetsInstaller populates this folder from StreamingAssets at startup.
     /// </summary>
     private string saveFolderPath;
-
-    /// <summary>
-    /// Absolute path to the Floor Designer output folder inside the project.
-    /// Populated in Awake from the project's root directory so it works on any machine.
-    /// Only consulted when Application.isEditor is true.
-    /// </summary>
-    private string designerFolderPath;
 
     // -------------------------------------------------------------------------
     // Unity lifecycle
@@ -73,12 +60,6 @@ public class FloorSaveSystem : MonoBehaviour
         // persistentDataPath is not available at class-field initialisation time —
         // it must be read inside a Unity lifecycle callback where the engine is ready.
         saveFolderPath = Application.persistentDataPath + SaveFolderName;
-
-        // Resolve the designer folder relative to the project root (one level above Assets/).
-        // Path.GetFullPath normalises separators so comparisons work on Windows and macOS alike.
-        string projectRoot  = Path.GetFullPath(Path.Combine(Application.dataPath, ".."));
-        designerFolderPath  = Path.GetFullPath(Path.Combine(projectRoot, DesignerFolderRelative))
-                              + Path.DirectorySeparatorChar;
     }
 
     // -------------------------------------------------------------------------
@@ -122,21 +103,13 @@ public class FloorSaveSystem : MonoBehaviour
 
     /// <summary>
     /// Loads the JSON file for the given floor index and returns the deserialised FloorSaveData.
-    /// Returns null when the file does not exist, signalling the caller that this floor
-    /// has never been played or its save was deleted.
-    ///
-    /// In the Unity Editor, the Designer folder (Assets/Editor/FloorDesigns/) is checked first
-    /// so the latest designer-authored version is always used during playtesting without any
-    /// manual copy step. Falls back to persistentDataPath when no designer file is found.
+    /// Returns null when the file does not exist.
     /// </summary>
-    /// <param name="floorIndex">Zero-based index of the floor to load.</param>
-    /// <returns>The deserialised FloorSaveData, or null if the file does not exist.</returns>
     public FloorSaveData LoadFloor(int floorIndex)
     {
-        string filePath = ResolveFilePath(floorIndex);
+        string filePath = BuildFilePath(floorIndex);
 
-        // Null return is the clean signal that no save exists for this floor.
-        if (filePath == null)
+        if (!File.Exists(filePath))
             return null;
 
         try
@@ -153,48 +126,24 @@ public class FloorSaveSystem : MonoBehaviour
     }
 
     /// <summary>
-    /// Loads all floor_N.json files and returns them sorted by floorIndex ascending.
-    /// Returns an empty list when no valid files exist in either folder.
-    /// In the Unity Editor, files in the Designer folder take priority over identically-named
-    /// files in persistentDataPath so the latest designer versions are always used.
-    /// TowerManager needs all floors at startup to build the complete tower in one pass.
+    /// Loads all floor_N.json files from persistentDataPath and returns them sorted by floorIndex.
+    /// Returns an empty list when no valid files exist.
+    /// StreamingAssetsInstaller must have completed before this is called — FloorButtonSpawner
+    /// ensures this by waiting for <see cref="StreamingAssetsInstaller.IsReady"/>.
     /// </summary>
     /// <returns>A list of FloorSaveData sorted by floorIndex ascending.</returns>
     public List<FloorSaveData> LoadAllFloors()
     {
         List<FloorSaveData> allFloors = new List<FloorSaveData>();
 
-        // Collect candidate file paths from both sources, with designer folder taking priority.
-        // Using a Dictionary keyed by floorIndex ensures each floor appears only once.
-        var indexToPath = new System.Collections.Generic.Dictionary<int, string>();
+        if (!Directory.Exists(saveFolderPath))
+            return allFloors;
 
-        // 1. Seed from persistentDataPath (lowest priority).
-        if (Directory.Exists(saveFolderPath))
-        {
-            foreach (string filePath in Directory.GetFiles(saveFolderPath, FilePrefix + "*" + FileExtension))
-            {
-                if (TryParseFloorIndex(filePath, out int idx))
-                    indexToPath[idx] = filePath;
-            }
-        }
-
-#if UNITY_EDITOR
-        // 2. Override with designer folder (highest priority in Editor).
-        if (Directory.Exists(designerFolderPath))
-        {
-            foreach (string filePath in Directory.GetFiles(designerFolderPath, FilePrefix + "*" + FileExtension))
-            {
-                if (TryParseFloorIndex(filePath, out int idx))
-                    indexToPath[idx] = filePath; // overwrites the persistent entry for the same index
-            }
-        }
-#endif
-
-        foreach (string filePath in indexToPath.Values)
+        foreach (string filePath in Directory.GetFiles(saveFolderPath, FilePrefix + "*" + FileExtension))
         {
             try
             {
-                string jsonString    = File.ReadAllText(filePath);
+                string jsonString     = File.ReadAllText(filePath);
                 FloorSaveData floorData = JsonUtility.FromJson<FloorSaveData>(jsonString);
 
                 if (floorData != null)
@@ -206,26 +155,17 @@ public class FloorSaveSystem : MonoBehaviour
             }
         }
 
-        // Sort ascending by floorIndex so TowerManager can build blocks bottom-to-top
-        // without assuming the file system returns files in any particular order.
-        allFloors.Sort((firstFloor, secondFloor) => firstFloor.floorIndex.CompareTo(secondFloor.floorIndex));
-
+        allFloors.Sort((a, b) => a.floorIndex.CompareTo(b.floorIndex));
         return allFloors;
     }
 
     /// <summary>
-    /// Returns true when the JSON file for the given floor index exists on disk.
-    /// TowerManager uses this to decide whether a block should be shown and whether
-    /// it should be rendered as completed, current, or locked.
-    ///
-    /// In the Unity Editor, the Designer folder is checked first so the tower reflects
-    /// the latest floors saved from the Floor Designer tool immediately.
+    /// Returns true when the JSON file for the given floor index exists in persistentDataPath.
+    /// <see cref="StreamingAssetsInstaller"/> must have completed before this is meaningful.
     /// </summary>
-    /// <param name="floorIndex">Zero-based index of the floor to check.</param>
-    /// <returns>True if the save file exists; false otherwise.</returns>
     public bool FloorExists(int floorIndex)
     {
-        return ResolveFilePath(floorIndex) != null;
+        return File.Exists(BuildFilePath(floorIndex));
     }
 
     /// <summary>
@@ -255,24 +195,12 @@ public class FloorSaveSystem : MonoBehaviour
     }
 
     /// <summary>
-    /// Scans the save folder(s) and returns the highest N found across all floor_N.json files.
+    /// Scans persistentDataPath/floors/ and returns the highest floor index found.
     /// Returns 0 when no saves exist so the caller always receives a valid non-negative index.
-    /// In the Unity Editor, the Designer folder is also scanned so newly created floors appear
-    /// in the tower without requiring a separate copy to persistentDataPath.
-    /// TowerManager uses this to know how many floor blocks to display at startup.
     /// </summary>
-    /// <returns>The highest saved floor index, or 0 if no saves exist.</returns>
     public int GetHighestSavedFloorIndex()
     {
-        int highestIndex = 0;
-
-        highestIndex = ScanFolderForHighestIndex(saveFolderPath, highestIndex);
-
-#if UNITY_EDITOR
-        highestIndex = ScanFolderForHighestIndex(designerFolderPath, highestIndex);
-#endif
-
-        return highestIndex;
+        return ScanFolderForHighestIndex(saveFolderPath, 0);
     }
 
     // -------------------------------------------------------------------------
@@ -280,37 +208,9 @@ public class FloorSaveSystem : MonoBehaviour
     // -------------------------------------------------------------------------
 
     /// <summary>
-    /// Returns the absolute path of the floor_N.json file to read for the given index.
-    /// In the Unity Editor, the Designer folder (Assets/Editor/FloorDesigns/) is checked first;
-    /// falls back to persistentDataPath when the designer file is absent.
-    /// Returns null when neither location has a file for this floor index.
+    /// Returns the absolute path of the floor_N.json file in persistentDataPath.
+    /// Does not check whether the file exists — use <see cref="FloorExists"/> for that.
     /// </summary>
-    /// <param name="floorIndex">Zero-based floor index.</param>
-    /// <returns>Absolute path to the file, or null if not found anywhere.</returns>
-    private string ResolveFilePath(int floorIndex)
-    {
-        string fileName = FilePrefix + floorIndex + FileExtension;
-
-#if UNITY_EDITOR
-        string designerPath = designerFolderPath + fileName;
-        if (File.Exists(designerPath))
-        {
-            Debug.Log($"[FloorSaveSystem] Loading floor {floorIndex} from Designer folder: {designerPath}");
-            return designerPath;
-        }
-#endif
-
-        string persistentPath = saveFolderPath + fileName;
-        return File.Exists(persistentPath) ? persistentPath : null;
-    }
-
-    /// <summary>
-    /// Builds the runtime (persistentDataPath) file path for the given floor index.
-    /// Used by SaveFloor to always write to the runtime location, keeping designer files
-    /// as the authoritative source in Editor and runtime saves separate on device.
-    /// </summary>
-    /// <param name="floorIndex">Zero-based floor index.</param>
-    /// <returns>Absolute path string for the floor's runtime JSON file.</returns>
     private string BuildFilePath(int floorIndex)
     {
         return saveFolderPath + FilePrefix + floorIndex + FileExtension;

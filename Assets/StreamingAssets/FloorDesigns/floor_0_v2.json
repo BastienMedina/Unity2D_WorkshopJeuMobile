@@ -1,0 +1,316 @@
+{
+    "floorIndex": 0,
+    "isCompleted": false,
+    "numberOfBins": 2,
+    "rules": [],
+    "specificities": [],
+    "failThreshold": 20.0,
+    "dayDuration": 60.0,
+    "decayRatePerSecond": 2.0,
+    "floorSeed": "",
+    "rulesPerBin": 1,
+    "maxRuleComplexity": 3,
+    "wasGenerated": false,
+    "nights": [
+        {
+            "nightIndex": 0,
+            "numberOfBins": 2,
+            "rulesPerBin": 1,
+            "maxRuleComplexity": 1,
+            "wasManuallyEdited": true,
+            "pinnedSpecificities": [],
+            "bins": [
+                {
+                    "binIndex": 0,
+                    "binID": "bin_left_top",
+                    "rules": [
+                        {
+                            "ruleType": "Simple",
+                            "conditionA": "pastille_vert",
+                            "conditionB": "",
+                            "targetBinID": "bin_left_top",
+                            "secondaryBinID": "",
+                            "displayText": "Quand il y a une pastille verte alors mettez le document dans le tuyau 1",
+                            "complexity": 1,
+                            "isComplement": false
+                        }
+                    ]
+                },
+                {
+                    "binIndex": 1,
+                    "binID": "bin_right_top",
+                    "rules": [
+                        {
+                            "ruleType": "Simple",
+                            "conditionA": "pastille_bleu",
+                            "conditionB": "",
+                            "targetBinID": "bin_right_top",
+                            "secondaryBinID": "",
+                            "displayText": "Quand il y a une pastille bleue alors mettez le document dans le tuyau 2",
+                            "complexity": 1,
+                            "isComplement": false
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "nightIndex": 1,
+            "numberOfBins": 2,
+            "rulesPerBin": 1,
+            "maxRuleComplexity": 3,
+            "wasManuallyEdited": true,
+            "pinnedSpecificities": [],
+            "bins": [
+                {
+                    "binIndex": 0,
+                    "binID": "bin_left_top",
+                    "rules": [
+                        {
+                            "ruleType": "Branch",
+                            "conditionA": "pastille_vert",
+                            "conditionB": "tampon_rectangle",
+                            "targetBinID": "bin_left_top",
+                            "secondaryBinID": "",
+                            "displayText": "Quand il y a une pastille verte alors mettez dans le tuyau 1 — Sauf s'il y a un tampon rectangle alors mettez dans le tuyau 2",
+                            "complexity": 3,
+                            "isComplement": false
+                        }
+                    ]
+                },
+                {
+                    "binIndex": 1,
+                    "binID": "bin_right_top",
+                    "rules": [
+                        {
+                            "ruleType": "Simple",
+                            "conditionA": "pastille_bleu",
+                            "conditionB": "",
+                            "targetBinID": "bin_right_top",
+                            "secondaryBinID": "",
+                            "displayText": "Quand il y a une pastille bleue alors mettez le document dans le tuyau 2",
+                            "complexity": 1,
+                            "isComplement": false
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "nightIndex": 2,
+            "numberOfBins": 3,
+            "rulesPerBin": 1,
+            "maxRuleComplexity": 3,
+            "wasManuallyEdited": true,
+            "pinnedSpecificities": [],
+            "bins": [
+                {
+                    "binIndex": 0,
+                    "binID": "bin_left_top",
+                    "rules": [
+                        {
+                            "ruleType": "Branch",
+                            "conditionA": "pastille_vert",
+                            "conditionB": "tampon_rectangle",
+                            "targetBinID": "bin_left_top",
+                            "secondaryBinID": "",
+                            "displayText": "Quand il y a une pastille verte alors mettez dans le tuyau 1 — Sauf s'il y a un tampon rectangle alors mettez dans le tuyau 2",
+                            "complexity": 3,
+                            "isComplement": false
+                        }
+                    ]
+                },
+                {
+                    "binIndex": 1,
+                    "binID": "bin_right_top",
+                    "rules": [
+                        {
+                            "ruleType": "Simple",
+                            "conditionA": "pastille_bleu",
+                            "conditionB": "",
+                            "targetBinID": "bin_right_top",
+                            "secondaryBinID": "",
+                            "displayText": "Quand il y a une pastille bleue alors mettez le document dans le tuyau 2",
+                            "complexity": 1,
+                            "isComplement": false
+                        }
+                    ]
+                },
+                {
+                    "binIndex": 2,
+                    "binID": "bin_bottom",
+                    "rules": [
+                        {
+                            "ruleType": "Simple",
+                            "conditionA": "pastille_violet",
+                            "conditionB": "",
+                            "targetBinID": "bin_bottom",
+                            "secondaryBinID": "",
+                            "displayText": "Les documents avec une pastille violette vont toujours dans le tuyau 3",
+                            "complexity": 1,
+                            "isComplement": false
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "nightIndex": 3,
+            "numberOfBins": 4,
+            "rulesPerBin": 1,
+            "maxRuleComplexity": 3,
+            "wasManuallyEdited": true,
+            "pinnedSpecificities": [],
+            "bins": [
+                {
+                    "binIndex": 0,
+                    "binID": "bin_left_top",
+                    "rules": [
+                        {
+                            "ruleType": "Branch",
+                            "conditionA": "pastille_vert",
+                            "conditionB": "tampon_rectangle",
+                            "targetBinID": "bin_left_top",
+                            "secondaryBinID": "",
+                            "displayText": "Quand il y a une pastille verte alors mettez dans le tuyau 1 — Sauf s'il y a un tampon rectangle alors mettez dans le tuyau 2",
+                            "complexity": 3,
+                            "isComplement": false
+                        }
+                    ]
+                },
+                {
+                    "binIndex": 1,
+                    "binID": "bin_right_top",
+                    "rules": [
+                        {
+                            "ruleType": "Simple",
+                            "conditionA": "pastille_bleu",
+                            "conditionB": "",
+                            "targetBinID": "bin_right_top",
+                            "secondaryBinID": "",
+                            "displayText": "Quand il y a une pastille bleue alors mettez le document dans le tuyau 2",
+                            "complexity": 1,
+                            "isComplement": false
+                        }
+                    ]
+                },
+                {
+                    "binIndex": 2,
+                    "binID": "bin_bottom",
+                    "rules": [
+                        {
+                            "ruleType": "Simple",
+                            "conditionA": "pastille_violet",
+                            "conditionB": "",
+                            "targetBinID": "bin_bottom",
+                            "secondaryBinID": "",
+                            "displayText": "Les documents avec une pastille violette vont toujours dans le tuyau 3",
+                            "complexity": 1,
+                            "isComplement": false
+                        }
+                    ]
+                },
+                {
+                    "binIndex": 3,
+                    "binID": "bin_left_bottom",
+                    "rules": [
+                        {
+                            "ruleType": "Simple",
+                            "conditionA": "",
+                            "conditionB": "",
+                            "targetBinID": "bin_left_bottom",
+                            "secondaryBinID": "",
+                            "displayText": "Si le document ne correspond à aucune règle alors mettez le dans le tuyau poubelle",
+                            "complexity": 1,
+                            "isComplement": false
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "nightIndex": 4,
+            "numberOfBins": 4,
+            "rulesPerBin": 1,
+            "maxRuleComplexity": 3,
+            "wasManuallyEdited": true,
+            "pinnedSpecificities": [],
+            "bins": [
+                {
+                    "binIndex": 0,
+                    "binID": "bin_left_top",
+                    "rules": [
+                        {
+                            "ruleType": "Branch",
+                            "conditionA": "pastille_vert",
+                            "conditionB": "tampon_rectangle",
+                            "targetBinID": "bin_left_top",
+                            "secondaryBinID": "",
+                            "displayText": "Quand il y a une pastille verte alors mettez dans le tuyau 1 — Sauf s'il y a un tampon rectangle alors mettez dans le tuyau 2",
+                            "complexity": 3,
+                            "isComplement": false
+                        }
+                    ]
+                },
+                {
+                    "binIndex": 1,
+                    "binID": "bin_right_top",
+                    "rules": [
+                        {
+                            "ruleType": "Simple",
+                            "conditionA": "pastille_bleu",
+                            "conditionB": "",
+                            "targetBinID": "bin_right_top",
+                            "secondaryBinID": "",
+                            "displayText": "Quand il y a une pastille bleue alors mettez le document dans le tuyau 2",
+                            "complexity": 1,
+                            "isComplement": false
+                        }
+                    ]
+                },
+                {
+                    "binIndex": 2,
+                    "binID": "bin_bottom",
+                    "rules": [
+                        {
+                            "ruleType": "Simple",
+                            "conditionA": "tampon_rectangle",
+                            "conditionB": "",
+                            "targetBinID": "bin_bottom",
+                            "secondaryBinID": "",
+                            "displayText": "PRIORITAIRE : Si un tampon rectangle est présent le document ira toujours dans le tuyau 3",
+                            "complexity": 2,
+                            "isComplement": false
+                        },
+                        {
+                            "ruleType": "Simple",
+                            "conditionA": "pastille_violet",
+                            "conditionB": "",
+                            "targetBinID": "bin_bottom",
+                            "secondaryBinID": "",
+                            "displayText": "Les documents avec une pastille violette vont toujours dans le tuyau 3",
+                            "complexity": 1,
+                            "isComplement": false
+                        }
+                    ]
+                },
+                {
+                    "binIndex": 3,
+                    "binID": "bin_left_bottom",
+                    "rules": [
+                        {
+                            "ruleType": "Simple",
+                            "conditionA": "",
+                            "conditionB": "",
+                            "targetBinID": "bin_left_bottom",
+                            "secondaryBinID": "",
+                            "displayText": "Si le document ne correspond à aucune règle alors mettez le dans le tuyau poubelle",
+                            "complexity": 1,
+                            "isComplement": false
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
