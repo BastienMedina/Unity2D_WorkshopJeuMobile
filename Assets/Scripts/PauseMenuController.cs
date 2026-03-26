@@ -45,7 +45,7 @@ public class PauseMenuController : MonoBehaviour
     [SerializeField] private float smokeFloatSpeed = 1.4f;
 
     [Header("Scene Settings")]
-    [SerializeField] private string mainMenuSceneName = "MainMenu";
+    [SerializeField] private string mainMenuSceneName = "Menu_Principal";
 
     // Positions finales enregistrées depuis l'éditeur (état pause actif)
     private Vector2 _machineFinalPos;
