@@ -130,7 +130,7 @@
                     "targetBinSlot": 1
                 },
                 {
-                    "specificity": "tampon_carre",
+                    "specificity": "tampon_rectangle",
                     "connector": "Et",
                     "targetBinSlot": 2
                 }
@@ -185,6 +185,129 @@
             "conditions": [
                 {
                     "specificity": "tampon_rectangle",
+                    "connector": "Et",
+                    "targetBinSlot": 1
+                }
+            ],
+            "secondaryBinSlot": 0,
+            "resolvedBin1": "",
+            "resolvedBin2": "",
+            "ruleTypeString": "Simple",
+            "complexity": 2
+        },
+        {
+            "guid": "f2001001-0000-4000-0000-000000000001",
+            "label": "Grande déchirure → Tuyau 1",
+            "isManuscript": false,
+            "manuscriptText": "Quand le document a une grande déchirure alors mettez dans le tuyau 1",
+            "conditions": [
+                {
+                    "specificity": "feuille_dechirure_grande",
+                    "connector": "Et",
+                    "targetBinSlot": 1
+                }
+            ],
+            "secondaryBinSlot": 0,
+            "resolvedBin1": "",
+            "resolvedBin2": "",
+            "ruleTypeString": "Simple",
+            "complexity": 1
+        },
+        {
+            "guid": "f2001001-0000-4000-0000-000000000002",
+            "label": "Grande déchirure Sauf pas signé → Tuyau 1 / Tuyau 2",
+            "isManuscript": false,
+            "manuscriptText": "Quand le document a une grande déchirure alors mettez dans le tuyau 1 — Sauf si le document n'est pas signé alors mettez dans le tuyau 2",
+            "conditions": [
+                {
+                    "specificity": "feuille_dechirure_grande",
+                    "connector": "Sauf",
+                    "targetBinSlot": 1
+                },
+                {
+                    "specificity": "signature_effacee",
+                    "connector": "Et",
+                    "targetBinSlot": 2
+                }
+            ],
+            "secondaryBinSlot": 2,
+            "resolvedBin1": "",
+            "resolvedBin2": "",
+            "ruleTypeString": "Branch",
+            "complexity": 3
+        },
+        {
+            "guid": "f2001001-0000-4000-0000-000000000003",
+            "label": "Petite déchirure → Tuyau 2",
+            "isManuscript": false,
+            "manuscriptText": "Quand le document a une petite déchirure alors mettez dans le tuyau 2",
+            "conditions": [
+                {
+                    "specificity": "feuille_dechirure_petite",
+                    "connector": "Et",
+                    "targetBinSlot": 1
+                }
+            ],
+            "secondaryBinSlot": 0,
+            "resolvedBin1": "",
+            "resolvedBin2": "",
+            "ruleTypeString": "Simple",
+            "complexity": 1
+        },
+        {
+            "guid": "f2001001-0000-4000-0000-000000000004",
+            "label": "Petite déchirure ET signature → Tuyau 3",
+            "isManuscript": false,
+            "manuscriptText": "Quand le document a une petite déchirure ET une signature alors mettre dans tuyau 3",
+            "conditions": [
+                {
+                    "specificity": "feuille_dechirure_petite",
+                    "connector": "Et",
+                    "targetBinSlot": 1
+                },
+                {
+                    "specificity": "signature_grande",
+                    "connector": "Et",
+                    "targetBinSlot": 1
+                }
+            ],
+            "secondaryBinSlot": 0,
+            "resolvedBin1": "",
+            "resolvedBin2": "",
+            "ruleTypeString": "Multiple",
+            "complexity": 2
+        },
+        {
+            "guid": "f2001001-0000-4000-0000-000000000005",
+            "label": "Grande déchirure Sauf tampon double → Tuyau 1 / Poubelle",
+            "isManuscript": false,
+            "manuscriptText": "Sauf s'il y a deux tampons alors NE PAS mettre dans tuyau 1",
+            "conditions": [
+                {
+                    "specificity": "feuille_dechirure_grande",
+                    "connector": "Sauf",
+                    "targetBinSlot": 1
+                },
+                {
+                    "specificity": "tampon_double",
+                    "connector": "Et",
+                    "targetBinSlot": 2
+                }
+            ],
+            "secondaryBinSlot": 2,
+            "resolvedBin1": "",
+            "resolvedBin2": "",
+            "ruleTypeString": "Branch",
+            "complexity": 3
+        },
+        {
+            "guid": "f2001001-0000-4000-0000-000000000006",
+            "label": "PRIORITAIRE tampon rond → Tuyau 1",
+            "isManuscript": false,
+            "manuscriptText": "PRIORITAIRE : Si un tampon rond est présent le document ira toujours dans le tuyau 1, peu importe les autres règles",
+            "conditions": [
+                {
+                    "specificity": "tampon_rond",
                     "connector": "Et",
                     "targetBinSlot": 1
                 }
