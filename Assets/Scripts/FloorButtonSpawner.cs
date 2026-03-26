@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -52,6 +53,20 @@ public class FloorButtonSpawner : MonoBehaviour
             Debug.LogError("[FloorButtonSpawner] floorSaveSystem is not assigned in the Inspector. " +
                            "Buttons will all appear locked.");
         }
+
+        // StreamingAssetsInstaller must finish copying floors from the APK to persistentDataPath
+        // before FloorSaveSystem can find any file. Wait for the signal before spawning buttons.
+        StartCoroutine(WaitForInstallerThenSpawn());
+    }
+
+    /// <summary>
+    /// Polls StreamingAssetsInstaller.IsReady every frame until the copy coroutine finishes,
+    /// then spawns the floor buttons so they reflect the correct locked/unlocked state.
+    /// </summary>
+    private IEnumerator WaitForInstallerThenSpawn()
+    {
+        while (!StreamingAssetsInstaller.IsReady)
+            yield return null;
 
         SpawnButtons();
     }

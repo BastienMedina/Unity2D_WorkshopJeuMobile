@@ -1,0 +1,336 @@
+{
+    "floorIndex": 1,
+    "isCompleted": false,
+    "numberOfBins": 2,
+    "rules": [],
+    "specificities": [],
+    "failThreshold": 25.0,
+    "dayDuration": 55.0,
+    "decayRatePerSecond": 2.5,
+    "floorSeed": "",
+    "rulesPerBin": 1,
+    "maxRuleComplexity": 3,
+    "wasGenerated": false,
+    "nights": [
+        {
+            "nightIndex": 0,
+            "numberOfBins": 2,
+            "rulesPerBin": 1,
+            "maxRuleComplexity": 1,
+            "wasManuallyEdited": true,
+            "pinnedSpecificities": [],
+            "bins": [
+                {
+                    "binIndex": 0,
+                    "binID": "bin_left_top",
+                    "rules": [
+                        {
+                            "ruleType": "Simple",
+                            "conditionA": "feuille_dechirure_grande",
+                            "conditionB": "",
+                            "targetBinID": "bin_left_top",
+                            "secondaryBinID": "",
+                            "displayText": "Quand le document a une grande déchirure alors mettez dans le tuyau 1",
+                            "complexity": 1,
+                            "isComplement": false
+                        }
+                    ]
+                },
+                {
+                    "binIndex": 1,
+                    "binID": "bin_right_top",
+                    "rules": [
+                        {
+                            "ruleType": "Simple",
+                            "conditionA": "feuille_dechirure_petite",
+                            "conditionB": "",
+                            "targetBinID": "bin_right_top",
+                            "secondaryBinID": "",
+                            "displayText": "Quand le document a une petite déchirure alors mettez dans le tuyau 2",
+                            "complexity": 1,
+                            "isComplement": false
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "nightIndex": 1,
+            "numberOfBins": 2,
+            "rulesPerBin": 1,
+            "maxRuleComplexity": 3,
+            "wasManuallyEdited": true,
+            "pinnedSpecificities": [],
+            "bins": [
+                {
+                    "binIndex": 0,
+                    "binID": "bin_left_top",
+                    "rules": [
+                        {
+                            "ruleType": "Branch",
+                            "conditionA": "feuille_dechirure_grande",
+                            "conditionB": "signature_effacee",
+                            "targetBinID": "bin_left_top",
+                            "secondaryBinID": "bin_right_top",
+                            "displayText": "Quand le document a une grande déchirure alors mettez dans le tuyau 1 — Sauf si le document n'est pas signé alors mettez dans le tuyau 2",
+                            "complexity": 3,
+                            "isComplement": false
+                        }
+                    ]
+                },
+                {
+                    "binIndex": 1,
+                    "binID": "bin_right_top",
+                    "rules": [
+                        {
+                            "ruleType": "Simple",
+                            "conditionA": "feuille_dechirure_petite",
+                            "conditionB": "",
+                            "targetBinID": "bin_right_top",
+                            "secondaryBinID": "",
+                            "displayText": "Quand le document a une petite déchirure alors mettez dans le tuyau 2",
+                            "complexity": 1,
+                            "isComplement": false
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "nightIndex": 2,
+            "numberOfBins": 3,
+            "rulesPerBin": 1,
+            "maxRuleComplexity": 3,
+            "wasManuallyEdited": true,
+            "pinnedSpecificities": [],
+            "bins": [
+                {
+                    "binIndex": 0,
+                    "binID": "bin_left_top",
+                    "rules": [
+                        {
+                            "ruleType": "Branch",
+                            "conditionA": "feuille_dechirure_grande",
+                            "conditionB": "signature_effacee",
+                            "targetBinID": "bin_left_top",
+                            "secondaryBinID": "bin_right_top",
+                            "displayText": "Quand le document a une grande déchirure alors mettez dans le tuyau 1 — Sauf si le document n'est pas signé alors mettez dans le tuyau 2",
+                            "complexity": 3,
+                            "isComplement": false
+                        }
+                    ]
+                },
+                {
+                    "binIndex": 1,
+                    "binID": "bin_right_top",
+                    "rules": [
+                        {
+                            "ruleType": "Simple",
+                            "conditionA": "feuille_dechirure_petite",
+                            "conditionB": "",
+                            "targetBinID": "bin_right_top",
+                            "secondaryBinID": "",
+                            "displayText": "Quand le document a une petite déchirure alors mettez dans le tuyau 2",
+                            "complexity": 1,
+                            "isComplement": false
+                        }
+                    ]
+                },
+                {
+                    "binIndex": 2,
+                    "binID": "bin_bottom",
+                    "rules": [
+                        {
+                            "ruleType": "Multiple",
+                            "conditionA": "feuille_dechirure_petite",
+                            "conditionB": "signature_grande",
+                            "targetBinID": "bin_bottom",
+                            "secondaryBinID": "",
+                            "displayText": "Quand le document a une petite déchirure ET une signature alors mettre dans tuyau 3",
+                            "complexity": 2,
+                            "isComplement": false
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "nightIndex": 3,
+            "numberOfBins": 4,
+            "rulesPerBin": 1,
+            "maxRuleComplexity": 3,
+            "wasManuallyEdited": true,
+            "pinnedSpecificities": [],
+            "bins": [
+                {
+                    "binIndex": 0,
+                    "binID": "bin_left_top",
+                    "rules": [
+                        {
+                            "ruleType": "Branch",
+                            "conditionA": "feuille_dechirure_grande",
+                            "conditionB": "signature_effacee",
+                            "targetBinID": "bin_left_top",
+                            "secondaryBinID": "bin_right_top",
+                            "displayText": "Quand le document a une grande déchirure alors mettez dans le tuyau 1 — Sauf si le document n'est pas signé alors mettez dans le tuyau 2",
+                            "complexity": 3,
+                            "isComplement": false
+                        },
+                        {
+                            "ruleType": "Branch",
+                            "conditionA": "feuille_dechirure_grande",
+                            "conditionB": "tampon_double",
+                            "targetBinID": "bin_left_top",
+                            "secondaryBinID": "bin_left_bottom",
+                            "displayText": "Sauf s'il y a deux tampons alors NE PAS mettre dans tuyau 1 — mettre dans le tuyau poubelle",
+                            "complexity": 3,
+                            "isComplement": false
+                        }
+                    ]
+                },
+                {
+                    "binIndex": 1,
+                    "binID": "bin_right_top",
+                    "rules": [
+                        {
+                            "ruleType": "Simple",
+                            "conditionA": "feuille_dechirure_petite",
+                            "conditionB": "",
+                            "targetBinID": "bin_right_top",
+                            "secondaryBinID": "",
+                            "displayText": "Quand le document a une petite déchirure alors mettez dans le tuyau 2",
+                            "complexity": 1,
+                            "isComplement": false
+                        }
+                    ]
+                },
+                {
+                    "binIndex": 2,
+                    "binID": "bin_bottom",
+                    "rules": [
+                        {
+                            "ruleType": "Multiple",
+                            "conditionA": "feuille_dechirure_petite",
+                            "conditionB": "signature_grande",
+                            "targetBinID": "bin_bottom",
+                            "secondaryBinID": "",
+                            "displayText": "Quand le document a une petite déchirure ET une signature alors mettre dans tuyau 3",
+                            "complexity": 2,
+                            "isComplement": false
+                        }
+                    ]
+                },
+                {
+                    "binIndex": 3,
+                    "binID": "bin_left_bottom",
+                    "rules": [
+                        {
+                            "ruleType": "Simple",
+                            "conditionA": "",
+                            "conditionB": "",
+                            "targetBinID": "bin_left_bottom",
+                            "secondaryBinID": "",
+                            "displayText": "Si le document ne correspond à aucune règle et aucun tuyau alors le mettre dans le tuyau poubelle",
+                            "complexity": 1,
+                            "isComplement": false
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "nightIndex": 4,
+            "numberOfBins": 4,
+            "rulesPerBin": 1,
+            "maxRuleComplexity": 3,
+            "wasManuallyEdited": true,
+            "pinnedSpecificities": [],
+            "bins": [
+                {
+                    "binIndex": 0,
+                    "binID": "bin_left_top",
+                    "rules": [
+                        {
+                            "ruleType": "Simple",
+                            "conditionA": "tampon_rond",
+                            "conditionB": "",
+                            "targetBinID": "bin_left_top",
+                            "secondaryBinID": "",
+                            "displayText": "PRIORITAIRE : Si un tampon rond est présent le document ira toujours dans le tuyau 1, peu importe les autres règles",
+                            "complexity": 2,
+                            "isComplement": false
+                        },
+                        {
+                            "ruleType": "Branch",
+                            "conditionA": "feuille_dechirure_grande",
+                            "conditionB": "signature_effacee",
+                            "targetBinID": "bin_left_top",
+                            "secondaryBinID": "bin_right_top",
+                            "displayText": "Quand le document a une grande déchirure alors mettez dans le tuyau 1 — Sauf si le document n'est pas signé alors mettez dans le tuyau 2",
+                            "complexity": 3,
+                            "isComplement": false
+                        },
+                        {
+                            "ruleType": "Branch",
+                            "conditionA": "feuille_dechirure_grande",
+                            "conditionB": "tampon_double",
+                            "targetBinID": "bin_left_top",
+                            "secondaryBinID": "bin_left_bottom",
+                            "displayText": "Sauf s'il y a deux tampons alors NE PAS mettre dans tuyau 1 — mettre dans le tuyau poubelle",
+                            "complexity": 3,
+                            "isComplement": false
+                        }
+                    ]
+                },
+                {
+                    "binIndex": 1,
+                    "binID": "bin_right_top",
+                    "rules": [
+                        {
+                            "ruleType": "Simple",
+                            "conditionA": "feuille_dechirure_petite",
+                            "conditionB": "",
+                            "targetBinID": "bin_right_top",
+                            "secondaryBinID": "",
+                            "displayText": "Quand le document a une petite déchirure alors mettez dans le tuyau 2",
+                            "complexity": 1,
+                            "isComplement": false
+                        }
+                    ]
+                },
+                {
+                    "binIndex": 2,
+                    "binID": "bin_bottom",
+                    "rules": [
+                        {
+                            "ruleType": "Multiple",
+                            "conditionA": "feuille_dechirure_petite",
+                            "conditionB": "signature_grande",
+                            "targetBinID": "bin_bottom",
+                            "secondaryBinID": "",
+                            "displayText": "Quand le document a une petite déchirure ET une signature alors mettre dans tuyau 3",
+                            "complexity": 2,
+                            "isComplement": false
+                        }
+                    ]
+                },
+                {
+                    "binIndex": 3,
+                    "binID": "bin_left_bottom",
+                    "rules": [
+                        {
+                            "ruleType": "Simple",
+                            "conditionA": "",
+                            "conditionB": "",
+                            "targetBinID": "bin_left_bottom",
+                            "secondaryBinID": "",
+                            "displayText": "Si le document ne correspond à aucune règle et aucun tuyau alors le mettre dans le tuyau poubelle",
+                            "complexity": 1,
+                            "isComplement": false
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

@@ -16,10 +16,10 @@ public static class FloorDesignerSaveUtils
 {
     /// <summary>
     /// Absolute path of the directory where floor JSON files are written.
-    /// Stored inside the project's Assets folder so the files are tracked by source control
-    /// and available on any machine that clones the repository.
+    /// Stored inside StreamingAssets so the files are included in every build
+    /// and available at runtime via Application.streamingAssetsPath on all platforms.
     /// </summary>
-    private static string saveFolderPath => Path.GetFullPath("Assets/Editor/FloorDesigns") + Path.DirectorySeparatorChar;
+    private static string saveFolderPath => Path.GetFullPath("Assets/StreamingAssets/FloorDesigns") + Path.DirectorySeparatorChar;
 
     // ─── Public API ───────────────────────────────────────────────────────────
 

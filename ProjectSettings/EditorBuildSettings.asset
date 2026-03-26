@@ -9,6 +9,9 @@ EditorBuildSettings:
     path: Assets/Scenes/TowerScene.unity
     guid: be916c26c32a95c4daf909d8ab922476
   - enabled: 1
+    path: Assets/Scenes/Menu_Principal.unity
+    guid: 1a13137d46f5e7e47a4a9a0d50ee31ec
+  - enabled: 1
     path: Assets/Scenes/GameScene.unity
     guid: 209fd51bfdda07a4ea379b8d07842c5d
   - enabled: 1
@@ -23,9 +26,6 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/MainMenuScene.unity
     guid: 196294994164a404bb6c9a3073e7ceca
-  - enabled: 1
-    path: Assets/Scenes/Menu_Principal.unity
-    guid: 1a13137d46f5e7e47a4a9a0d50ee31ec
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 2bcd2660ca9b64942af0de543d8d7100, type: 3}
   m_UseUCBPForAssetBundles: 0
