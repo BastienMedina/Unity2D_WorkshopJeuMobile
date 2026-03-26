@@ -38,12 +38,24 @@ public class GameOverController : MonoBehaviour
 
     private void Awake()
     {
-        // Register button callbacks before hiding so listeners are always active.
+        // Start hidden — GameManager.OnDayFailed() calls Show() when needed.
+        // Note: listeners are registered in OnEnable() instead of here because
+        // Awake() is never called on a GameObject that starts inactive.
+        gameObject.SetActive(false);
+    }
+
+    private void OnEnable()
+    {
+        // Re-register each time the object becomes active to be safe.
         if (retryButton  != null) retryButton.onClick.AddListener(OnRetryPressed);
         if (returnButton != null) returnButton.onClick.AddListener(OnReturnPressed);
+    }
 
-        // Start hidden — GameManager.OnDayFailed() calls Show() when needed.
-        gameObject.SetActive(false);
+    private void OnDisable()
+    {
+        // Always clean up listeners to avoid duplicate registrations.
+        if (retryButton  != null) retryButton.onClick.RemoveListener(OnRetryPressed);
+        if (returnButton != null) returnButton.onClick.RemoveListener(OnReturnPressed);
     }
 
     // -------------------------------------------------------------------------
