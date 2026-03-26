@@ -69,6 +69,7 @@ public class BinHoverDetector : MonoBehaviour
     /// <summary>
     /// Called by DraggableDocument when a dragged document enters this bin's area.
     /// Stops any in-progress animation and starts expanding toward expandedSize.
+    /// Also shows the top-screen tooltip with this bin's rule text.
     /// </summary>
     public void OnDocumentEntered()
     {
@@ -76,11 +77,17 @@ public class BinHoverDetector : MonoBehaviour
         // Without this, two coroutines would fight over sizeDelta and produce visual jitter.
         StopExpansionCoroutineSafely();
         expansionCoroutine = StartCoroutine(AnimateSizeTo(expandedSize));
+
+        // Show the centralised tooltip with the rules currently assigned to this bin.
+        // targetBin is already wired in the Inspector — no scene query needed.
+        if (targetBin != null)
+            BinTooltipDisplay.Show(targetBin.GetRulesText());
     }
 
     /// <summary>
     /// Called by DraggableDocument when a dragged document leaves this bin's area or is dropped.
     /// Stops any in-progress animation and starts shrinking back toward normalSize.
+    /// Also hides the top-screen tooltip.
     /// </summary>
     public void OnDocumentExited()
     {
@@ -88,6 +95,8 @@ public class BinHoverDetector : MonoBehaviour
         // Without this, two coroutines would fight over sizeDelta and produce visual jitter.
         StopExpansionCoroutineSafely();
         expansionCoroutine = StartCoroutine(AnimateSizeTo(normalSize));
+
+        BinTooltipDisplay.Hide();
     }
 
     // -------------------------------------------------------------------------

@@ -1,0 +1,66 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f8369af32d987f247a1511c03b447c9c, type: 3}
+  m_Name: SpecificityIconDatabase
+  m_EditorClassIdentifier: Assembly-CSharp::SpecificityIconDatabase
+  negationIcon: {fileID: 21300000, guid: 612c4fce6432b0640b72da69e4e93dee, type: 3}
+  entries:
+  - specificityKey: feuille_base
+    icon: {fileID: 21300000, guid: 9727c9bed7dca98499dde30aa0200630, type: 3}
+  - specificityKey: feuille_brulee
+    icon: {fileID: 21300000, guid: 48124f9aeb8216e4e9c480797484ca5b, type: 3}
+  - specificityKey: feuille_cafe
+    icon: {fileID: 21300000, guid: 6446c2929c7de8347b67a557ab8644a8, type: 3}
+  - specificityKey: feuille_dechirure_grande
+    icon: {fileID: 21300000, guid: deb30549bbf1f4d458b124742511b0c0, type: 3}
+  - specificityKey: feuille_dechirure_petite
+    icon: {fileID: 21300000, guid: b966778c900853e4390ed2ed48851551, type: 3}
+  - specificityKey: pastille_bleu
+    icon: {fileID: 21300000, guid: 5fbfd5810cac6484090a2132a1dd907f, type: 3}
+  - specificityKey: pastille_jaune
+    icon: {fileID: 21300000, guid: 27ba30450d5161c4eabddcb74c1958bd, type: 3}
+  - specificityKey: pastille_rouge
+    icon: {fileID: 21300000, guid: 7858e7ca54deb524f8735bd9cc375cbf, type: 3}
+  - specificityKey: pastille_vert
+    icon: {fileID: 21300000, guid: a5a82dcf6f8fd3541878c6031462d574, type: 3}
+  - specificityKey: pastille_violet
+    icon: {fileID: 21300000, guid: 697e4e6d5d7649445a68d9445c9ff35c, type: 3}
+  - specificityKey: signature_effacee
+    icon: {fileID: 21300000, guid: 7f0a9d46a05a78c40906efd16d2755ca, type: 3}
+  - specificityKey: signature_grande
+    icon: {fileID: 21300000, guid: ebe3c527d511201469eac6ad5170dd86, type: 3}
+  - specificityKey: signature_main
+    icon: {fileID: 21300000, guid: a9929dac13b7198408552dfff5e3e8ec, type: 3}
+  - specificityKey: signature_petite
+    icon: {fileID: 21300000, guid: 901f8da498393404298263dce999a4e1, type: 3}
+  - specificityKey: signature_coloree
+    icon: {fileID: 21300000, guid: cfe4f7154087e494dbd6dda18a2279aa, type: 3}
+  - specificityKey: tampon_carre
+    icon: {fileID: 21300000, guid: 958a317dcc340f84ebd453aba60dc686, type: 3}
+  - specificityKey: tampon_double
+    icon: {fileID: 21300000, guid: 2286ec456b2abc1448927db34cfc5e3a, type: 3}
+  - specificityKey: tampon_efface
+    icon: {fileID: 21300000, guid: 4b04b9d9c1a3cbe439eeaf4685f28134, type: 3}
+  - specificityKey: tampon_rectangle
+    icon: {fileID: 21300000, guid: 7237f0383a2f2c24ba44442e43bf4892, type: 3}
+  - specificityKey: tampon_rond
+    icon: {fileID: 21300000, guid: fe69f671ff91a604da1e28317bc5aa65, type: 3}
+  - specificityKey: text_dessin
+    icon: {fileID: 21300000, guid: df6799ca3ba9ec14b9cb1588d57db3f8, type: 3}
+  - specificityKey: text_machine
+    icon: {fileID: 21300000, guid: aaa7bb8c902df3b4692065f7d4da6c0f, type: 3}
+  - specificityKey: text_main
+    icon: {fileID: 21300000, guid: ec5aebde70176b84191fec0245868f48, type: 3}
+  - specificityKey: text_tableau
+    icon: {fileID: 21300000, guid: 2bf72146b0702e04a806382ed3de228f, type: 3}
+  - specificityKey: text_vierge
+    icon: {fileID: 21300000, guid: f04fd2a8d1c00e94d8a0a36958cd8e21, type: 3}

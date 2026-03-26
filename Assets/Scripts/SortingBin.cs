@@ -82,6 +82,7 @@ public class SortingBin : MonoBehaviour
 
     /// <summary>
     /// Stores the provided rules as the active rule set for this bin and refreshes the display.
+    /// Also notifies BinIconDisplay (if present on this GameObject) to rebuild its icon set.
     /// Called by GameManager at the start of each game day.
     /// </summary>
     /// <param name="rules">The list of RuleData objects to assign to this bin.</param>
@@ -89,6 +90,7 @@ public class SortingBin : MonoBehaviour
     {
         assignedRules = new List<RuleData>(rules);
         DisplayRules();
+        GetComponent<BinIconDisplay>()?.RefreshIcons(assignedRules);
     }
 
     /// <summary>
@@ -112,11 +114,18 @@ public class SortingBin : MonoBehaviour
         if (rulesDisplayText == null)
             return; // Guard: bin may be configured without a label in early prototyping.
 
+        rulesDisplayText.text = GetRulesText();
+    }
+
+    /// <summary>
+    /// Returns the formatted rules text for this bin.
+    /// Used by BinTooltipDisplay to show the rules in the top-screen tooltip without
+    /// duplicating the formatting logic or creating a direct UI dependency on SortingBin.
+    /// </summary>
+    public string GetRulesText()
+    {
         if (assignedRules.Count == 0)
-        {
-            rulesDisplayText.text = "No rules assigned.";
-            return;
-        }
+            return "No rules assigned.";
 
         StringBuilder displayBuilder = new StringBuilder();
 
@@ -124,11 +133,11 @@ public class SortingBin : MonoBehaviour
         {
             // Display the pre-resolved human-readable sentence rather than the raw conditions.
             // conditions are internal logic data used for validation; displayText is what the player reads.
-            // Re-resolving the template here every frame would duplicate work already done by RuleGenerator.
+            // Re-resolving the template here would duplicate work already done by RuleGenerator.
             displayBuilder.AppendLine($"• {rule.displayText}");
         }
 
-        rulesDisplayText.text = displayBuilder.ToString().TrimEnd();
+        return displayBuilder.ToString().TrimEnd();
     }
 
     /// <summary>

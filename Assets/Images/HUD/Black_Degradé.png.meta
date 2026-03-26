@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: aaa7bb8c902df3b4692065f7d4da6c0f
+guid: 2dd26f0de361d7e439b2976e1e98764b
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 9044521257852794754
-    second: Ico_Text_Numerique_0
+      213: 5026394284404483431
+    second: "Black_Degrad\xE9_0"
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Ico_Text_Numerique_0
+      name: "Black_Degrad\xE9_0"
       rect:
         serializedVersion: 2
-        x: 8
-        y: 19
-        width: 80
-        height: 67
+        x: 0
+        y: 0
+        width: 93
+        height: 100
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 287f8c10a28948d70800000000000000
-      internalID: 9044521257852794754
+      spriteID: 765abfe78f651c540800000000000000
+      internalID: 5026394284404483431
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Ico_Text_Numerique_0: 9044521257852794754
+      "Black_Degrad\xE9_0": 5026394284404483431
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
