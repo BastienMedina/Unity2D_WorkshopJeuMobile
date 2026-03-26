@@ -7936,7 +7936,7 @@ MonoBehaviour:
   minRulesPerBin: 1
   maxRulesPerBinCap: 4
   minNumberOfBins: 2
-  maxNumberOfBins: 2
+  maxNumberOfBins: 5
   minRuleComplexity: 1
   complexityIncreasePerDay: 0.5
   progressionCurve:
@@ -7977,8 +7977,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::RuleGenerator
   specificityDatabase: {fileID: 11400000, guid: fa9b6cf72815b6245bdbed380a47fad1, type: 2}
   availableBinIDs:
-  - bin_left
-  - bin_right
+  - bin_left_top
+  - bin_right_top
+  - bin_bottom
+  - bin_left_bottom
+  - bin_right_bottom
   minimumComplexity: 1
   maximumComplexity: 5
 --- !u!114 &2040673045

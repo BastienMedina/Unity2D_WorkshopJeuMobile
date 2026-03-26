@@ -703,6 +703,37 @@ public class RuleGenerator : MonoBehaviour
     }
 
     /// <summary>
+    /// Returns true when the RuleGenerator has a valid SpecificityDatabase with at least
+    /// one specificity and one template. Used by GameManager to guard against silent
+    /// empty-list generation that produces "No rules assigned." in all bins.
+    /// </summary>
+    public bool CanGenerateRules()
+    {
+        if (specificityDatabase == null)
+        {
+            Debug.LogError("[RuleGenerator] CanGenerateRules: specificityDatabase is null. " +
+                           "Assign a SpecificityDatabase ScriptableObject in the Inspector.");
+            return false;
+        }
+
+        if (specificityDatabase.allSpecificities == null || specificityDatabase.allSpecificities.Count == 0)
+        {
+            Debug.LogError("[RuleGenerator] CanGenerateRules: specificityDatabase has no specificities. " +
+                           "Add at least one entry to SpecificityDatabase.allSpecificities.");
+            return false;
+        }
+
+        if (specificityDatabase.templates == null || specificityDatabase.templates.Count == 0)
+        {
+            Debug.LogError("[RuleGenerator] CanGenerateRules: specificityDatabase has no templates. " +
+                           "Add at least one RuleTemplate to SpecificityDatabase.templates.");
+            return false;
+        }
+
+        return true;
+    }
+
+    /// <summary>
     /// Replaces the current list of valid bin IDs at runtime.
     /// Call this from GameManager when the active set of SortingBins changes between levels.
     /// Overrides any IDs previously assigned via the Inspector.
@@ -866,6 +897,16 @@ public class RuleGenerator : MonoBehaviour
     /// <returns>A mutable list of candidate specificities.</returns>
     private List<string> BuildAvailablePool()
     {
+        // Guard: a null or unconfigured database produces an empty pool, which causes
+        // GenerateRulesForDay to silently return zero rules and all bins to display
+        // "No rules assigned." — fail loudly here so the misconfiguration is obvious.
+        if (specificityDatabase == null || specificityDatabase.allSpecificities == null)
+        {
+            Debug.LogError("[RuleGenerator] BuildAvailablePool: specificityDatabase is null or " +
+                           "has no allSpecificities list. Assign a SpecificityDatabase in the Inspector.");
+            return new List<string>();
+        }
+
         // Exclude used specificities so the same condition never appears twice
         // in the same level — repetition would make rules feel identical and
         // undermine the incremental difficulty design.

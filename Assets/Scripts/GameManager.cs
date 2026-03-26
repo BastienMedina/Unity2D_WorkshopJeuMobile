@@ -168,6 +168,12 @@ public class GameManager : MonoBehaviour
     {
         SubscribeToAllEvents();
 
+        // Resolve FloorSaveSystem from the singleton when not assigned in Inspector.
+        // This is the normal runtime path: FloorSaveSystemBootstrap in Menu_Principal
+        // calls DontDestroyOnLoad so the instance is available here without a scene reference.
+        if (floorSaveSystem == null)
+            floorSaveSystem = FloorSaveSystem.Instance;
+
         // Read session data before clearing — Clear() must be called immediately so stale
         // values do not affect future sessions if GameScene is loaded again.
         FloorSaveData sessionFloor    = FloorSessionData.SelectedFloor;
@@ -189,20 +195,12 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        // No session data — direct launch from Editor or first game start.
-        // Generate floor 0 procedurally (null saveSystem = no disk read) so this path
-        // is consistent with TowerScene's procedural mode and never reads floor_N.json.
-
-        // If component is missing on GameManager GameObject, all floor generation crashes.
-        if (floorDifficultyProgression == null)
-        {
-            Debug.LogError("[GameManager] floorDifficultyProgression is not assigned in Inspector");
-            return;
-        }
-
-        FloorSaveData floor0Data = floorDifficultyProgression.GetOrGenerateFloorData(0, null);
-
-        InitializeFromFloorData(floor0Data);
+        // No session data — the GameScene must always be launched from the main menu
+        // by selecting a floor. Direct play from the Editor without passing through
+        // FloorSessionData is not supported in story mode.
+        Debug.LogError("[GameManager] Start: no FloorSessionData found. " +
+                       "GameScene must be launched from the main menu by tapping a floor button. " +
+                       "Direct Editor play is not supported — open Menu_Principal and press Play from there.");
     }
 
     private void OnDestroy()
@@ -350,19 +348,14 @@ public class GameManager : MonoBehaviour
         documentSpawner.ClearAllDocuments();
         documentStackManager.ClearStack();
 
-        // Player restarts floor from day 1; floor bonuses persist (they were earned).
+        // Restart the floor from night 1 — rules come from the floor JSON (night index 0),
+        // never from procedural generation. currentFloorSaveData stays intact across the retry.
         currentDayIndex = 0;
-
-        // Fresh rules on retry so the player does not memorise the exact same rule set —
-        // retrying with identical rules would remove the adaptation challenge.
-        ruleGenerator.ResetForNewLevel();
 
         // -1 is the failure sentinel understood by DayTransitionManager.PlayTransition(),
         // which displays "FAILED — Back to Day 1" regardless of day index.
-        // Null summary on failure — no difficulty changes to display on a failed day.
         dayTransitionManager.PlayTransition(-1, currentFloorIndex, null);
 
-        // Play the failure animation canvas.
         if (animationSequenceManager != null)
             animationSequenceManager.PlaySequence(AnimationSequenceManager.TransitionType.DayFail);
     }
@@ -455,9 +448,10 @@ public class GameManager : MonoBehaviour
             profitabilityManager.GetFailThreshold(),
             profitabilityManager.GetCurrentProfitability());
 
-        // STEP 2 — Compute day data before anything that depends on rulesPerBin or maxRuleComplexity.
-        // Placed here so both base rule generation (Step 4) and evolution (Step 5) use the
-        // same currentDayData instance with no risk of stale values from the previous day.
+        // STEP 2 — Compute day data for failThreshold/dayDuration passthrough.
+        // DifficultyManager is no longer authoritative for bin count or rule complexity in
+        // story mode — those come from the floor JSON per night. currentDayData is kept to
+        // avoid breaking any remaining callsite that may reference it (e.g. ApplyDayEvolution).
         currentDayData = difficultyManager.ComputeDayData(currentDayIndex, currentFloorIndex);
 
         // STEP 3 — Detect bin count change, then activate the correct number of slots.
@@ -512,81 +506,60 @@ public class GameManager : MonoBehaviour
         List<string> activeBinIDs = ExtractBinIDs(activeBins);
         ruleGenerator.SetAvailableBins(activeBinIDs);
 
-        // STEP 4 — Generate base rules on day 1 only.
-        // This block MUST run before the evolution check below so that activeRules is always
-        // populated on day 2. Previously, evolution ran before generation, meaning activeRules
-        // was still empty when ComplexifyExistingRule was called — it would find zero candidates
-        // and return early, silently skipping all difficulty upgrades for the entire run.
-        if (isFirstDayOfFloor)
+        Debug.Log($"[GameManager] STEP 3 — {activeBins.Count} active bins: [{string.Join(", ", activeBinIDs)}]");
+
+        // STEP 4 — Load rules for the current night from the Floor Designer data.
+        // The GameScene is exclusively driven by designer-authored floors — no procedural
+        // generation ever runs here. Every night must have explicit per-bin rule assignments
+        // saved in the floor JSON via the Floor Designer tool.
+        bool hasNightData = currentFloorSaveData != null &&
+                            currentFloorSaveData.nights != null &&
+                            currentFloorSaveData.nights.Count > currentDayIndex;
+
+        if (!hasNightData)
         {
-            ruleGenerator.ResetForNewLevel();
-
-            // Extract pinned specificities from the current night's designer data (if any).
-            // currentFloorSaveData.nights is indexed by dayIndex (0–4), matching each game day
-            // to the night the designer configured in the Floor Designer tool.
-            // When pinnedSpecificities is non-empty, RuleGenerator uses it as the exclusive
-            // conditionA pool so the designer's chosen concepts are guaranteed to appear.
-            List<string> pinnedSpecificities = null;
-
-            bool hasNightData = currentFloorSaveData != null &&
-                                currentFloorSaveData.nights != null &&
-                                currentFloorSaveData.nights.Count > currentDayIndex;
-
-            if (hasNightData)
-            {
-                NightSaveData currentNight = currentFloorSaveData.nights[currentDayIndex];
-
-                if (currentNight.pinnedSpecificities != null &&
-                    currentNight.pinnedSpecificities.Count > 0)
-                {
-                    pinnedSpecificities = currentNight.pinnedSpecificities;
-
-                    Debug.Log($"[GameManager] Day {currentDayIndex + 1}: " +
-                              $"using {pinnedSpecificities.Count} pinned specificities — " +
-                              string.Join(", ", pinnedSpecificities));
-                }
-            }
-
-            activeRules = ruleGenerator.GenerateRulesForDay(
-                currentDayData.rulesPerBin,
-                currentDayData.maxRuleComplexity,
-                pinnedSpecificities);
+            Debug.LogError($"[GameManager] STEP 4 — No night data found for night index {currentDayIndex} " +
+                           $"in floor {currentFloorIndex}. Open the Floor Designer, configure all 5 nights " +
+                           $"with rules, and re-save the floor before launching the game.");
+            return;
         }
 
-        // STEP 5 — Apply daily rule evolution starting from day 2.
-        // Day 1 uses base rules so the player has one day to learn the initial rule set
-        // before evolution begins — front-loading changes would overwhelm new players.
-        // Evolution is placed AFTER base rule generation so activeRules is guaranteed
-        // to be non-empty regardless of which day is being initialised.
+        NightSaveData nightData = currentFloorSaveData.nights[currentDayIndex];
 
-        // Diagnostic — POINT 3: confirms whether the evolution branch is being reached.
-        // If dayIndex is always 0 here, OnDaySuccess is not incrementing the counter.
-        Debug.Log("[GameManager] ApplyDayEvolution check — dayIndex: " + currentDayIndex);
+        bool hasDesignerBinRules = nightData.bins != null &&
+                                   nightData.bins.Count > 0 &&
+                                   nightData.bins.Exists(b => b.rules != null && b.rules.Count > 0);
 
-        // Diagnostic — POINT 4: confirms activeRules is populated before evolution runs.
-        // If count is 0 here on day 2+, rule generation on day 1 failed or activeRules was cleared.
-        Debug.Log("[GameManager] activeRules count before evolution: " +
-                  (activeRules != null ? activeRules.Count : -1));
-
-        bool isDayAfterFirst = currentDayIndex > 0;
-
-        if (isDayAfterFirst)
+        if (!hasDesignerBinRules)
         {
-            ApplyDayEvolution(activeBins);
+            Debug.LogError($"[GameManager] STEP 4 — Night {currentDayIndex} of floor {currentFloorIndex} " +
+                           $"has no bin rules. Open the Floor Designer, assign at least one rule to each bin " +
+                           $"for every night, then re-save the floor.");
+            return;
         }
 
-        // STEP 6 — Ensure every newly activated bin receives at least one rule.
-        // A new bin MUST have at least one rule assigned immediately — an empty bin confuses
-        // the player and breaks document spawning because no document will ever match it.
-        if (isNewBinActivated)
+        activeRules = RestoreRulesFromNight(nightData, activeBins);
+
+        Debug.Log($"[GameManager] STEP 4 — Night {currentDayIndex + 1}: " +
+                  $"loaded {activeRules.Count} designer-authored rules from floor JSON.");
+
+        // STEP 5 — (Designer-mode only) Per-night bin count override.
+        // The night may specify a different numberOfBins than the floor-level default.
+        // Re-apply only when the night's value is explicitly set (> 0) and differs from
+        // what was already applied in STEP 3, keeping activeBins in sync.
+        if (nightData.numberOfBins > 0 && nightData.numberOfBins != newBinCount)
         {
-            // Last bin in activation order is always the newly added one —
-            // BinLayoutManager activates in a fixed order so the highest index is newest.
-            SortingBin newlyActivatedBin = newActiveBins[newBinCount - 1];
-            EnsureNewBinHasRule(newlyActivatedBin);
+            binLayoutManager.SetActiveBinCount(nightData.numberOfBins);
+            activeBins   = binLayoutManager.GetActiveBins();
+            newBinCount  = activeBins.Count;
+            activeBinCount = newBinCount;
+
+            Debug.Log($"[GameManager] STEP 5 — Night {currentDayIndex + 1} overrides bin count " +
+                      $"to {nightData.numberOfBins}.");
         }
 
         // STEP 7 — Distribute rules to bins.
+        Debug.Log($"[GameManager] STEP 7 — distributing {activeRules?.Count ?? 0} rules to {activeBins.Count} bins");
         DistributeRulesToBins(activeRules, activeBins);
 
         // Inject the full cross-bin rule list into every bin immediately after distribution.
@@ -1215,5 +1188,132 @@ public class GameManager : MonoBehaviour
         documentSpawner.StartDay();
 
         pendingSummary = new DifficultyChangeSummary();
+    }
+
+    // -------------------------------------------------------------------------
+    // Night rule restoration — Floor Designer path
+    // -------------------------------------------------------------------------
+
+    /// <summary>
+    /// Reconstructs a flat <see cref="RuleData"/> list from the per-bin rule assignments
+    /// authored by the designer in the Floor Designer tool for a specific night.
+    ///
+    /// Each <see cref="BinSaveData"/> inside the night carries an explicit list of
+    /// <see cref="SavedRuleData"/> entries. This method deserialises those entries and
+    /// resolves the <c>targetBinID</c> from the bin's own <c>binID</c> field when the
+    /// saved rule's targetBinID is empty — ensuring rules always reference a valid bin.
+    ///
+    /// Active bins are passed so unknown binIDs can be remapped to a live bin in order
+    /// (first active bin for BinSaveData at index 0, second for index 1, etc.).
+    /// Rules whose ruleType string is unrecognised are skipped with a warning rather than
+    /// crashing, preserving backward compatibility with older save formats.
+    /// </summary>
+    /// <param name="nightData">The night whose BinSaveData should be deserialised.</param>
+    /// <param name="activeBins">Currently active SortingBin instances used for binID remapping.</param>
+    /// <returns>Flat list of all reconstructed RuleData across all bins for this night.</returns>
+    private List<RuleData> RestoreRulesFromNight(NightSaveData nightData, List<SortingBin> activeBins)
+    {
+        List<RuleData> restoredRules = new List<RuleData>();
+
+        if (nightData.bins == null || nightData.bins.Count == 0)
+        {
+            Debug.LogError("[GameManager] RestoreRulesFromNight: nightData.bins is null or empty.");
+            return restoredRules;
+        }
+
+        // Diagnostic: log the exact binID/rule count coming from the JSON so mismatches
+        // between the JSON and the scene's SortingBin.binID values are immediately visible.
+        System.Text.StringBuilder diagLog = new System.Text.StringBuilder();
+        diagLog.AppendLine($"[GameManager] RestoreRulesFromNight — night {nightData.nightIndex}, " +
+                           $"{nightData.bins.Count} bins in JSON, {activeBins.Count} active bins in scene:");
+
+        for (int i = 0; i < nightData.bins.Count; i++)
+        {
+            BinSaveData b = nightData.bins[i];
+            diagLog.AppendLine($"  JSON bin[{i}] binID='{b.binID}'  rules={b.rules?.Count ?? 0}");
+            if (b.rules != null)
+                foreach (SavedRuleData r in b.rules)
+                    diagLog.AppendLine($"    rule targetBinID='{r.targetBinID}'  condA='{r.conditionA}'  type='{r.ruleType}'");
+        }
+
+        diagLog.AppendLine("  Active scene bins:");
+        for (int i = 0; i < activeBins.Count; i++)
+            diagLog.AppendLine($"  scene bin[{i}] binID='{activeBins[i].GetBinID()}'");
+
+        Debug.Log(diagLog.ToString());
+
+        for (int binSaveIndex = 0; binSaveIndex < nightData.bins.Count; binSaveIndex++)
+        {
+            BinSaveData binSave = nightData.bins[binSaveIndex];
+
+            if (binSave.rules == null || binSave.rules.Count == 0)
+                continue;
+
+            // Resolve the canonical bin ID for this slot:
+            // 1. Use the binID stored in BinSaveData when non-empty.
+            // 2. Fall back to the active bin at the matching position index.
+            // 3. Final fallback: skip if no live bin can be mapped.
+            string resolvedBinID = binSave.binID;
+
+            if (string.IsNullOrEmpty(resolvedBinID))
+            {
+                if (binSaveIndex < activeBins.Count)
+                    resolvedBinID = activeBins[binSaveIndex].GetBinID();
+                else
+                {
+                    Debug.LogWarning($"[GameManager] RestoreRulesFromNight: " +
+                                     $"BinSaveData at index {binSaveIndex} has no binID and no matching active bin — skipped.");
+                    continue;
+                }
+            }
+
+            foreach (SavedRuleData savedRule in binSave.rules)
+            {
+                bool isParsed = Enum.TryParse(savedRule.ruleType, out RuleType parsedType);
+
+                if (!isParsed)
+                {
+                    Debug.LogWarning($"[GameManager] RestoreRulesFromNight: " +
+                                     $"unknown ruleType '{savedRule.ruleType}' in bin '{resolvedBinID}' — skipped.");
+                    continue;
+                }
+
+                // When targetBinID is empty in the saved rule, inherit the parent bin's ID.
+                // Also override any stale targetBinID that doesn't match the parent BinSaveData.binID —
+                // this corrects JSON files saved before the canonical ID fix (bin_A → bin_left_top, etc.)
+                // so the player never gets empty bins due to an old format on disk.
+                string targetBinID = string.IsNullOrEmpty(savedRule.targetBinID)
+                    ? resolvedBinID
+                    : savedRule.targetBinID;
+
+                // Override stale IDs: if targetBinID doesn't match any active scene bin,
+                // use the parent BinSaveData.binID (which was already corrected by the Floor Designer fix).
+                bool targetExists = activeBins.Exists(b => b.GetBinID() == targetBinID);
+                if (!targetExists)
+                {
+                    Debug.LogWarning($"[GameManager] RestoreRulesFromNight: " +
+                                     $"rule targetBinID='{targetBinID}' not found in scene — " +
+                                     $"overriding with parent binID='{resolvedBinID}'.");
+                    targetBinID = resolvedBinID;
+                }
+
+                RuleData rule = new RuleData
+                {
+                    ruleType       = parsedType,
+                    conditionA     = savedRule.conditionA,
+                    conditionB     = savedRule.conditionB,
+                    targetBinID    = targetBinID,
+                    secondaryBinID = savedRule.secondaryBinID ?? string.Empty,
+                    displayText    = savedRule.displayText,
+                    complexity     = savedRule.complexity,
+                    isComplement   = savedRule.isComplement
+                };
+
+                restoredRules.Add(rule);
+            }
+        }
+
+        Debug.Log($"[GameManager] RestoreRulesFromNight — restored {restoredRules.Count} total rules.");
+        return restoredRules;
     }
 }

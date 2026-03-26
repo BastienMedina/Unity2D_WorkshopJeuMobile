@@ -2,34 +2,34 @@ using UnityEngine;
 using UnityEngine.UI;
 
 /// <summary>
-/// Controls the infinite vertical tiling of the tower background image
-/// synchronized with a ScrollRect's normalized vertical position.
-/// Attach this to the tower selection screen root GameObject.
+/// Manages the infinite tower background: the RawImage lives inside the scrollable
+/// TowerContainer and is stretched to match its height. UV tiling is recalculated
+/// whenever the content height changes so the tower image tiles seamlessly end-to-end
+/// without any scroll-position parallax — the background scrolls with the buttons.
 /// </summary>
-[RequireComponent(typeof(ScrollRect))]
 public class TowerScrollView : MonoBehaviour
 {
     // -------------------------------------------------------------------------
-    // Inspector-configurable fields
+    // Inspector fields
     // -------------------------------------------------------------------------
 
     /// <summary>
-    /// The RawImage used as the scrollable tower background.
+    /// RawImage placed as the first child of TowerContainer (behind the floor buttons).
     /// Its texture must have Wrap Mode set to "Repeat" in the importer.
     /// </summary>
     [SerializeField] private RawImage backgroundImage;
 
     /// <summary>
-    /// How much the UV offset changes per unit of normalized scroll position.
-    /// Higher values = faster parallax scroll of the background.
+    /// Height in pixels of the source tower texture (unscaled).
+    /// Used to compute how many times the image must tile to fill the content.
     /// </summary>
-    [SerializeField] private float backgroundScrollFactor = 1f;
+    [SerializeField] private float towerImageHeight = 1920f;
 
     // -------------------------------------------------------------------------
     // Private state
     // -------------------------------------------------------------------------
 
-    private ScrollRect _scrollRect;
+    private RectTransform _backgroundRect;
 
     // -------------------------------------------------------------------------
     // Unity lifecycle
@@ -37,38 +37,37 @@ public class TowerScrollView : MonoBehaviour
 
     private void Awake()
     {
-        _scrollRect = GetComponent<ScrollRect>();
-    }
-
-    private void OnEnable()
-    {
-        _scrollRect.onValueChanged.AddListener(OnScrollValueChanged);
-    }
-
-    private void OnDisable()
-    {
-        _scrollRect.onValueChanged.RemoveListener(OnScrollValueChanged);
+        if (backgroundImage != null)
+            _backgroundRect = backgroundImage.GetComponent<RectTransform>();
     }
 
     // -------------------------------------------------------------------------
-    // Scroll callback
+    // Public API
     // -------------------------------------------------------------------------
 
     /// <summary>
-    /// Called by ScrollRect.onValueChanged whenever the player drags the list.
-    /// Adjusts the RawImage UV offset to simulate infinite vertical tiling.
+    /// Call this every time TowerContainer's height changes (after spawning blocks).
+    /// Stretches the RawImage to match contentHeight and adjusts UV tiling so the
+    /// tower image tiles exactly the number of times needed to fill the background.
     /// </summary>
-    private void OnScrollValueChanged(Vector2 normalizedPosition)
+    /// <param name="contentHeight">The new total height of TowerContainer in pixels.</param>
+    public void RefreshBackground(float contentHeight)
     {
-        if (backgroundImage == null) return;
+        if (backgroundImage == null || _backgroundRect == null)
+            return;
 
-        // normalizedPosition.y goes from 1 (top) to 0 (bottom).
-        // We invert it so scrolling down (lower floors) shifts texture downward.
-        float uvOffset = (1f - normalizedPosition.y) * backgroundScrollFactor;
+        // Stretch background to fill the full content height.
+        _backgroundRect.sizeDelta = new Vector2(_backgroundRect.sizeDelta.x, contentHeight);
 
-        // Fractional part keeps the offset within [0, 1) for seamless tiling.
+        // UV height = how many times the texture tiles vertically across contentHeight.
+        // e.g. contentHeight 3840 with towerImageHeight 1920 → 2 tiles.
+        float tileCount = contentHeight / towerImageHeight;
+
         Rect uvRect = backgroundImage.uvRect;
-        uvRect.y = uvOffset % 1f;
+        uvRect.x      = 0f;
+        uvRect.y      = 0f;
+        uvRect.width  = 1f;
+        uvRect.height = tileCount;
         backgroundImage.uvRect = uvRect;
     }
 }

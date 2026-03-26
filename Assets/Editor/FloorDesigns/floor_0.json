@@ -1,0 +1,351 @@
+{
+    "floorIndex": 0,
+    "isCompleted": false,
+    "numberOfBins": 2,
+    "rules": [],
+    "specificities": [],
+    "failThreshold": 50.0,
+    "dayDuration": 120.0,
+    "decayRatePerSecond": 1.0,
+    "floorSeed": "",
+    "rulesPerBin": 2,
+    "maxRuleComplexity": 2,
+    "wasGenerated": false,
+    "nights": [
+        {
+            "nightIndex": 0,
+            "numberOfBins": 2,
+            "rulesPerBin": 2,
+            "maxRuleComplexity": 2,
+            "wasManuallyEdited": false,
+            "pinnedSpecificities": [
+                "feuille_dechirure_petite",
+                "text_tableau",
+                "tampon_carre",
+                "pastille_jaune"
+            ],
+            "bins": [
+                {
+                    "binIndex": 0,
+                    "binID": "bin_left_top",
+                    "rules": [
+                        {
+                            "ruleType": "Simple",
+                            "conditionA": "tampon_rond",
+                            "conditionB": "",
+                            "targetBinID": "bin_left_top",
+                            "secondaryBinID": "",
+                            "displayText": "Si le document contient tampon_rond, posez-le ici",
+                            "complexity": 2,
+                            "isComplement": false
+                        },
+                        {
+                            "ruleType": "Simple",
+                            "conditionA": "feuille_base",
+                            "conditionB": "",
+                            "targetBinID": "bin_left_top",
+                            "secondaryBinID": "",
+                            "displayText": "Si le document contient feuille_base, posez-le ici",
+                            "complexity": 1,
+                            "isComplement": false
+                        }
+                    ]
+                },
+                {
+                    "binIndex": 1,
+                    "binID": "bin_right_top",
+                    "rules": [
+                        {
+                            "ruleType": "Simple",
+                            "conditionA": "pastille_vert",
+                            "conditionB": "",
+                            "targetBinID": "bin_right_top",
+                            "secondaryBinID": "",
+                            "displayText": "Si le document contient pastille_vert, posez-le ici",
+                            "complexity": 1,
+                            "isComplement": false
+                        },
+                        {
+                            "ruleType": "Simple",
+                            "conditionA": "pastille_bleu",
+                            "conditionB": "",
+                            "targetBinID": "bin_right_top",
+                            "secondaryBinID": "",
+                            "displayText": "Si le document contient pastille_bleu, posez-le ici",
+                            "complexity": 1,
+                            "isComplement": false
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "nightIndex": 1,
+            "numberOfBins": 2,
+            "rulesPerBin": 2,
+            "maxRuleComplexity": 2,
+            "wasManuallyEdited": false,
+            "pinnedSpecificities": [
+                "feuille_base",
+                "feuille_brulee",
+                "signature_grande",
+                "signature_petite"
+            ],
+            "bins": [
+                {
+                    "binIndex": 0,
+                    "binID": "bin_left_top",
+                    "rules": [
+                        {
+                            "ruleType": "Simple",
+                            "conditionA": "pastille_vert",
+                            "conditionB": "",
+                            "targetBinID": "bin_left_top",
+                            "secondaryBinID": "",
+                            "displayText": "Si le document contient pastille_vert, posez-le ici",
+                            "complexity": 1,
+                            "isComplement": false
+                        },
+                        {
+                            "ruleType": "Simple",
+                            "conditionA": "feuille_base",
+                            "conditionB": "",
+                            "targetBinID": "bin_left_top",
+                            "secondaryBinID": "",
+                            "displayText": "Si le document contient feuille_base, posez-le ici",
+                            "complexity": 1,
+                            "isComplement": false
+                        }
+                    ]
+                },
+                {
+                    "binIndex": 1,
+                    "binID": "bin_right_top",
+                    "rules": [
+                        {
+                            "ruleType": "Multiple",
+                            "conditionA": "feuille_dechirure_petite",
+                            "conditionB": "signature_grande",
+                            "targetBinID": "bin_right_top",
+                            "secondaryBinID": "",
+                            "displayText": "Si le document contient feuille_dechirure_petite et signature_grande, posez-le ici",
+                            "complexity": 2,
+                            "isComplement": false
+                        },
+                        {
+                            "ruleType": "Simple",
+                            "conditionA": "tampon_rectangle",
+                            "conditionB": "",
+                            "targetBinID": "bin_right_top",
+                            "secondaryBinID": "",
+                            "displayText": "Si le document contient tampon_rectangle, posez-le ici",
+                            "complexity": 2,
+                            "isComplement": false
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "nightIndex": 2,
+            "numberOfBins": 2,
+            "rulesPerBin": 2,
+            "maxRuleComplexity": 2,
+            "wasManuallyEdited": false,
+            "pinnedSpecificities": [
+                "tampon_rectangle",
+                "pastille_rouge",
+                "text_vierge",
+                "signature_effacee"
+            ],
+            "bins": [
+                {
+                    "binIndex": 0,
+                    "binID": "bin_left_top",
+                    "rules": [
+                        {
+                            "ruleType": "Simple",
+                            "conditionA": "tampon_rond",
+                            "conditionB": "",
+                            "targetBinID": "bin_left_top",
+                            "secondaryBinID": "",
+                            "displayText": "Si le document contient tampon_rond, posez-le ici",
+                            "complexity": 2,
+                            "isComplement": false
+                        },
+                        {
+                            "ruleType": "Branch",
+                            "conditionA": "pastille_bleu",
+                            "conditionB": "signature_effacee",
+                            "targetBinID": "bin_left_top",
+                            "secondaryBinID": "",
+                            "displayText": "Si le document contient pastille_bleu mais pas signature_effacee, posez-le ici",
+                            "complexity": 1,
+                            "isComplement": false
+                        }
+                    ]
+                },
+                {
+                    "binIndex": 1,
+                    "binID": "bin_right_top",
+                    "rules": [
+                        {
+                            "ruleType": "Simple",
+                            "conditionA": "pastille_vert",
+                            "conditionB": "",
+                            "targetBinID": "bin_right_top",
+                            "secondaryBinID": "",
+                            "displayText": "Si le document contient pastille_vert, posez-le ici",
+                            "complexity": 1,
+                            "isComplement": false
+                        },
+                        {
+                            "ruleType": "Simple",
+                            "conditionA": "tampon_rectangle",
+                            "conditionB": "",
+                            "targetBinID": "bin_right_top",
+                            "secondaryBinID": "",
+                            "displayText": "Si le document contient tampon_rectangle, posez-le ici",
+                            "complexity": 2,
+                            "isComplement": false
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "nightIndex": 3,
+            "numberOfBins": 2,
+            "rulesPerBin": 2,
+            "maxRuleComplexity": 2,
+            "wasManuallyEdited": false,
+            "pinnedSpecificities": [
+                "text_dessin",
+                "tampon_double",
+                "pastille_violet",
+                "feuille_cafe"
+            ],
+            "bins": [
+                {
+                    "binIndex": 0,
+                    "binID": "bin_left_top",
+                    "rules": [
+                        {
+                            "ruleType": "Simple",
+                            "conditionA": "tampon_rectangle",
+                            "conditionB": "",
+                            "targetBinID": "bin_left_top",
+                            "secondaryBinID": "",
+                            "displayText": "Si le document contient tampon_rectangle, posez-le ici",
+                            "complexity": 2,
+                            "isComplement": false
+                        },
+                        {
+                            "ruleType": "Multiple",
+                            "conditionA": "feuille_dechirure_petite",
+                            "conditionB": "signature_grande",
+                            "targetBinID": "bin_left_top",
+                            "secondaryBinID": "",
+                            "displayText": "Si le document contient feuille_dechirure_petite et signature_grande, posez-le ici",
+                            "complexity": 2,
+                            "isComplement": false
+                        }
+                    ]
+                },
+                {
+                    "binIndex": 1,
+                    "binID": "bin_right_top",
+                    "rules": [
+                        {
+                            "ruleType": "Branch",
+                            "conditionA": "pastille_bleu",
+                            "conditionB": "signature_effacee",
+                            "targetBinID": "bin_right_top",
+                            "secondaryBinID": "",
+                            "displayText": "Si le document contient pastille_bleu mais pas signature_effacee, posez-le ici",
+                            "complexity": 1,
+                            "isComplement": false
+                        },
+                        {
+                            "ruleType": "Simple",
+                            "conditionA": "pastille_vert",
+                            "conditionB": "",
+                            "targetBinID": "bin_right_top",
+                            "secondaryBinID": "",
+                            "displayText": "Si le document contient pastille_vert, posez-le ici",
+                            "complexity": 1,
+                            "isComplement": false
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "nightIndex": 4,
+            "numberOfBins": 2,
+            "rulesPerBin": 2,
+            "maxRuleComplexity": 2,
+            "wasManuallyEdited": false,
+            "pinnedSpecificities": [
+                "pastille_vert",
+                "tampon_efface",
+                "pastille_bleu",
+                "signature_coloree"
+            ],
+            "bins": [
+                {
+                    "binIndex": 0,
+                    "binID": "bin_left_top",
+                    "rules": [
+                        {
+                            "ruleType": "Simple",
+                            "conditionA": "tampon_rond",
+                            "conditionB": "",
+                            "targetBinID": "bin_left_top",
+                            "secondaryBinID": "",
+                            "displayText": "Si le document contient tampon_rond, posez-le ici",
+                            "complexity": 2,
+                            "isComplement": false
+                        },
+                        {
+                            "ruleType": "Branch",
+                            "conditionA": "pastille_bleu",
+                            "conditionB": "signature_effacee",
+                            "targetBinID": "bin_left_top",
+                            "secondaryBinID": "",
+                            "displayText": "Si le document contient pastille_bleu mais pas signature_effacee, posez-le ici",
+                            "complexity": 1,
+                            "isComplement": false
+                        }
+                    ]
+                },
+                {
+                    "binIndex": 1,
+                    "binID": "bin_right_top",
+                    "rules": [
+                        {
+                            "ruleType": "Simple",
+                            "conditionA": "pastille_vert",
+                            "conditionB": "",
+                            "targetBinID": "bin_right_top",
+                            "secondaryBinID": "",
+                            "displayText": "Si le document contient pastille_vert, posez-le ici",
+                            "complexity": 1,
+                            "isComplement": false
+                        },
+                        {
+                            "ruleType": "Simple",
+                            "conditionA": "pastille_violet",
+                            "conditionB": "",
+                            "targetBinID": "bin_right_top",
+                            "secondaryBinID": "",
+                            "displayText": "Si le document contient pastille_violet, posez-le ici",
+                            "complexity": 1,
+                            "isComplement": false
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

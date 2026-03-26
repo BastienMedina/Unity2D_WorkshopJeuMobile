@@ -185,7 +185,7 @@ MonoBehaviour:
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
+    rgba: 4284769380
   m_fontColor: {r: 0.39215687, g: 0.39215687, b: 0.39215687, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
@@ -198,7 +198,7 @@ MonoBehaviour:
   m_spriteAsset: {fileID: 0}
   m_tintAllSprites: 0
   m_StyleSheet: {fileID: 0}
-  m_TextStyleHashCode: 0
+  m_TextStyleHashCode: -1183493901
   m_overrideHtmlColors: 0
   m_faceColor:
     serializedVersion: 2
@@ -693,8 +693,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0dc0b49c87a96a945a5edb33e49d7ec7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MainMenuManager
-  infiniteSceneName: TowerScene
-  historySceneName: DesignerTowerScene
+  gameSceneName: GameScene
+  mainMenuPanel: {fileID: 0}
+  towerSelectionPanel: {fileID: 0}
+  optUI: {fileID: 0}
+  fadeDuration: 0.4
+  slideDuration: 0.45
+  optUIOffscreenY: -2000
 --- !u!4 &345857697
 Transform:
   m_ObjectHideFlags: 0

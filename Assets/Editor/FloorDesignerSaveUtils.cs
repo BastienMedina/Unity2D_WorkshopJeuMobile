@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using UnityEditor;
 using UnityEngine;
 
 /// <summary>
@@ -15,9 +16,10 @@ public static class FloorDesignerSaveUtils
 {
     /// <summary>
     /// Absolute path of the directory where floor JSON files are written.
-    /// Uses Application.persistentDataPath so the folder survives Unity reimports.
+    /// Stored inside the project's Assets folder so the files are tracked by source control
+    /// and available on any machine that clones the repository.
     /// </summary>
-    private static string saveFolderPath => Application.persistentDataPath + "/floors/";
+    private static string saveFolderPath => Path.GetFullPath("Assets/Editor/FloorDesigns") + Path.DirectorySeparatorChar;
 
     // ─── Public API ───────────────────────────────────────────────────────────
 
@@ -56,6 +58,8 @@ public static class FloorDesignerSaveUtils
             designerData.isSaved = true;
             // Ensure every night has the correct number of bin entries after the first save.
             designerData.SyncBinsToNights();
+            // Notify the AssetDatabase so the file appears in the Project window immediately.
+            AssetDatabase.Refresh();
             Debug.Log($"[FloorDesigner] Floor saved successfully → {filePath}");
         }
         catch (Exception exception)
@@ -249,7 +253,10 @@ public static class FloorDesignerSaveUtils
             rulesPerBin        = source.rulesPerBin,
             maxRuleComplexity  = source.maxRuleComplexity,
             isCompleted        = false,
-            wasGenerated       = true,
+            // Designer-authored floors are story-mode floors, not procedurally generated.
+            // wasGenerated = false ensures GameManager routes completion saves through
+            // FloorSaveSystem (JSON) instead of PlayerPrefs (procedural mode).
+            wasGenerated       = false,
             floorSeed          = string.Empty,
             specificities      = new List<string>(),
             rules              = new List<SavedRuleData>(),

@@ -95,6 +95,37 @@ public class FloorDesignerData
             nights[i].maxRuleComplexity = nights[i - 1].maxRuleComplexity;
         }
     }
+
+    // ─── Canonical bin ID table ───────────────────────────────────────────────
+
+    /// <summary>
+    /// Canonical bin ID list ordered by BinLayoutManager.activationOrder {0,2,4,1,3}.
+    /// index 0 → slot 0 → bin_left_top     (activated 1st)
+    /// index 1 → slot 2 → bin_right_top    (activated 2nd)
+    /// index 2 → slot 4 → bin_bottom       (activated 3rd)
+    /// index 3 → slot 1 → bin_left_bottom  (activated 4th)
+    /// index 4 → slot 3 → bin_right_bottom (activated 5th)
+    /// This order must mirror BinLayoutManager.activationOrder exactly —
+    /// any divergence causes the Floor Designer to write rules for a bin that
+    /// is not yet active at a given numberOfBins count.
+    /// </summary>
+    public static readonly string[] BinIDsByIndex = new[]
+    {
+        "bin_left_top",
+        "bin_right_top",
+        "bin_bottom",
+        "bin_left_bottom",
+        "bin_right_bottom"
+    };
+
+    /// <summary>
+    /// Returns the canonical bin ID for <paramref name="index"/>.
+    /// Falls back to <c>bin_left_top</c> when the index exceeds the table.
+    /// </summary>
+    public static string GetBinID(int index)
+    {
+        return index < BinIDsByIndex.Length ? BinIDsByIndex[index] : BinIDsByIndex[0];
+    }
 }
 
 /// <summary>
@@ -148,7 +179,7 @@ public class NightDesignerData
             bins.Add(new BinDesignerData
             {
                 binIndex = idx,
-                binID    = $"bin_{(char)('A' + idx)}"
+                binID    = FloorDesignerData.GetBinID(idx)
             });
         }
 
@@ -167,7 +198,7 @@ public class BinDesignerData
     /// <summary>Zero-based position of this bin in the night's bin list.</summary>
     public int binIndex;
 
-    /// <summary>Runtime bin identifier (e.g. "bin_A", "bin_B").</summary>
+    /// <summary>Runtime bin identifier (e.g. "bin_left_top", "bin_right_top").</summary>
     public string binID = string.Empty;
 
     /// <summary>
