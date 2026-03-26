@@ -34,6 +34,12 @@ public class TowerManager : MonoBehaviour
     /// <summary>ScrollRect component that provides vertical scrolling for the tower.</summary>
     [SerializeField] private ScrollRect towerScrollRect;
 
+    /// <summary>
+    /// Manages the infinite tower background tiling.
+    /// Notified whenever the container height changes so it can resize and re-tile.
+    /// </summary>
+    [SerializeField] private TowerScrollView towerScrollView;
+
     // -------------------------------------------------------------------------
     // Layout constants — serialised so designers can tune without touching code
     // -------------------------------------------------------------------------
@@ -55,8 +61,16 @@ public class TowerManager : MonoBehaviour
     [SerializeField] private float groundHeight = 120f;
 
     // -------------------------------------------------------------------------
-    // Scene names
+    // Debug / testing
     // -------------------------------------------------------------------------
+
+    /// <summary>
+    /// When greater than zero, overrides the floor count derived from PlayerPrefs so
+    /// all blocks (including locked ones) are displayed regardless of player progress.
+    /// Set to 0 in production builds to restore normal progression behaviour.
+    /// </summary>
+    [Header("Debug")]
+    [SerializeField] private int debugFloorCount = 0;
 
     [SerializeField] private string gameSceneName = "GameScene";
 
@@ -108,9 +122,8 @@ public class TowerManager : MonoBehaviour
         // from the JSON saves used by DesignerTowerScene.
         int highestFloorReached = PlayerPrefs.GetInt(ProceduralHighestFloorKey, 0);
 
-        // Display all completed floors plus the current active one on top.
-        // On first launch highestFloorReached == 0, so totalBlockCount == 1 (Floor 1 only).
-        int totalBlockCount = highestFloorReached + 1;
+        // debugFloorCount > 0 overrides progression for testing: shows all blocks regardless of progress.
+        int totalBlockCount = debugFloorCount > 0 ? debugFloorCount : highestFloorReached + 1;
 
         for (int i = 0; i < totalBlockCount; i++)
         {
@@ -199,6 +212,10 @@ public class TowerManager : MonoBehaviour
     {
         float requiredHeight = groundHeight + totalBlocks * (blockHeight + blockSpacing);
         towerContainer.sizeDelta = new Vector2(towerContainer.sizeDelta.x, requiredHeight);
+
+        // Notify the background so it stretches and re-tiles to match the new content height.
+        if (towerScrollView != null)
+            towerScrollView.RefreshBackground(requiredHeight);
     }
 
     // -------------------------------------------------------------------------

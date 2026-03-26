@@ -26,6 +26,9 @@ public class MainMenuManager : MonoBehaviour
     /// <summary>Tower floor-selection ScrollRect, revealed by OpenTowerSelection().</summary>
     [SerializeField] private GameObject towerSelectionPanel;
 
+    /// <summary>Title panel hidden alongside the buttons when Play is pressed.</summary>
+    [SerializeField] private GameObject titlePanel;
+
     /// <summary>Options panel that slides up from below the screen.</summary>
     [SerializeField] private RectTransform optUI;
 
@@ -84,10 +87,24 @@ public class MainMenuManager : MonoBehaviour
     // Button callbacks
     // -------------------------------------------------------------------------
 
-    /// <summary>Called by Play_BTN onClick — loads GameScene.</summary>
+    /// <summary>
+    /// Called by Play_BTN onClick — hides the buttons and title, then cross-fades
+    /// the tower floor-selection scroll view into view.
+    /// </summary>
     public void OnPlayButtonClicked()
     {
-        SceneManager.LoadScene(gameSceneName);
+        ApplyCanvasGroup(_mainMenuGroup, alpha: 0f, interactable: false);
+
+        if (titlePanel != null)
+            titlePanel.SetActive(false);
+
+        OpenTowerSelection();
+    }
+
+    /// <summary>Called by History_BTN onClick — loads DesignerTowerScene.</summary>
+    public void OnHistoryButtonClicked()
+    {
+        SceneManager.LoadScene("DesignerTowerScene");
     }
 
     /// <summary>Called by Quit_BTN onClick — exits the application.</summary>
@@ -133,9 +150,15 @@ public class MainMenuManager : MonoBehaviour
             panelToActivate: towerSelectionPanel));
     }
 
-    /// <summary>Fades TowerScrollView out and restores BTN_Holder.</summary>
+    /// <summary>
+    /// Called by BackToMenu_BTN onClick — fades TowerScrollView out, restores the
+    /// main menu buttons and the title panel.
+    /// </summary>
     public void OnBackButtonClicked()
     {
+        if (titlePanel != null)
+            titlePanel.SetActive(true);
+
         if (_activeFade != null) StopCoroutine(_activeFade);
         _activeFade = StartCoroutine(CrossFadePanels(
             fadeOut:         _towerSelectionGroup,
