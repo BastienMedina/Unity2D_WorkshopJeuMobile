@@ -75,6 +75,12 @@ public class GameManager : MonoBehaviour
     /// </summary>
     [SerializeField] private FloorDifficultyProgression floorDifficultyProgression;
 
+    /// <summary>
+    /// Shows the game over screen when the player fails a day.
+    /// Drag the GAME OVER ANIMATION root GameObject here in the Inspector.
+    /// </summary>
+    [SerializeField] private GameOverController gameOverController;
+
     // -------------------------------------------------------------------------
     // Inspector-editable progression state
     // -------------------------------------------------------------------------
@@ -334,13 +340,10 @@ public class GameManager : MonoBehaviour
 
     /// <summary>
     /// Called by ProfitabilityManager when profitability drops below the fail threshold.
-    /// Stops spawning, clears all stacks, resets to day 1 of the current floor,
-    /// and starts the failure transition. Floor index is NOT reset — the player retains
-    /// floor progress but must replay the day arc from the beginning.
-    /// Does NOT return to TowerScene — failure stays in GameScene so the player can retry
-    /// the floor immediately without navigating back through the tower.
-    /// Floor bonuses persist (they were earned), but rules are regenerated so the player
-    /// does not memorise the exact same rule set on retry.
+    /// Stops all active gameplay systems and shows the Game Over screen.
+    /// The screen waits for player input: Retry restarts the floor, Return goes to Menu_Principal.
+    /// DayTransitionManager is intentionally bypassed here — the Game Over screen replaces
+    /// the transition overlay and does NOT auto-advance to InitializeDay.
     /// </summary>
     private void OnDayFailed()
     {
@@ -348,16 +351,31 @@ public class GameManager : MonoBehaviour
         documentSpawner.ClearAllDocuments();
         documentStackManager.ClearStack();
 
-        // Restart the floor from night 1 — rules come from the floor JSON (night index 0),
-        // never from procedural generation. currentFloorSaveData stays intact across the retry.
+        if (gameOverController != null)
+        {
+            gameOverController.Show();
+        }
+        else
+        {
+            // Fallback when GameOverController is not assigned: behave as before
+            // so the game is never stuck in a broken state during development.
+            Debug.LogWarning("[GameManager] OnDayFailed: GameOverController is not assigned. " +
+                             "Drag the GAME OVER ANIMATION root into the GameOverController slot on GameManager.");
+            currentDayIndex = 0;
+            dayTransitionManager.PlayTransition(-1, currentFloorIndex, null);
+        }
+    }
+
+    /// <summary>
+    /// Resets the day counter and restarts the current floor from day 1.
+    /// Called by GameOverController when the player presses the Retry button.
+    /// Floor bonuses applied earlier in the session are intentionally preserved —
+    /// they were earned and must not be re-applied on retry (isFloorBonusApplied stays true).
+    /// </summary>
+    public void RestartCurrentFloor()
+    {
         currentDayIndex = 0;
-
-        // -1 is the failure sentinel understood by DayTransitionManager.PlayTransition(),
-        // which displays "FAILED — Back to Day 1" regardless of day index.
-        dayTransitionManager.PlayTransition(-1, currentFloorIndex, null);
-
-        if (animationSequenceManager != null)
-            animationSequenceManager.PlaySequence(AnimationSequenceManager.TransitionType.DayFail);
+        InitializeDay();
     }
 
     /// <summary>
