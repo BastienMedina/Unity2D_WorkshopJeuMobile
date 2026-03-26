@@ -249,7 +249,10 @@ public static class FloorDesignerSaveUtils
             rulesPerBin        = source.rulesPerBin,
             maxRuleComplexity  = source.maxRuleComplexity,
             isCompleted        = false,
-            wasGenerated       = true,
+            // Designer-authored floors are story-mode floors, not procedurally generated.
+            // wasGenerated = false ensures GameManager routes completion saves through
+            // FloorSaveSystem (JSON) instead of PlayerPrefs (procedural mode).
+            wasGenerated       = false,
             floorSeed          = string.Empty,
             specificities      = new List<string>(),
             rules              = new List<SavedRuleData>(),

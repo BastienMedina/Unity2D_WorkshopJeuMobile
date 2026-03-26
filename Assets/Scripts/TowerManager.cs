@@ -6,9 +6,15 @@ using UnityEngine.UI;
 /// <summary>
 /// MonoBehaviour that builds and displays the floor tower at runtime, manages vertical scrolling,
 /// responds to floor block taps, and triggers the transition to GameScene.
-/// Operates exclusively in procedural mode: floor parameters are generated at runtime by
-/// FloorDifficultyProgression and progress is tracked in PlayerPrefs only.
-/// Does NOT read or write floor_N.json files — JSON persistence belongs to DesignerTowerScene.
+///
+/// Supports two modes depending on whether a FloorSaveSystem is assigned:
+/// - Procedural mode (no FloorSaveSystem): parameters are generated at runtime by
+///   FloorDifficultyProgression and progress is tracked in PlayerPrefs only.
+/// - Designer mode (FloorSaveSystem assigned): floor parameters are loaded from floor_N.json
+///   files authored in the Floor Designer tool. Only floors with a save file are selectable.
+///
+/// Both modes write FloorSessionData before loading GameScene so GameManager always receives
+/// the same interface regardless of which mode produced the data.
 /// </summary>
 public class TowerManager : MonoBehaviour
 {
@@ -18,7 +24,8 @@ public class TowerManager : MonoBehaviour
 
     /// <summary>
     /// Computes floor parameters from base values and per-floor deltas.
-    /// Passed null for saveSystem on every call — procedural mode never reads from disk.
+    /// In procedural mode, GetOrGenerateFloorData is called with a null saveSystem.
+    /// In designer mode, GetOrGenerateFloorData is called with the live FloorSaveSystem.
     /// </summary>
     [SerializeField] private FloorDifficultyProgression floorDifficultyProgression;
 
@@ -39,6 +46,14 @@ public class TowerManager : MonoBehaviour
     /// Notified whenever the container height changes so it can resize and re-tile.
     /// </summary>
     [SerializeField] private TowerScrollView towerScrollView;
+
+    /// <summary>
+    /// Optional reference to the FloorSaveSystem singleton.
+    /// When assigned, the tower operates in designer mode and only renders floors that have a
+    /// corresponding floor_N.json file. When null, the tower operates in procedural mode.
+    /// Assign the FloorSaveSystem GameObject present in the Menu_Principal scene.
+    /// </summary>
+    [SerializeField] private FloorSaveSystem floorSaveSystem;
 
     // -------------------------------------------------------------------------
     // Layout constants — serialised so designers can tune without touching code
@@ -100,6 +115,12 @@ public class TowerManager : MonoBehaviour
 
     private void Start()
     {
+        // Fallback: if no FloorSaveSystem was assigned in Inspector, try the singleton.
+        // This handles the case where FloorSaveSystemBootstrap created it via DontDestroyOnLoad
+        // from a previous scene load, meaning it won't be in the hierarchy at edit time.
+        if (floorSaveSystem == null)
+            floorSaveSystem = FloorSaveSystem.Instance;
+
         LoadAndBuildTower();
         ScrollToCurrentFloor();
     }
@@ -109,45 +130,25 @@ public class TowerManager : MonoBehaviour
     // -------------------------------------------------------------------------
 
     /// <summary>
-    /// Reads procedural progress from PlayerPrefs and instantiates one floor block per reached floor,
-    /// plus one extra block for the current (not yet completed) floor on top.
-    /// On first launch (no PlayerPrefs key) the player sees exactly one block — Floor 1.
-    /// Never reads floor_N.json files — procedural progress lives in PlayerPrefs only.
+    /// Builds the tower based on the active mode:
+    /// - Designer mode (floorSaveSystem assigned): reads all floor_N.json files from disk
+    ///   and displays one block per saved floor. Blocks are non-interactive if no save exists.
+    /// - Procedural mode (floorSaveSystem null): reads progress from PlayerPrefs and generates
+    ///   blocks procedurally, one per reached floor plus one for the current floor on top.
     /// </summary>
     public void LoadAndBuildTower()
     {
-        // PlayerPrefs stores the zero-based index of the highest floor the player has
-        // fully completed. Defaults to 0 on first launch so the player sees one block.
-        // This key is written exclusively by AddNewFloorBlock() and is completely isolated
-        // from the JSON saves used by DesignerTowerScene.
-        int highestFloorReached = PlayerPrefs.GetInt(ProceduralHighestFloorKey, 0);
-
-        // debugFloorCount > 0 overrides progression for testing: shows all blocks regardless of progress.
-        int totalBlockCount = debugFloorCount > 0 ? debugFloorCount : highestFloorReached + 1;
-
-        for (int i = 0; i < totalBlockCount; i++)
-        {
-            // Generate floor data procedurally — pass null for saveSystem so
-            // FloorDifficultyProgression skips all file-loading logic entirely.
-            FloorSaveData data = floorDifficultyProgression.GetOrGenerateFloorData(i, null);
-
-            bool isCompleted = i < highestFloorReached;
-            bool isCurrent   = i == highestFloorReached;
-
-            if (isCurrent)
-                currentFloorIndex = i;
-
-            SpawnBlock(i, isCompleted, isCurrent, data);
-        }
-
-        UpdateContainerHeight(totalBlockCount);
+        if (floorSaveSystem != null)
+            BuildDesignerTower();
+        else
+            BuildProceduralTower();
     }
 
     /// <summary>
     /// Instantiates a new floor block for the given index and adds it to the tower.
     /// Saves the new highest reached floor to PlayerPrefs so progress survives app restarts.
     /// Called by GameManager after a floor is completed so the tower grows without a full scene reload.
-    /// Never writes floor_N.json — procedural progress uses PlayerPrefs exclusively.
+    /// Only valid in procedural mode — in designer mode, the tower is defined by saved files.
     /// </summary>
     /// <param name="newFloorIndex">Zero-based index of the new floor block to add.</param>
     public void AddNewFloorBlock(int newFloorIndex)
@@ -170,6 +171,66 @@ public class TowerManager : MonoBehaviour
     // -------------------------------------------------------------------------
     // Private helpers — building
     // -------------------------------------------------------------------------
+
+    /// <summary>
+    /// Designer mode: scans all floor_N.json files and renders one block per saved floor.
+    /// Blocks whose save file exists are interactive; all others are locked.
+    /// The highest saved floor index determines how many blocks to show.
+    /// </summary>
+    private void BuildDesignerTower()
+    {
+        int highestSaved = floorSaveSystem.GetHighestSavedFloorIndex();
+
+        // Always show at least one block (floor 0) so the UI is never empty.
+        int totalBlockCount = debugFloorCount > 0 ? debugFloorCount : Mathf.Max(highestSaved + 1, 1);
+
+        for (int i = 0; i < totalBlockCount; i++)
+        {
+            bool hasSave    = floorSaveSystem.FloorExists(i);
+            FloorSaveData data = hasSave
+                ? floorSaveSystem.LoadFloor(i)
+                : floorDifficultyProgression.GetOrGenerateFloorData(i, null);
+
+            bool isCompleted = hasSave && data != null && data.isCompleted;
+            bool isCurrent   = hasSave && !isCompleted;
+
+            if (isCurrent)
+                currentFloorIndex = i;
+
+            SpawnBlock(i, isCompleted, isCurrent, data);
+        }
+
+        UpdateContainerHeight(totalBlockCount);
+    }
+
+    /// <summary>
+    /// Procedural mode: reads highest reached floor from PlayerPrefs and builds the tower.
+    /// Parameters are generated at runtime — no disk reads.
+    /// </summary>
+    private void BuildProceduralTower()
+    {
+        int highestFloorReached = PlayerPrefs.GetInt(ProceduralHighestFloorKey, 0);
+
+        // debugFloorCount > 0 overrides progression for testing: shows all blocks regardless of progress.
+        int totalBlockCount = debugFloorCount > 0 ? debugFloorCount : highestFloorReached + 1;
+
+        for (int i = 0; i < totalBlockCount; i++)
+        {
+            // Generate floor data procedurally — pass null for saveSystem so
+            // FloorDifficultyProgression skips all file-loading logic entirely.
+            FloorSaveData data = floorDifficultyProgression.GetOrGenerateFloorData(i, null);
+
+            bool isCompleted = i < highestFloorReached;
+            bool isCurrent   = i == highestFloorReached;
+
+            if (isCurrent)
+                currentFloorIndex = i;
+
+            SpawnBlock(i, isCompleted, isCurrent, data);
+        }
+
+        UpdateContainerHeight(totalBlockCount);
+    }
 
     /// <summary>
     /// Instantiates one FloorBlock prefab, positions it, initialises it, and wires its event.
@@ -249,26 +310,48 @@ public class TowerManager : MonoBehaviour
 
     /// <summary>
     /// Called when the player taps a floor block.
-    /// Generates the floor's data procedurally (no disk read), stores it in FloorSessionData
-    /// for GameScene to read, and transitions to GameScene.
-    /// IsReplayingFloor is always false — procedural floors are never exact replays.
+    ///
+    /// Designer mode: loads the exact FloorSaveData from disk so GameManager reproduces
+    /// the designer-authored rule set for every night of this floor.
+    ///
+    /// Procedural mode: generates data at runtime via FloorDifficultyProgression.
+    ///
+    /// In both cases, FloorSessionData is populated and GameScene is loaded.
+    /// IsReplayingFloor is always false — the player always starts fresh from night 1.
     /// </summary>
     /// <param name="floorIndex">Zero-based index of the tapped floor block.</param>
     private void OnFloorSelected(int floorIndex)
     {
         Debug.Log("[TowerManager] Floor selected: " + floorIndex);
 
-        // Generate data procedurally — null saveSystem tells FloorDifficultyProgression
-        // to skip all file-loading and use the inheritance chain exclusively.
-        FloorSaveData selectedFloorData = floorDifficultyProgression.GetOrGenerateFloorData(
-            floorIndex, null);
+        FloorSaveData selectedFloorData;
 
-        // Procedural floors are never replays — rules are always generated fresh at runtime.
-        // Setting IsReplayingFloor = false ensures GameManager calls InitializeFromFloorData()
-        // rather than RestoreFloorFromSave(), which would look for saved rules that do not exist.
+        if (floorSaveSystem != null && floorSaveSystem.FloorExists(floorIndex))
+        {
+            // Designer mode — load the exact save authored in the Floor Designer.
+            // GameManager will read BinSaveData from each night to reconstruct the
+            // designer-authored rule set via RestoreRulesFromNight().
+            selectedFloorData = floorSaveSystem.LoadFloor(floorIndex);
+
+            Debug.Log($"[TowerManager] Designer floor {floorIndex} loaded from disk " +
+                      $"({selectedFloorData?.nights?.Count ?? 0} nights).");
+        }
+        else
+        {
+            // Procedural mode — generate data entirely at runtime.
+            // Passing null tells FloorDifficultyProgression to skip file-loading.
+            selectedFloorData = floorDifficultyProgression.GetOrGenerateFloorData(
+                floorIndex, null);
+
+            Debug.Log($"[TowerManager] Procedural floor {floorIndex} generated.");
+        }
+
+        // IsReplayingFloor = false → GameManager calls InitializeFromFloorData() / InitializeDay(),
+        // which applies per-night BinSaveData rules when present or falls back to procedural generation.
         FloorSessionData.SelectedFloor    = selectedFloorData;
         FloorSessionData.IsReplayingFloor = false;
 
         SceneManager.LoadScene(gameSceneName);
     }
 }
+

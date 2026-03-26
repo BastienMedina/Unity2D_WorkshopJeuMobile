@@ -689,7 +689,7 @@ public class RuleLibraryWindow : EditorWindow
     {
         List<string> pool = new List<string>();
         for (int i = 0; i < numberOfBins; i++)
-            pool.Add($"bin_{(char)('A' + i)}");
+            pool.Add(FloorDesignerData.GetBinID(i));
 
         int index1 = UnityEngine.Random.Range(0, pool.Count);
         entry.resolvedBin1 = pool[index1];

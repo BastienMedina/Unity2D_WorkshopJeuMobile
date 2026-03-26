@@ -51,16 +51,17 @@ public static class FloorDesignerRuleGen
         if (numberOfBins <= 0 || rulesPerBin <= 0)
             return bins;
 
-        // Build the bin ID list: bin_A, bin_B, ...
+        // Build bin list using the canonical scene IDs — must match SortingBin.binID in GameScene.
         List<string> binIDs = new List<string>();
         for (int i = 0; i < numberOfBins; i++)
         {
+            string id = FloorDesignerData.GetBinID(i);
             bins.Add(new BinDesignerData
             {
                 binIndex = i,
-                binID    = $"bin_{(char)('A' + i)}"
+                binID    = id
             });
-            binIDs.Add(bins[i].binID);
+            binIDs.Add(id);
         }
 
         // Build the specificity pool: pinned list or full database, minus already-used entries.
@@ -127,16 +128,17 @@ public static class FloorDesignerRuleGen
         if (numberOfBins <= 0 || rulesPerBin <= 0)
             return bins;
 
-        // Build bin ID list.
+        // Build bin list using the canonical scene IDs — must match SortingBin.binID in GameScene.
         List<string> binIDs = new List<string>();
         for (int i = 0; i < numberOfBins; i++)
         {
+            string id = FloorDesignerData.GetBinID(i);
             bins.Add(new BinDesignerData
             {
                 binIndex = i,
-                binID    = $"bin_{(char)('A' + i)}"
+                binID    = id
             });
-            binIDs.Add(bins[i].binID);
+            binIDs.Add(id);
         }
 
         // Filter library entries by complexity.
