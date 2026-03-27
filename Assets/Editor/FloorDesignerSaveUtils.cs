@@ -277,6 +277,9 @@ public static class FloorDesignerSaveUtils
                 hasTrashedPrefab    = night.hasTrashedPrefab,
                 trashedPrefabPaths  = night.hasTrashedPrefab
                     ? new List<string>(night.trashedPrefabPaths)
+                    : new List<string>(),
+                trashRuleGuids      = night.hasTrashedPrefab
+                    ? new List<string>(night.trashRuleGuids)
                     : new List<string>()
             };
 
@@ -357,6 +360,9 @@ public static class FloorDesignerSaveUtils
                     hasTrashedPrefab    = nightSave.hasTrashedPrefab,
                     trashedPrefabPaths  = nightSave.trashedPrefabPaths != null
                         ? new List<string>(nightSave.trashedPrefabPaths)
+                        : new List<string>(),
+                    trashRuleGuids      = nightSave.trashRuleGuids != null
+                        ? new List<string>(nightSave.trashRuleGuids)
                         : new List<string>()
                 };
 

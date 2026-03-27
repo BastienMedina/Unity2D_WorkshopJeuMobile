@@ -132,12 +132,6 @@ public class FloorDesignerWindow : EditorWindow
     private Dictionary<int, int> replaceSecondaryBinIndex = new Dictionary<int, int>();
 
     /// <summary>
-    /// Per-night: index sélectionné dans le dropdown du prefab trash.
-    /// Key = nightIndex.
-    /// </summary>
-    private Dictionary<int, int> trashPrefabDropdownIndex = new Dictionary<int, int>();
-
-    /// <summary>
     /// Per-rule: index du dropdown "Corbeille 1 → bin physique" pour les règles Branch.
     /// Key = nightIndex * 1000 + binIndex * 100 + ruleIndex.
     /// </summary>
@@ -1252,10 +1246,8 @@ public class FloorDesignerWindow : EditorWindow
     /// Dessine la section "Corbeille Poubelle" en bas d'un panneau de nuit.
     ///
     /// Un toggle active ou désactive la poubelle (5e corbeille, bas-centre).
-    /// Quand elle est active, une liste de prefabs peut être assignée ; chaque prefab
-    /// sélectionné sera injecté dans le pool de spawn de cette nuit en plus des
-    /// prefabs des corbeilles normales.
-    /// Seuls les prefabs de la Rule Library absents des règles de la nuit sont proposés.
+    /// Quand elle est active, une ou plusieurs règles de la Rule Library peuvent être
+    /// assignées à la poubelle pour définir quels documents doivent y être triés.
     /// </summary>
     private void DrawTrashBinSection(FloorDesignerData floor, NightDesignerData night, int nightIndex)
     {
@@ -1268,7 +1260,7 @@ public class FloorDesignerWindow : EditorWindow
         {
             night.hasTrashedPrefab = newHasTrash;
             if (!newHasTrash)
-                night.trashedPrefabPaths.Clear();
+                night.trashRuleGuids.Clear();
             floor.isDirty = true;
         }
 
@@ -1278,78 +1270,141 @@ public class FloorDesignerWindow : EditorWindow
             return;
         }
 
-        // Collecte des prefabs libres (non assignés aux corbeilles normales de cette nuit).
-        List<string> freePrefabPaths = GetFreePrefabPaths(night);
+        EditorGUILayout.Space(4f);
+        EditorGUILayout.LabelField("Règles assignées à la poubelle :", EditorStyles.boldLabel);
 
-        if (freePrefabPaths.Count == 0)
+        DrawTrashRulesSection(floor, night, nightIndex);
+
+        EditorGUILayout.EndVertical();
+    }
+
+    /// <summary>
+    /// Dessine la liste des règles actuellement assignées à la poubelle,
+    /// ainsi qu'un formulaire pour en ajouter depuis la Rule Library.
+    /// Chaque règle assignée peut être supprimée individuellement.
+    /// Utilise les GUIDs des entrées pour identifier les règles de manière stable.
+    /// </summary>
+    private void DrawTrashRulesSection(FloorDesignerData floor, NightDesignerData night, int nightIndex)
+    {
+        bool libraryReady = libraryEntries.Count > 0;
+
+        // ── Règles déjà assignées ─────────────────────────────────────────────
+        if (night.trashRuleGuids.Count == 0)
         {
-            EditorGUILayout.HelpBox(
-                "Tous les prefabs sont déjà assignés à une corbeille normale.\n" +
-                "Ajoutez un prefab supplémentaire dans la Rule Library.",
-                MessageType.Warning);
-            EditorGUILayout.EndVertical();
-            return;
-        }
-
-        EditorGUILayout.LabelField("Documents poubelle :", EditorStyles.boldLabel);
-
-        // Liste des prefabs déjà assignés à la poubelle — avec bouton de suppression.
-        for (int i = night.trashedPrefabPaths.Count - 1; i >= 0; i--)
-        {
-            string assignedPath = night.trashedPrefabPaths[i];
-            string label        = $"📦 {System.IO.Path.GetFileNameWithoutExtension(assignedPath)}";
-
-            EditorGUILayout.BeginHorizontal();
-            EditorGUILayout.LabelField(label);
-
-            GUI.backgroundColor = new Color(1f, 0.35f, 0.35f);
-            if (GUILayout.Button("✕", GUILayout.Width(28f)))
-            {
-                night.trashedPrefabPaths.RemoveAt(i);
-                floor.isDirty = true;
-            }
-            GUI.backgroundColor = Color.white;
-
-            EditorGUILayout.EndHorizontal();
-        }
-
-        // Prefabs libres non encore assignés à la poubelle.
-        List<string> availablePaths = new List<string>();
-        foreach (string path in freePrefabPaths)
-        {
-            if (!night.trashedPrefabPaths.Contains(path))
-                availablePaths.Add(path);
-        }
-
-        if (availablePaths.Count > 0)
-        {
-            string[] dropdownLabels = new string[availablePaths.Count + 1];
-            dropdownLabels[0] = "— Ajouter un prefab poubelle —";
-            for (int i = 0; i < availablePaths.Count; i++)
-                dropdownLabels[i + 1] = $"📦 {System.IO.Path.GetFileNameWithoutExtension(availablePaths[i])}";
-
-            if (!trashPrefabDropdownIndex.ContainsKey(nightIndex))
-                trashPrefabDropdownIndex[nightIndex] = 0;
-
-            EditorGUI.BeginChangeCheck();
-            trashPrefabDropdownIndex[nightIndex] = EditorGUILayout.Popup(
-                trashPrefabDropdownIndex[nightIndex],
-                dropdownLabels);
-
-            if (EditorGUI.EndChangeCheck() && trashPrefabDropdownIndex[nightIndex] > 0)
-            {
-                int selectedIdx = trashPrefabDropdownIndex[nightIndex] - 1;
-                night.trashedPrefabPaths.Add(availablePaths[selectedIdx]);
-                trashPrefabDropdownIndex[nightIndex] = 0;
-                floor.isDirty = true;
-            }
+            EditorGUILayout.LabelField("Aucune règle assignée à la poubelle.", EditorStyles.miniLabel);
         }
         else
         {
-            EditorGUILayout.HelpBox("Tous les prefabs libres ont été ajoutés.", MessageType.Info);
+            for (int i = night.trashRuleGuids.Count - 1; i >= 0; i--)
+            {
+                string guid  = night.trashRuleGuids[i];
+                string label = BuildTrashRuleLabel(guid);
+
+                EditorGUILayout.BeginHorizontal(EditorStyles.helpBox);
+                EditorGUILayout.LabelField($"🗑 {label}", GUILayout.ExpandWidth(true));
+
+                GUI.backgroundColor = new Color(1f, 0.35f, 0.35f);
+                if (GUILayout.Button("✕", GUILayout.Width(28f)))
+                {
+                    night.trashRuleGuids.RemoveAt(i);
+                    floor.isDirty = true;
+                }
+                GUI.backgroundColor = Color.white;
+
+                EditorGUILayout.EndHorizontal();
+            }
         }
 
-        EditorGUILayout.EndVertical();
+        EditorGUILayout.Space(2f);
+
+        // ── Formulaire d'ajout ────────────────────────────────────────────────
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.LabelField("── Ajouter une règle depuis la bibliothèque ──", EditorStyles.boldLabel);
+        if (GUILayout.Button("↻", GUILayout.Width(24f)))
+            LoadRuleLibrary();
+        EditorGUILayout.EndHorizontal();
+
+        if (!libraryReady)
+        {
+            EditorGUILayout.HelpBox(
+                "Aucune règle trouvée dans la bibliothèque.\nOuvrez Tools → Rule Library pour créer des règles.",
+                MessageType.Warning);
+            return;
+        }
+
+        // Construit la liste des entrées non encore assignées à la poubelle pour cette nuit.
+        List<RuleLibraryEntry> available    = new List<RuleLibraryEntry>();
+        List<string>           availLabels  = new List<string>();
+        availLabels.Add("— Sélectionner une règle —");
+
+        foreach (RuleLibraryEntry entry in libraryEntries)
+        {
+            if (!string.IsNullOrEmpty(entry.guid) && night.trashRuleGuids.Contains(entry.guid))
+                continue;
+
+            available.Add(entry);
+            string stars = new string('★', entry.complexity);
+            availLabels.Add($"[{stars}] {entry.label}");
+        }
+
+        // Clé de dropdown spécifique à la sous-section poubelle : offset négatif pour éviter
+        // toute collision avec les clés de corbeille normales (nightIndex * 10 + binIdx).
+        int trashRuleKey = -(nightIndex + 1);
+
+        if (!addLibraryEntryIndex.ContainsKey(trashRuleKey))
+            addLibraryEntryIndex[trashRuleKey] = 0;
+
+        EditorGUI.BeginChangeCheck();
+        int newDropdownIdx = EditorGUILayout.Popup(
+            addLibraryEntryIndex[trashRuleKey],
+            availLabels.ToArray());
+
+        if (EditorGUI.EndChangeCheck())
+            addLibraryEntryIndex[trashRuleKey] = newDropdownIdx;
+
+        bool canAdd = addLibraryEntryIndex[trashRuleKey] > 0 && available.Count > 0;
+
+        GUI.backgroundColor = new Color(0.4f, 0.85f, 0.4f);
+        using (new EditorGUI.DisabledScope(!canAdd))
+        {
+            if (GUILayout.Button("+ Assigner à la poubelle"))
+            {
+                int entryIdx = addLibraryEntryIndex[trashRuleKey] - 1;
+                if (entryIdx >= 0 && entryIdx < available.Count)
+                {
+                    RuleLibraryEntry selected = available[entryIdx];
+                    string guid = selected.guid;
+
+                    if (!string.IsNullOrEmpty(guid) && !night.trashRuleGuids.Contains(guid))
+                    {
+                        night.trashRuleGuids.Add(guid);
+                        floor.isDirty = true;
+                    }
+
+                    addLibraryEntryIndex[trashRuleKey] = 0;
+                }
+            }
+        }
+        GUI.backgroundColor = Color.white;
+    }
+
+    /// <summary>
+    /// Construit un label lisible pour une règle assignée à la poubelle à partir de son GUID.
+    /// Retrouve l'entrée correspondante dans libraryEntries ; affiche le GUID tronqué en fallback.
+    /// </summary>
+    private string BuildTrashRuleLabel(string guid)
+    {
+        foreach (RuleLibraryEntry entry in libraryEntries)
+        {
+            if (entry.guid == guid)
+            {
+                string stars = new string('★', entry.complexity);
+                return $"[{stars}] {entry.label}";
+            }
+        }
+
+        // Fallback : GUID inconnu (entrée supprimée de la bibliothèque).
+        return $"(GUID inconnu : {(guid.Length > 8 ? guid.Substring(0, 8) : guid)}…)";
     }
 
     /// <summary>

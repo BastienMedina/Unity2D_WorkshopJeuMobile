@@ -194,6 +194,13 @@ public class NightDesignerData
     /// </summary>
     public List<string> trashedPrefabPaths = new List<string>();
 
+    /// <summary>
+    /// GUIDs of Rule Library entries explicitly assigned as rules for the trash bin.
+    /// These rules define what documents must be sorted into the trash bin.
+    /// Only populated when hasTrashedPrefab is true.
+    /// </summary>
+    public List<string> trashRuleGuids = new List<string>();
+
     // ─── Legacy flat rule list — kept for backward-compatibility on load ───────
 
     /// <summary>

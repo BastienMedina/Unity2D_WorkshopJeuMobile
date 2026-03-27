@@ -118,6 +118,13 @@ public class NightSaveData
     /// Only relevant when hasTrashedPrefab is true.
     /// </summary>
     public List<string> trashedPrefabPaths = new List<string>();
+
+    /// <summary>
+    /// GUIDs of Rule Library entries assigned as rules for the trash bin.
+    /// These rules define what documents the player must sort into the trash bin.
+    /// Only relevant when hasTrashedPrefab is true.
+    /// </summary>
+    public List<string> trashRuleGuids = new List<string>();
 }
 
 /// <summary>
