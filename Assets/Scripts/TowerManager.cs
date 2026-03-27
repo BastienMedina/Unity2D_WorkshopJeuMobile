@@ -42,6 +42,12 @@ public class TowerManager : MonoBehaviour
     [SerializeField] private ScrollRect towerScrollRect;
 
     /// <summary>
+    /// Reference to TransitionManager so the RDC button can trigger PlayTransitionToMainMenu().
+    /// Assign the MenuController GameObject in the Inspector.
+    /// </summary>
+    [SerializeField] private TransitionManager transitionManager;
+
+    /// <summary>
     /// Manages the infinite tower background tiling.
     /// Notified whenever the container height changes so it can resize and re-tile.
     /// </summary>
@@ -201,6 +207,7 @@ public class TowerManager : MonoBehaviour
         }
 
         UpdateContainerHeight(totalBlockCount);
+        SpawnRdcButton(totalBlockCount);
     }
 
     /// <summary>
@@ -230,6 +237,7 @@ public class TowerManager : MonoBehaviour
         }
 
         UpdateContainerHeight(totalBlockCount);
+        SpawnRdcButton(totalBlockCount);
     }
 
     /// <summary>
@@ -261,6 +269,37 @@ public class TowerManager : MonoBehaviour
         blockRect.anchoredPosition = new Vector2(0f, yPosition);
 
         spawnedBlocks.Add(block);
+    }
+
+    /// <summary>
+    /// Spawns an RDC block at position y = 0 (below all floor blocks) using the same prefab.
+    /// Tapping it calls TransitionManager.PlayTransitionToMainMenu().
+    /// </summary>
+    /// <param name="totalFloorCount">Used only for container height — RDC is placed at y = 0.</param>
+    private void SpawnRdcButton(int totalFloorCount)
+    {
+        if (floorBlockPrefab == null) return;
+
+        GameObject rdcObject = Instantiate(floorBlockPrefab, towerContainer);
+        FloorBlock rdcBlock  = rdcObject.GetComponent<FloorBlock>();
+
+        if (rdcBlock == null)
+        {
+            Debug.LogError("[TowerManager] floorBlockPrefab is missing a FloorBlock component (RDC).");
+            return;
+        }
+
+        rdcBlock.InitializeAsRDC(() =>
+        {
+            if (transitionManager != null)
+                transitionManager.PlayTransitionToMainMenu();
+            else
+                Debug.LogWarning("[TowerManager] TransitionManager not assigned — RDC button has no effect.");
+        });
+
+        // RDC sits at the very bottom, below floor index 0.
+        RectTransform rdcRect = rdcObject.GetComponent<RectTransform>();
+        rdcRect.anchoredPosition = new Vector2(0f, 0f);
     }
 
     /// <summary>

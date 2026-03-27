@@ -71,6 +71,29 @@ public class FloorBlock : MonoBehaviour
     /// </summary>
     public event Action<int> OnFloorSelected;
 
+    /// <summary>
+    /// Configures this block as the RDC (ground floor / return) button.
+    /// Uses the same visual style as a current floor but displays "RDC" instead of a floor number.
+    /// onRdcTapped is invoked when the player taps the block.
+    /// </summary>
+    /// <param name="onRdcTapped">Callback fired on tap — wire to TransitionManager.PlayTransitionToMainMenu.</param>
+    public void InitializeAsRDC(Action onRdcTapped)
+    {
+        floorIndex  = -1;
+        isCompleted = false;
+        isCurrent   = true; // Use current style so it's always interactive.
+
+        if (floorLabel  != null) floorLabel.text = "RDC";
+        if (blockImage  != null) blockImage.color = currentColor;
+
+        if (enterButton != null)
+        {
+            enterButton.interactable = true;
+            enterButton.onClick.RemoveAllListeners();
+            enterButton.onClick.AddListener(() => onRdcTapped?.Invoke());
+        }
+    }
+
     // -------------------------------------------------------------------------
     // Public API
     // -------------------------------------------------------------------------
