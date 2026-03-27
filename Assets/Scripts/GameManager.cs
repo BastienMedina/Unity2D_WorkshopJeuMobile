@@ -328,14 +328,18 @@ public class GameManager : MonoBehaviour
         // pendingSummary was built during the InitializeDay that started this day.
         dayTransitionManager.PlayTransition(currentDayIndex, currentFloorIndex, pendingSummary);
 
-        // Play the day-end animation canvas (sleep/dodo sequence).
-        // AnimationSequenceManager fires onSequenceComplete → OnAnimationSequenceComplete
-        // when done, which is NOT wired to InitializeDay here — DayTransitionManager.onTransitionComplete
-        // still drives InitializeDay so the existing timing contract is preserved.
-        // If you want the animation to gate InitializeDay instead, remove the
-        // dayTransitionManager subscription and route through OnAnimationSequenceComplete.
+        // Update the sleep animation label to show the day that just completed (1-based).
+        // currentDayIndex was already incremented above, so completedDay = currentDayIndex.
         if (animationSequenceManager != null)
+        {
+            SleepTransitionController sleepController =
+                animationSequenceManager.GetComponentInChildren<SleepTransitionController>(true);
+
+            if (sleepController != null)
+                sleepController.SetDayLabel(currentDayIndex);
+
             animationSequenceManager.PlaySequence(AnimationSequenceManager.TransitionType.DayEnd);
+        }
     }
 
     /// <summary>

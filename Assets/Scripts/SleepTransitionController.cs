@@ -22,6 +22,9 @@ public class SleepTransitionController : MonoBehaviour, IAnimationSequence
     [SerializeField] private AudioSource audioSource;
     [SerializeField] private AudioClip roosterClip;
 
+    [Header("Day Label")]
+    [SerializeField] private string dayLabelFormat = "Fin du jour {0}";
+
     [Header("Sequence Settings")]
     [SerializeField] private float fadeDuration = 1.5f;
     [SerializeField] private float animationStartOverlap = 0.5f;
@@ -42,6 +45,16 @@ public class SleepTransitionController : MonoBehaviour, IAnimationSequence
     // -------------------------------------------------------------------------
     // IAnimationSequence
     // -------------------------------------------------------------------------
+
+    /// <summary>
+    /// Sets the day label shown during the sleep animation.
+    /// Call this before Play() with the 1-based day number that just ended.
+    /// Example: completedDayNumber = 1 → "Fin du jour 1"
+    /// </summary>
+    public void SetDayLabel(int completedDayNumber)
+    {
+        nextDayText = string.Format(dayLabelFormat, completedDayNumber);
+    }
 
     /// <summary>
     /// Starts the sleep sequence. Called by AnimationSequenceManager.

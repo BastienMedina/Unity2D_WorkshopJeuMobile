@@ -4,10 +4,10 @@ using UnityEngine.SceneManagement;
 
 /// <summary>
 /// Drives the main menu:
-/// - Play   → loads GameScene immediately.
-/// - Quit   → exits the application.
-/// - Options → slides OPT_UI in from below (y = offscreenY → restY) on first press,
-///             slides it back out on second press.
+/// - Play    → hides buttons, reveals tower floor-selection.
+/// - Options → slides OPT_UI in/out from below.
+/// - Credits → fades BTN_Holder out, fades CREDIT_UI in. Return button reverses.
+/// - Quit    → exits the application.
 /// </summary>
 public class MainMenuManager : MonoBehaviour
 {
@@ -32,6 +32,9 @@ public class MainMenuManager : MonoBehaviour
     /// <summary>Options panel that slides up from below the screen.</summary>
     [SerializeField] private RectTransform optUI;
 
+    /// <summary>Credits panel faded in when the player taps Credit_BTN.</summary>
+    [SerializeField] private GameObject creditUI;
+
     [Header("Fade Settings")]
     /// <summary>Duration of the main-menu cross-fade in seconds.</summary>
     [SerializeField] private float fadeDuration = 0.4f;
@@ -51,6 +54,7 @@ public class MainMenuManager : MonoBehaviour
 
     private CanvasGroup _mainMenuGroup;
     private CanvasGroup _towerSelectionGroup;
+    private CanvasGroup _creditUIGroup;
     private Coroutine   _activeFade;
     private Coroutine   _activeSlide;
 
@@ -65,6 +69,7 @@ public class MainMenuManager : MonoBehaviour
     {
         _mainMenuGroup       = GetOrAddCanvasGroup(mainMenuPanel);
         _towerSelectionGroup = GetOrAddCanvasGroup(towerSelectionPanel);
+        _creditUIGroup       = GetOrAddCanvasGroup(creditUI);
 
         if (optUI != null)
         {
@@ -78,9 +83,13 @@ public class MainMenuManager : MonoBehaviour
     {
         ApplyCanvasGroup(_mainMenuGroup,       alpha: 1f, interactable: true);
         ApplyCanvasGroup(_towerSelectionGroup, alpha: 0f, interactable: false);
+        ApplyCanvasGroup(_creditUIGroup,       alpha: 0f, interactable: false);
 
         if (towerSelectionPanel != null)
             towerSelectionPanel.SetActive(false);
+
+        if (creditUI != null)
+            creditUI.SetActive(false);
     }
 
     // -------------------------------------------------------------------------
@@ -134,6 +143,31 @@ public class MainMenuManager : MonoBehaviour
     {
         if (_optUIOpen)
             SlideOptUI(to: optUIOffscreenY, onComplete: () => _optUIOpen = false);
+    }
+
+    /// <summary>
+    /// Called by Credit_BTN onClick — fades BTN_Holder out and fades CREDIT_UI in.
+    /// </summary>
+    public void OnCreditsButtonClicked()
+    {
+        if (_activeFade != null) StopCoroutine(_activeFade);
+        _activeFade = StartCoroutine(CrossFadePanels(
+            fadeOut:         _mainMenuGroup,
+            fadeIn:          _creditUIGroup,
+            panelToActivate: creditUI));
+    }
+
+    /// <summary>
+    /// Called by the Return button inside CREDIT_UI — fades CREDIT_UI out
+    /// and fades BTN_Holder back in.
+    /// </summary>
+    public void OnCreditsReturnClicked()
+    {
+        if (_activeFade != null) StopCoroutine(_activeFade);
+        _activeFade = StartCoroutine(CrossFadePanels(
+            fadeOut:          _creditUIGroup,
+            fadeIn:           _mainMenuGroup,
+            panelToActivate:  mainMenuPanel));
     }
 
     // -------------------------------------------------------------------------
