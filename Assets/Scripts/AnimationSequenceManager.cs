@@ -32,6 +32,12 @@ public class AnimationSequenceManager : MonoBehaviour
 
         /// <summary>Played when all days on a floor are completed (floor cleared).</summary>
         FloorComplete,
+
+        /// <summary>
+        /// Played immediately when the floor is won — shows the promotion letter
+        /// before the elevator sequence starts.
+        /// </summary>
+        FloorWin,
     }
 
     // -------------------------------------------------------------------------
@@ -66,6 +72,17 @@ public class AnimationSequenceManager : MonoBehaviour
     /// </summary>
     [SerializeField] private GameObject floorCompleteCanvas;
 
+    [Header("Floor Win Animation (promotion letter shown before elevator)")]
+
+    /// <summary>
+    /// Canvas played first when the floor is won.
+    /// Assign the REJOUER ANIMATION root GameObject here.
+    /// WinPromotionController drives the two buttons (Continue / Retour) from this Canvas.
+    /// AnimationSequenceManager only activates / deactivates it; the button logic lives in
+    /// WinPromotionController so responsibilities stay separated.
+    /// </summary>
+    [SerializeField] private GameObject winPromotionCanvas;
+
     [Header("Fallback Duration (seconds)")]
 
     /// <summary>
@@ -99,9 +116,10 @@ public class AnimationSequenceManager : MonoBehaviour
     private void Awake()
     {
         // All canvases start hidden — they are shown on demand by PlaySequence.
-        SetCanvasVisible(dayEndCanvas,      false);
-        SetCanvasVisible(dayFailCanvas,     false);
+        SetCanvasVisible(dayEndCanvas,       false);
+        SetCanvasVisible(dayFailCanvas,      false);
         SetCanvasVisible(floorCompleteCanvas, false);
+        SetCanvasVisible(winPromotionCanvas,  false);
     }
 
     // -------------------------------------------------------------------------
@@ -183,9 +201,22 @@ public class AnimationSequenceManager : MonoBehaviour
             case TransitionType.FloorComplete:
                 return floorCompleteCanvas;
 
+            case TransitionType.FloorWin:
+                return winPromotionCanvas;
+
             default:
                 return null;
         }
+    }
+
+    /// <summary>
+    /// Hides the win-promotion canvas without firing onSequenceComplete.
+    /// Called by WinPromotionController when the player presses a button so the canvas
+    /// disappears before the next sequence (elevator or menu load) starts.
+    /// </summary>
+    public void HideWinPromotion()
+    {
+        SetCanvasVisible(winPromotionCanvas, false);
     }
 
     /// <summary>
