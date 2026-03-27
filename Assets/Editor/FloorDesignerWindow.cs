@@ -29,7 +29,7 @@ public class FloorDesignerWindow : EditorWindow
     private const float DecayRateMax       = 8f;
 
     private const int NumberOfBinsMin      = 1;
-    private const int NumberOfBinsMax      = 5;
+    private const int NumberOfBinsMax      = 4;
     private const int RulesPerBinMin       = 1;
     private const int RulesPerBinMax       = 4;
     private const int MaxRuleComplexityMin = 1;
@@ -130,6 +130,24 @@ public class FloorDesignerWindow : EditorWindow
     /// Key = nightIndex * 1000 + binIndex * 100 + ruleIndex.
     /// </summary>
     private Dictionary<int, int> replaceSecondaryBinIndex = new Dictionary<int, int>();
+
+    /// <summary>
+    /// Per-night: index sélectionné dans le dropdown du prefab trash.
+    /// Key = nightIndex.
+    /// </summary>
+    private Dictionary<int, int> trashPrefabDropdownIndex = new Dictionary<int, int>();
+
+    /// <summary>
+    /// Per-rule: index du dropdown "Corbeille 1 → bin physique" pour les règles Branch.
+    /// Key = nightIndex * 1000 + binIndex * 100 + ruleIndex.
+    /// </summary>
+    private Dictionary<int, int> branchSlot1DropdownIndex = new Dictionary<int, int>();
+
+    /// <summary>
+    /// Per-rule: index du dropdown "Corbeille 2 → bin physique" pour les règles Branch.
+    /// Key = nightIndex * 1000 + binIndex * 100 + ruleIndex.
+    /// </summary>
+    private Dictionary<int, int> branchSlot2DropdownIndex = new Dictionary<int, int>();
 
     /// <summary>
     /// Opens the Floor Designer window from the Unity top menu.
@@ -292,9 +310,10 @@ public class FloorDesignerWindow : EditorWindow
     /// Charge toutes les entrées de la Rule Library depuis le JSON et reconstruit les labels
     /// affichés dans les dropdowns d'ajout/remplacement de règle.
     ///
-    /// Format du label : "[★ × complexité] label"
-    /// Les entrées sans conditions structurées (manuscript pur) sont exclues car elles n'ont
-    /// pas de logique d'assignation utilisable dans le Floor Designer.
+    /// Format du label : "[★ × complexité] 📦 nomPrefab" (mode prefab)
+    ///                ou "[★ × complexité] [connecteur] label" (mode conditions legacy)
+    /// Sont incluses : les entrées prefab ET les entrées structurées (conditions).
+    /// Les manuscrits purs sans prefab sont exclus — aucune logique d'assignation.
     /// </summary>
     private void LoadRuleLibrary()
     {
@@ -318,11 +337,13 @@ public class FloorDesignerWindow : EditorWindow
                 return;
             }
 
-            // Filtre : garder uniquement les entrées avec des conditions structurées.
+            // Inclure les entrées prefab ET les entrées avec conditions structurées (legacy).
             foreach (RuleLibraryEntry entry in file.entries)
             {
+                bool hasPrefab     = !string.IsNullOrEmpty(entry.prefabPath);
                 bool hasConditions = entry.conditions != null && entry.conditions.Count > 0;
-                if (hasConditions)
+
+                if (hasPrefab || hasConditions)
                     libraryEntries.Add(entry);
             }
 
@@ -330,10 +351,19 @@ public class FloorDesignerWindow : EditorWindow
             libraryEntryLabels = new string[libraryEntries.Count];
             for (int i = 0; i < libraryEntries.Count; i++)
             {
-                RuleLibraryEntry e       = libraryEntries[i];
-                string           stars   = new string('★', e.complexity);
-                string           connector = e.conditions.Count > 1 ? $" [{e.conditions[0].connector}]" : string.Empty;
-                libraryEntryLabels[i]    = $"[{stars}]{connector} {e.label}";
+                RuleLibraryEntry e     = libraryEntries[i];
+                string           stars = new string('★', e.complexity);
+
+                if (!string.IsNullOrEmpty(e.prefabPath))
+                {
+                    string prefabName      = System.IO.Path.GetFileNameWithoutExtension(e.prefabPath);
+                    libraryEntryLabels[i]  = $"[{stars}] 📦 {prefabName}";
+                }
+                else
+                {
+                    string connector      = e.conditions.Count > 1 ? $" [{e.conditions[0].connector}]" : string.Empty;
+                    libraryEntryLabels[i] = $"[{stars}]{connector} {e.label}";
+                }
             }
 
             Debug.Log($"[FloorDesigner] {libraryEntries.Count} règles chargées depuis la bibliothèque.");
@@ -768,7 +798,7 @@ public class FloorDesignerWindow : EditorWindow
             {
                 if (EditorUtility.DisplayDialog(
                     "Supprimer la corbeille",
-                    $"Supprimer la Corbeille {(char)('A' + night.numberOfBins - 1)} de la Nuit {nightIndex + 1} ?\n" +
+                    $"Supprimer la Corbeille {FloorDesignerData.GetBinDisplayName(FloorDesignerData.GetBinID(night.numberOfBins - 1))} de la Nuit {nightIndex + 1} ?\n" +
                     "Les règles qu'elle contient seront perdues.",
                     "Supprimer", "Annuler"))
                 {
@@ -784,6 +814,10 @@ public class FloorDesignerWindow : EditorWindow
         EditorGUILayout.LabelField($"({night.numberOfBins}/{NumberOfBinsMax})", binCountStyle);
 
         EditorGUILayout.EndHorizontal();
+
+        // ── Section Corbeille Poubelle ────────────────────────────────────────
+        EditorGUILayout.Space(6f);
+        DrawTrashBinSection(floor, night, nightIndex);
 
         EditorGUI.indentLevel--;
         EditorGUILayout.Space(4f);
@@ -806,7 +840,8 @@ public class FloorDesignerWindow : EditorWindow
         };
 
         GUI.backgroundColor = new Color(0.55f, 0.85f, 0.55f);
-        string binLabel = $"Corbeille {(char)('A' + binIdx)}  ({bin.rules.Count} règle{(bin.rules.Count != 1 ? "s" : "")})";
+        string binDisplayName = FloorDesignerData.GetBinDisplayName(bin.binID);
+        string binLabel = $"Corbeille {binDisplayName}  ({bin.rules.Count} règle{(bin.rules.Count != 1 ? "s" : "")})";
 
         EditorGUILayout.BeginVertical(EditorStyles.helpBox);
 
@@ -869,6 +904,12 @@ public class FloorDesignerWindow : EditorWindow
         }
         GUI.backgroundColor = Color.white;
         EditorGUILayout.EndHorizontal();
+
+        // ── Dropdowns Branch (slot 1 / slot 2 → corbeille physique) ──────────
+        bool isBranchRule = rule.ruleTypeString == RuleType.Branch.ToString()
+                         && !string.IsNullOrEmpty(rule.conditionB);
+        if (isBranchRule)
+            DrawBranchSlotAssignment(floor, night, nightIndex, bin, binIdx, ruleIdx, replaceKey, rule);
 
         // ── Formulaire de remplacement ────────────────────────────────────────
         if (!replaceLibraryEntryIndex.ContainsKey(replaceKey))
@@ -1005,23 +1046,22 @@ public class FloorDesignerWindow : EditorWindow
 
     /// <summary>
     /// Builds a structured French label from a DesignerRuleEntry's fields.
-    /// Always generated at draw time — never relies on the saved displayText,
-    /// which may contain stale English phrases from the old auto-generation system.
-    ///
-    /// Format by RuleType:
-    ///   PositiveForced          → "Si {condA} → {bin}"
-    ///   PositiveDouble          → "Si {condA} et {condB} → {bin}"
-    ///   PositiveWithNegative    → "Si {condA} sauf si {condB} → {bin}"
-    ///   PositiveOr              → "Si {condA} ou {condB} → {bin}"
-    ///   PositiveExclusive       → "Si uniquement {condA} → {bin}"
-    ///   NegativeSimple          → "Si pas {condA} → {bin}"
-    ///   Complement*             → préfixe "Complément : " + règle de base
+    /// In prefab mode: shows the prefab name and the target bin.
+    /// In condition mode: shows the rule logic.
     /// </summary>
     private static string BuildStructuredLabel(DesignerRuleEntry rule)
     {
-        string a   = string.IsNullOrEmpty(rule.conditionA) ? "?" : rule.conditionA;
-        string b   = string.IsNullOrEmpty(rule.conditionB) ? "?" : rule.conditionB;
         string bin = string.IsNullOrEmpty(rule.targetBinID) ? "?" : rule.targetBinID;
+
+        // Prefab mode: the prefabPath is stored in conditionA for display purposes.
+        if (!string.IsNullOrEmpty(rule.conditionA) && rule.conditionA.StartsWith("Assets/"))
+        {
+            string prefabName = System.IO.Path.GetFileNameWithoutExtension(rule.conditionA);
+            return $"📦 {prefabName} → {bin}";
+        }
+
+        string a = string.IsNullOrEmpty(rule.conditionA) ? "?" : rule.conditionA;
+        string b = string.IsNullOrEmpty(rule.conditionB) ? "?" : rule.conditionB;
 
         if (!System.Enum.TryParse(rule.ruleTypeString, out RuleType type))
             return $"{a} → {bin}";
@@ -1057,12 +1097,19 @@ public class FloorDesignerWindow : EditorWindow
 
     /// <summary>
     /// Construit un texte d'aperçu lisible pour une entrée de la bibliothèque.
-    /// Utilise le manuscriptText si disponible, sinon génère un résumé structuré
-    /// à partir des conditions et du connecteur.
+    /// Mode prefab : affiche "📦 nomPrefab → binID".
+    /// Mode structuré : utilise le manuscriptText si disponible, sinon génère depuis les conditions.
     /// </summary>
     private string BuildLibraryEntryPreview(RuleLibraryEntry entry, string binID)
     {
-        // Priorité au texte manuscrit s'il existe — c'est la phrase que le designer a écrite.
+        // Mode prefab.
+        if (!string.IsNullOrEmpty(entry.prefabPath))
+        {
+            string prefabName = System.IO.Path.GetFileNameWithoutExtension(entry.prefabPath);
+            return $"📦 {prefabName} → {binID}";
+        }
+
+        // Mode manuscrit.
         if (!string.IsNullOrEmpty(entry.manuscriptText))
             return entry.manuscriptText;
 
@@ -1085,14 +1132,251 @@ public class FloorDesignerWindow : EditorWindow
         };
     }
 
+    // ─── Branch slot assignment ───────────────────────────────────────────────
+
+    /// <summary>
+    /// Dessine deux dropdowns sous une règle Branch pour laisser le designer assigner
+    /// quel bin physique correspond à "Corbeille 1" (prefab A) et "Corbeille 2" (prefab B).
+    ///
+    /// Les dropdowns listent tous les bins actifs de la nuit avec leurs noms positionnels.
+    /// La sélection est stockée directement dans rule.branchSlot1BinID et rule.branchSlot2BinID.
+    /// Un avertissement s'affiche si les deux slots pointent vers le même bin.
+    /// </summary>
+    private void DrawBranchSlotAssignment(
+        FloorDesignerData floor,
+        NightDesignerData night,
+        int               nightIndex,
+        BinDesignerData   bin,
+        int               binIdx,
+        int               ruleIdx,
+        int               stateKey,
+        DesignerRuleEntry rule)
+    {
+        // Build arrays from active bins.
+        string[] binIDs      = new string[night.bins.Count];
+        string[] binLabels   = new string[night.bins.Count];
+        for (int i = 0; i < night.bins.Count; i++)
+        {
+            binIDs[i]    = night.bins[i].binID;
+            binLabels[i] = FloorDesignerData.GetBinDisplayName(night.bins[i].binID);
+        }
+
+        int slot1Key = stateKey;
+        int slot2Key = stateKey + 50000; // distinct key space from replaceSecondaryBinIndex
+
+        // Initialise dropdown indices from stored values.
+        if (!branchSlot1DropdownIndex.ContainsKey(slot1Key))
+        {
+            int stored = Array.IndexOf(binIDs, rule.branchSlot1BinID);
+            branchSlot1DropdownIndex[slot1Key] = stored >= 0 ? stored : 0;
+        }
+
+        if (!branchSlot2DropdownIndex.ContainsKey(slot2Key))
+        {
+            int stored = Array.IndexOf(binIDs, rule.branchSlot2BinID);
+            branchSlot2DropdownIndex[slot2Key] = stored >= 0 ? stored : (binIDs.Length > 1 ? 1 : 0);
+        }
+
+        EditorGUILayout.Space(2f);
+        EditorGUILayout.BeginVertical(new GUIStyle(EditorStyles.helpBox)
+        {
+            padding = new RectOffset(6, 6, 4, 4)
+        });
+
+        GUIStyle slotLabel = new GUIStyle(EditorStyles.miniLabel) { fontStyle = FontStyle.Bold };
+        EditorGUILayout.LabelField("Assignation des corbeilles (Branch)", slotLabel);
+
+        // Slot 1 — Prefab A
+        EditorGUI.BeginChangeCheck();
+        branchSlot1DropdownIndex[slot1Key] = EditorGUILayout.Popup(
+            "Corbeille 1 (Prefab A)",
+            branchSlot1DropdownIndex[slot1Key],
+            binLabels);
+        if (EditorGUI.EndChangeCheck())
+        {
+            int idx = Mathf.Clamp(branchSlot1DropdownIndex[slot1Key], 0, binIDs.Length - 1);
+            rule.branchSlot1BinID = binIDs[idx];
+            floor.isDirty = true;
+        }
+
+        // Slot 2 — Prefab B
+        EditorGUI.BeginChangeCheck();
+        branchSlot2DropdownIndex[slot2Key] = EditorGUILayout.Popup(
+            "Corbeille 2 (Prefab B)",
+            branchSlot2DropdownIndex[slot2Key],
+            binLabels);
+        if (EditorGUI.EndChangeCheck())
+        {
+            int idx = Mathf.Clamp(branchSlot2DropdownIndex[slot2Key], 0, binIDs.Length - 1);
+            rule.branchSlot2BinID = binIDs[idx];
+            floor.isDirty = true;
+        }
+
+        // Avertissement si les deux slots pointent vers le même bin.
+        if (rule.branchSlot1BinID == rule.branchSlot2BinID && !string.IsNullOrEmpty(rule.branchSlot1BinID))
+        {
+            EditorGUILayout.HelpBox(
+                "Corbeille 1 et Corbeille 2 pointent vers le même bin.\n" +
+                "Assignez deux corbeilles différentes.",
+                MessageType.Warning);
+        }
+
+        EditorGUILayout.EndVertical();
+    }
+
+    // ─── Trash bin section ────────────────────────────────────────────────────
+
+    /// <summary>
+    /// Dessine la section "Corbeille Poubelle" en bas d'un panneau de nuit.
+    ///
+    /// Un toggle active ou désactive la poubelle (5e corbeille, bas-centre).
+    /// Quand elle est active, une liste de prefabs peut être assignée ; chaque prefab
+    /// sélectionné sera injecté dans le pool de spawn de cette nuit en plus des
+    /// prefabs des corbeilles normales.
+    /// Seuls les prefabs de la Rule Library absents des règles de la nuit sont proposés.
+    /// </summary>
+    private void DrawTrashBinSection(FloorDesignerData floor, NightDesignerData night, int nightIndex)
+    {
+        EditorGUILayout.BeginVertical(EditorStyles.helpBox);
+
+        // Toggle d'activation
+        EditorGUI.BeginChangeCheck();
+        bool newHasTrash = EditorGUILayout.ToggleLeft("🗑 Corbeille Poubelle (bas-centre)", night.hasTrashedPrefab, EditorStyles.boldLabel);
+        if (EditorGUI.EndChangeCheck())
+        {
+            night.hasTrashedPrefab = newHasTrash;
+            if (!newHasTrash)
+                night.trashedPrefabPaths.Clear();
+            floor.isDirty = true;
+        }
+
+        if (!night.hasTrashedPrefab)
+        {
+            EditorGUILayout.EndVertical();
+            return;
+        }
+
+        // Collecte des prefabs libres (non assignés aux corbeilles normales de cette nuit).
+        List<string> freePrefabPaths = GetFreePrefabPaths(night);
+
+        if (freePrefabPaths.Count == 0)
+        {
+            EditorGUILayout.HelpBox(
+                "Tous les prefabs sont déjà assignés à une corbeille normale.\n" +
+                "Ajoutez un prefab supplémentaire dans la Rule Library.",
+                MessageType.Warning);
+            EditorGUILayout.EndVertical();
+            return;
+        }
+
+        EditorGUILayout.LabelField("Documents poubelle :", EditorStyles.boldLabel);
+
+        // Liste des prefabs déjà assignés à la poubelle — avec bouton de suppression.
+        for (int i = night.trashedPrefabPaths.Count - 1; i >= 0; i--)
+        {
+            string assignedPath = night.trashedPrefabPaths[i];
+            string label        = $"📦 {System.IO.Path.GetFileNameWithoutExtension(assignedPath)}";
+
+            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.LabelField(label);
+
+            GUI.backgroundColor = new Color(1f, 0.35f, 0.35f);
+            if (GUILayout.Button("✕", GUILayout.Width(28f)))
+            {
+                night.trashedPrefabPaths.RemoveAt(i);
+                floor.isDirty = true;
+            }
+            GUI.backgroundColor = Color.white;
+
+            EditorGUILayout.EndHorizontal();
+        }
+
+        // Prefabs libres non encore assignés à la poubelle.
+        List<string> availablePaths = new List<string>();
+        foreach (string path in freePrefabPaths)
+        {
+            if (!night.trashedPrefabPaths.Contains(path))
+                availablePaths.Add(path);
+        }
+
+        if (availablePaths.Count > 0)
+        {
+            string[] dropdownLabels = new string[availablePaths.Count + 1];
+            dropdownLabels[0] = "— Ajouter un prefab poubelle —";
+            for (int i = 0; i < availablePaths.Count; i++)
+                dropdownLabels[i + 1] = $"📦 {System.IO.Path.GetFileNameWithoutExtension(availablePaths[i])}";
+
+            if (!trashPrefabDropdownIndex.ContainsKey(nightIndex))
+                trashPrefabDropdownIndex[nightIndex] = 0;
+
+            EditorGUI.BeginChangeCheck();
+            trashPrefabDropdownIndex[nightIndex] = EditorGUILayout.Popup(
+                trashPrefabDropdownIndex[nightIndex],
+                dropdownLabels);
+
+            if (EditorGUI.EndChangeCheck() && trashPrefabDropdownIndex[nightIndex] > 0)
+            {
+                int selectedIdx = trashPrefabDropdownIndex[nightIndex] - 1;
+                night.trashedPrefabPaths.Add(availablePaths[selectedIdx]);
+                trashPrefabDropdownIndex[nightIndex] = 0;
+                floor.isDirty = true;
+            }
+        }
+        else
+        {
+            EditorGUILayout.HelpBox("Tous les prefabs libres ont été ajoutés.", MessageType.Info);
+        }
+
+        EditorGUILayout.EndVertical();
+    }
+
+    /// <summary>
+    /// Retourne la liste des prefabPaths présents dans la Rule Library
+    /// qui NE figurent dans AUCUNE règle déjà assignée aux corbeilles de la nuit donnée.
+    ///
+    /// Un prefabPath est considéré "utilisé" si conditionA d'au moins une règle
+    /// dans n'importe quelle BinDesignerData de la nuit lui est égal.
+    /// </summary>
+    private List<string> GetFreePrefabPaths(NightDesignerData night)
+    {
+        // Collecte des paths déjà assignés à cette nuit.
+        HashSet<string> usedPaths = new HashSet<string>();
+        foreach (BinDesignerData bin in night.bins)
+        {
+            foreach (DesignerRuleEntry rule in bin.rules)
+            {
+                // En mode prefab, conditionA stocke le prefabPath (commence par "Assets/").
+                if (!string.IsNullOrEmpty(rule.conditionA) && rule.conditionA.StartsWith("Assets/"))
+                    usedPaths.Add(rule.conditionA);
+            }
+        }
+
+        // Tous les prefabs de la bibliothèque non présents dans usedPaths.
+        List<string> free = new List<string>();
+        foreach (RuleLibraryEntry entry in libraryEntries)
+        {
+            if (string.IsNullOrEmpty(entry.prefabPath))
+                continue;
+
+            if (!usedPaths.Contains(entry.prefabPath))
+                free.Add(entry.prefabPath);
+        }
+
+        return free;
+    }
+
     // ─── Double-connector helpers ─────────────────────────────────────────────
 
     /// <summary>
     /// Retourne true si l'entrée utilise un connecteur Ou ou Sauf — c'est-à-dire
     /// qu'elle génère deux règles sur deux corbeilles distinctes.
+    /// Les entrées prefab ne sont jamais doubles.
     /// </summary>
     private static bool IsDoubleConnector(RuleLibraryEntry entry)
     {
+        if (!string.IsNullOrEmpty(entry.prefabPath))
+            return false;
+
         if (entry.conditions == null || entry.conditions.Count < 2)
             return false;
 
@@ -1120,7 +1404,7 @@ public class FloorDesignerWindow : EditorWindow
             if (b.binID == currentBin.binID)
                 continue;
             otherBins.Add(b);
-            otherLabels.Add(b.binID);
+            otherLabels.Add(FloorDesignerData.GetBinDisplayName(b.binID));
         }
 
         if (otherBins.Count == 0)
@@ -1196,11 +1480,8 @@ public class FloorDesignerWindow : EditorWindow
     /// Traduit une <see cref="RuleLibraryEntry"/> en une <see cref="DesignerRuleEntry"/>
     /// et l'applique à la corbeille cible.
     ///
-    /// <paramref name="isPrimary"/> distingue les deux branches d'une règle double :
-    ///   Sauf primaire   → PositiveWithNegative(condA, condB)  — condA sans condB
-    ///   Sauf secondaire → PositiveDouble(condA, condB)         — condA avec condB
-    ///   Ou   primaire   → PositiveForced(condA)
-    ///   Ou   secondaire → PositiveForced(condB)
+    /// Mode prefab : conditionA reçoit le prefabPath ; ruleType = Simple.
+    /// Mode conditions : résolution selon le connecteur (Et / Ou / Sauf).
     /// </summary>
     private void ApplyLibraryEntryToBin(
         RuleLibraryEntry  entry,
@@ -1208,6 +1489,22 @@ public class FloorDesignerWindow : EditorWindow
         DesignerRuleEntry target,
         bool              isPrimary = true)
     {
+        // ── Mode prefab ───────────────────────────────────────────────────────
+        if (!string.IsNullOrEmpty(entry.prefabPath))
+        {
+            string prefabName = System.IO.Path.GetFileNameWithoutExtension(entry.prefabPath);
+            target.ruleTypeString = RuleType.Simple.ToString();
+            // conditionA stores the prefab path so the runtime and save system can reference it.
+            target.conditionA     = entry.prefabPath;
+            target.conditionB     = string.Empty;
+            target.targetBinID    = bin.binID;
+            target.displayText    = $"📦 {prefabName} → {bin.binID}";
+            target.complexity     = entry.complexity;
+            target.isComplement   = false;
+            return;
+        }
+
+        // ── Mode conditions (legacy) ──────────────────────────────────────────
         if (entry.conditions == null || entry.conditions.Count == 0)
         {
             target.ruleTypeString = RuleType.Simple.ToString();
@@ -1264,9 +1561,6 @@ public class FloorDesignerWindow : EditorWindow
                 break;
         }
 
-        // Always derive the display text from the resolved structural fields so the text
-        // shown per-bin in the Floor Manager and at runtime always matches the rule logic,
-        // regardless of whether a manuscriptText exists on the library entry.
         string displayText = BuildStructuredDisplayText(resolvedType, usedCondA, usedCondB, bin.binID);
 
         target.ruleTypeString = resolvedType.ToString();

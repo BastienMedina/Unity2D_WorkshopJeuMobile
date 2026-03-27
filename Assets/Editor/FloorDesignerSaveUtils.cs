@@ -273,7 +273,11 @@ public static class FloorDesignerSaveUtils
                 maxRuleComplexity   = night.maxRuleComplexity,
                 wasManuallyEdited   = night.wasManuallyEdited,
                 pinnedSpecificities = new List<string>(night.pinnedSpecificities),
-                bins                = new List<BinSaveData>()
+                bins                = new List<BinSaveData>(),
+                hasTrashedPrefab    = night.hasTrashedPrefab,
+                trashedPrefabPaths  = night.hasTrashedPrefab
+                    ? new List<string>(night.trashedPrefabPaths)
+                    : new List<string>()
             };
 
             // Persist each bin's explicit rule assignments authored by the designer.
@@ -346,6 +350,10 @@ public static class FloorDesignerSaveUtils
                     wasManuallyEdited   = nightSave.wasManuallyEdited,
                     pinnedSpecificities = nightSave.pinnedSpecificities != null
                         ? new List<string>(nightSave.pinnedSpecificities)
+                        : new List<string>(),
+                    hasTrashedPrefab    = nightSave.hasTrashedPrefab,
+                    trashedPrefabPaths  = nightSave.trashedPrefabPaths != null
+                        ? new List<string>(nightSave.trashedPrefabPaths)
                         : new List<string>()
                 };
 

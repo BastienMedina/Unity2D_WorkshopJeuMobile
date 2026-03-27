@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 
 /// <summary>
@@ -99,32 +100,55 @@ public class FloorDesignerData
     // ─── Canonical bin ID table ───────────────────────────────────────────────
 
     /// <summary>
-    /// Canonical bin ID list ordered by BinLayoutManager.activationOrder {0,2,4,1,3}.
-    /// index 0 → slot 0 → bin_left_top     (activated 1st)
-    /// index 1 → slot 2 → bin_right_top    (activated 2nd)
-    /// index 2 → slot 4 → bin_bottom       (activated 3rd)
-    /// index 3 → slot 1 → bin_left_bottom  (activated 4th)
-    /// index 4 → slot 3 → bin_right_bottom (activated 5th)
-    /// This order must mirror BinLayoutManager.activationOrder exactly —
-    /// any divergence causes the Floor Designer to write rules for a bin that
-    /// is not yet active at a given numberOfBins count.
+    /// Canonical bin IDs ordered by activation index (first activated = index 0).
+    /// The order matches BinLayoutManager.activationOrder — any divergence causes
+    /// the Floor Designer to write rules for a bin not yet active at a given count.
+    ///
+    /// index 0 → Haut Gauche   (activated 1st)
+    /// index 1 → Haut Droit    (activated 2nd)
+    /// index 2 → Bas Gauche    (activated 3rd)
+    /// index 3 → Bas Droit     (activated 4th)
+    /// index 4 → Poubelle      (trash — activated only when hasTrashedPrefab is true)
     /// </summary>
     public static readonly string[] BinIDsByIndex = new[]
     {
-        "bin_left_top",
-        "bin_right_top",
-        "bin_bottom",
-        "bin_left_bottom",
-        "bin_right_bottom"
+        "bin_top_left",
+        "bin_top_right",
+        "bin_bottom_left",
+        "bin_bottom_right",
+        "bin_trash"
+    };
+
+    /// <summary>
+    /// Human-readable French positional names for each bin, aligned with BinIDsByIndex.
+    /// Used in editor UI labels and dropdowns in place of raw bin IDs.
+    /// </summary>
+    public static readonly string[] BinDisplayNames = new[]
+    {
+        "Haut Gauche",
+        "Haut Droit",
+        "Bas Gauche",
+        "Bas Droit",
+        "Poubelle"
     };
 
     /// <summary>
     /// Returns the canonical bin ID for <paramref name="index"/>.
-    /// Falls back to <c>bin_left_top</c> when the index exceeds the table.
+    /// Falls back to index 0 when the index exceeds the table.
     /// </summary>
     public static string GetBinID(int index)
     {
         return index < BinIDsByIndex.Length ? BinIDsByIndex[index] : BinIDsByIndex[0];
+    }
+
+    /// <summary>
+    /// Returns the French positional display name for a bin ID (e.g. "bin_top_left" → "Haut Gauche").
+    /// Falls back to the raw ID when no match is found.
+    /// </summary>
+    public static string GetBinDisplayName(string binID)
+    {
+        int idx = Array.IndexOf(BinIDsByIndex, binID);
+        return idx >= 0 ? BinDisplayNames[idx] : binID;
     }
 }
 
@@ -152,6 +176,23 @@ public class NightDesignerData
 
     /// <summary>UI-only: whether this night's panel is expanded (never persisted).</summary>
     public bool isExpanded;
+
+    // ─── Trash bin ────────────────────────────────────────────────────────────
+
+    /// <summary>
+    /// When true, the fifth "trash" bin (bottom-centre) is active for this night.
+    /// Document prefabs listed in trashedPrefabPaths are injected into the spawn pool
+    /// alongside the regular bin prefabs; the player must route them to the trash bin.
+    /// </summary>
+    public bool hasTrashedPrefab;
+
+    /// <summary>
+    /// Asset paths of the prefabs selected as trash documents for this night.
+    /// Each path is added to the spawn pool in addition to all regular-bin prefabs.
+    /// Only populated when hasTrashedPrefab is true.
+    /// Every path must reference a prefab absent from every regular bin's rule list.
+    /// </summary>
+    public List<string> trashedPrefabPaths = new List<string>();
 
     // ─── Legacy flat rule list — kept for backward-compatibility on load ───────
 
@@ -218,16 +259,16 @@ public class BinDesignerData
 /// </summary>
 public class DesignerRuleEntry
 {
-    /// <summary>RuleType enum name string (e.g. "PositiveForced", "ConditionalBranch").</summary>
+    /// <summary>RuleType enum name string (e.g. "Simple", "Branch").</summary>
     public string ruleTypeString = string.Empty;
 
-    /// <summary>Primary condition specificity (e.g. "urgent").</summary>
+    /// <summary>Primary condition specificity or prefab path (Prefab A).</summary>
     public string conditionA = string.Empty;
 
-    /// <summary>Secondary condition — only for two-condition rule types.</summary>
+    /// <summary>Secondary condition — only for two-condition rule types (Branch).</summary>
     public string conditionB = string.Empty;
 
-    /// <summary>Target bin ID for this rule.</summary>
+    /// <summary>Target bin ID for this rule (primary bin).</summary>
     public string targetBinID = string.Empty;
 
     /// <summary>Human-readable display sentence (auto-computed from template).</summary>
@@ -235,5 +276,21 @@ public class DesignerRuleEntry
 
     public int  complexity;
     public bool isComplement;
+
+    // ─── Branch bin resolution ────────────────────────────────────────────────
+
+    /// <summary>
+    /// Physical bin ID resolved for "Corbeille 1" when this is a Branch (prefab B) rule.
+    /// Set by the designer via the two dropdowns that appear under a Branch rule row.
+    /// Empty for Simple and Multiple rules.
+    /// </summary>
+    public string branchSlot1BinID = string.Empty;
+
+    /// <summary>
+    /// Physical bin ID resolved for "Corbeille 2" when this is a Branch (prefab B) rule.
+    /// Set by the designer via the two dropdowns that appear under a Branch rule row.
+    /// Empty for Simple and Multiple rules.
+    /// </summary>
+    public string branchSlot2BinID = string.Empty;
 }
 

@@ -14,29 +14,34 @@ public class BinLayoutManager : MonoBehaviour
     // -------------------------------------------------------------------------
 
     /// <summary>
-    /// The five available bin slot GameObjects, ordered by slot position:
-    /// [0] LEFT_TOP, [1] LEFT_BOTTOM, [2] RIGHT_TOP, [3] RIGHT_BOTTOM, [4] BOTTOM.
+    /// The four regular bin slot GameObjects, ordered by slot position:
+    /// [0] TOP_LEFT, [1] TOP_RIGHT, [2] BOTTOM_LEFT, [3] BOTTOM_RIGHT.
     /// Each entry must carry a SortingBin component.
     /// </summary>
     [SerializeField] private List<RectTransform> binSlots;
 
     /// <summary>
-    /// The order in which bins are activated as difficulty increases.
-    /// Default: {0, 2, 4, 1, 3} — left/right top first, then bottom, then left/right bottom.
-    /// This order ensures visual balance: the two most prominent slots appear first,
-    /// the thumb-rest bottom slot appears third, and the lower side slots last.
+    /// Dedicated slot for the trash bin (fifth bin, bottom-centre).
+    /// Activated independently via SetTrashBinActive rather than through activationOrder.
+    /// Must carry a SortingBin component with binID "bin_trash".
     /// </summary>
-    [SerializeField] private int[] activationOrder = { 0, 2, 4, 1, 3 };
+    [SerializeField] private RectTransform trashBinSlot;
+
+    /// <summary>
+    /// The order in which bins are activated as difficulty increases.
+    /// Default: {0, 1, 2, 3} — top-left, top-right, bottom-left, bottom-right.
+    /// </summary>
+    [SerializeField] private int[] activationOrder = { 0, 1, 2, 3 };
 
     // -------------------------------------------------------------------------
     // Bounds — serialized, never hardcoded
     // -------------------------------------------------------------------------
 
-    /// <summary>Minimum number of bins that can ever be active. Prevents a zero-bin state.</summary>
+    /// <summary>Minimum number of regular bins that can ever be active. Prevents a zero-bin state.</summary>
     [SerializeField] private int minimumBinCount = 1;
 
-    /// <summary>Maximum number of bins that can ever be active. Matches the slot list size.</summary>
-    [SerializeField] private int maximumBinCount = 5;
+    /// <summary>Maximum number of regular bins that can ever be active. Matches the slot list size (4).</summary>
+    [SerializeField] private int maximumBinCount = 4;
 
     // -------------------------------------------------------------------------
     // Runtime state
@@ -168,14 +173,64 @@ public class BinLayoutManager : MonoBehaviour
     }
 
     /// <summary>
-    /// Returns the SortingBin components from every bin slot regardless of active state.
+    /// Activates or deactivates the dedicated trash bin slot (bottom-centre, binID "bin_trash").
+    /// Called by GameManager at the start of each night based on NightSaveData.hasTrashedPrefab.
+    /// The trash bin is managed independently from the regular activation order so its presence
+    /// never counts against maximumBinCount and never shifts the regular bin layout.
+    /// </summary>
+    /// <param name="active">True to show the trash bin; false to hide it.</param>
+    public void SetTrashBinActive(bool active)
+    {
+        if (trashBinSlot == null)
+        {
+            if (active)
+                Debug.LogWarning("[BinLayoutManager] SetTrashBinActive(true): trashBinSlot is not assigned. " +
+                                 "Drag the trash bin RectTransform into the TrashBinSlot field on BinLayoutManager.");
+            return;
+        }
+
+        trashBinSlot.gameObject.SetActive(active);
+
+        BinHoverDetector hoverDetector = trashBinSlot.GetComponent<BinHoverDetector>();
+
+        if (active)
+        {
+            if (hoverDetector != null)
+            {
+                Vector2 normalSize   = trashBinSlot.sizeDelta;
+                Vector2 expandedSize = normalSize + new Vector2(60f, 80f);
+                hoverDetector.SetNormalSize(normalSize);
+                hoverDetector.SetExpandedSize(expandedSize);
+                hoverDetector.enabled = true;
+            }
+        }
+        else
+        {
+            if (hoverDetector != null)
+                hoverDetector.enabled = false;
+        }
+    }
+
+    /// <summary>
+    /// Returns the SortingBin attached to the trash bin slot, or null if not assigned.
+    /// Used by GameManager to subscribe to its events and inject the trash rule.
+    /// </summary>
+    public SortingBin GetTrashBin()
+    {
+        if (trashBinSlot == null)
+            return null;
+
+        return trashBinSlot.GetComponent<SortingBin>();
+    }
+
+    /// <summary>
+    /// Returns the SortingBin components from every bin slot regardless of active state,
+    /// including the trash bin slot when assigned.
     /// Called by GameManager.RefreshBinSubscriptions to unsubscribe stale event delegates
     /// from ALL bins — including inactive ones — before re-subscribing only to active ones.
-    /// Iterating only active bins would leave stale subscriptions on bins that were active
-    /// in a previous day but deactivated for the current one, causing duplicate events.
     /// </summary>
     /// <returns>
-    /// A list of every SortingBin in binSlots, active and inactive, in slot-list order.
+    /// A list of every SortingBin in binSlots plus trashBinSlot (if assigned), active and inactive.
     /// </returns>
     public List<SortingBin> GetAllBins()
     {
@@ -183,9 +238,6 @@ public class BinLayoutManager : MonoBehaviour
 
         foreach (RectTransform slot in binSlots)
         {
-            // Guard: the slot RectTransform may have been destroyed during scene teardown
-            // (OnDestroy order is not guaranteed in Unity). Skip destroyed references
-            // silently to avoid MissingReferenceException on Play Mode exit.
             if (slot == null)
                 continue;
 
@@ -201,17 +253,27 @@ public class BinLayoutManager : MonoBehaviour
             allBins.Add(sortingBin);
         }
 
+        // Include the trash bin slot so its subscriptions are always cleaned up correctly.
+        if (trashBinSlot != null)
+        {
+            SortingBin trashBin = trashBinSlot.GetComponent<SortingBin>();
+
+            if (trashBin != null)
+                allBins.Add(trashBin);
+        }
+
         return allBins;
     }
 
     /// <summary>
-    /// Returns the SortingBin components from every currently active bin slot.
+    /// Returns the SortingBin components from every currently active regular bin slot.
+    /// Does NOT include the trash bin — GameManager handles it separately via GetTrashBin().
     /// Called by GameManager to build the rule distribution target list after SetActiveBinCount.
     /// Only active GameObjects are included — inactive slots are invisible to the player
     /// and must not receive rules or participate in document validation.
     /// </summary>
     /// <returns>
-    /// A list of SortingBin instances from all active slots, in slot-list order.
+    /// A list of SortingBin instances from all active regular slots, in slot-list order.
     /// </returns>
     public List<SortingBin> GetActiveBins()
     {
@@ -219,15 +281,11 @@ public class BinLayoutManager : MonoBehaviour
 
         foreach (RectTransform slot in binSlots)
         {
-            // Skip inactive slots: they have been hidden by SetActiveBinCount and must
-            // not receive rules or be queried during validation this day.
             if (!slot.gameObject.activeSelf)
                 continue;
 
             SortingBin sortingBin = slot.GetComponent<SortingBin>();
 
-            // Guard: a slot without a SortingBin is a misconfigured prefab — warn clearly
-            // rather than silently omitting it and producing a hard-to-trace rules mismatch.
             if (sortingBin == null)
             {
                 Debug.LogWarning($"[BinLayoutManager] Slot '{slot.name}' has no SortingBin component. " +

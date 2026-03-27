@@ -565,6 +565,41 @@ public class GameManager : MonoBehaviour
         Debug.Log($"[GameManager] STEP 4 — Night {currentDayIndex + 1}: " +
                   $"loaded {activeRules.Count} designer-authored rules from floor JSON.");
 
+        // STEP 4b — Activate the trash bin when this night requires it.
+        // The trash bin is independent from the regular 2×2 layout; it never counts
+        // toward numberOfBins and is always the bottom-centre slot.
+        bool hasTrash = nightData.hasTrashedPrefab &&
+                        nightData.trashedPrefabPaths != null &&
+                        nightData.trashedPrefabPaths.Count > 0;
+
+        binLayoutManager.SetTrashBinActive(hasTrash);
+
+        if (hasTrash)
+        {
+            SortingBin trashBin = binLayoutManager.GetTrashBin();
+
+            if (trashBin != null)
+            {
+                // Build one Prefab-type rule per trash prefab path and assign all of them
+                // to the trash bin so ValidateDocument accepts any of the designated prefabs.
+                List<RuleData> trashRules = BuildTrashRules(nightData.trashedPrefabPaths);
+                trashBin.AssignRules(trashRules);
+                trashBin.SetAllActiveRules(activeRules);
+
+                // Append trash rules to activeRules so SetAllActiveRules on regular bins
+                // and DocumentSpawner.UpdateActiveRules both have the complete picture.
+                activeRules.AddRange(trashRules);
+
+                Debug.Log($"[GameManager] STEP 4b — Trash bin activated with " +
+                          $"{nightData.trashedPrefabPaths.Count} prefab(s).");
+            }
+            else
+            {
+                Debug.LogWarning("[GameManager] STEP 4b — hasTrashedPrefab is true but no trash bin " +
+                                 "SortingBin found. Assign the trash bin slot in BinLayoutManager.");
+            }
+        }
+
         // STEP 5 — (Designer-mode only) Per-night bin count override.
         // The night may specify a different numberOfBins than the floor-level default.
         // Re-apply only when the night's value is explicitly set (> 0) and differs from
@@ -592,9 +627,15 @@ public class GameManager : MonoBehaviour
 
         // Active bins change each day — refresh all event subscriptions after the new bin set
         // is established so no stale subscriptions from previous days remain.
-        RefreshBinSubscriptions(activeBins);
+        // Pass hasTrash so the trash bin is wired or unwired correctly.
+        RefreshBinSubscriptions(activeBins, hasTrash);
 
         documentSpawner.UpdateActiveRules(activeRules);
+
+        // Inject trash prefabs into the spawner so they mix into the spawn pool
+        // alongside regular prefabs for this night.
+        List<string> trashPaths = hasTrash ? nightData.trashedPrefabPaths : null;
+        documentSpawner.SetTrashPrefabs(trashPaths);
 
         // Clear any stale documents from the previous day before starting the new spawn loop.
         documentStackManager.ClearStack();
@@ -913,30 +954,40 @@ public class GameManager : MonoBehaviour
     /// <summary>
     /// Unsubscribes onValidDrop and onInvalidDrop from every bin managed by BinLayoutManager,
     /// then re-subscribes only to the currently active ones.
+    /// When includeTrash is true, also wires the trash bin's events so correct/wrong drops
+    /// on it are scored like any other bin.
     /// Called at the end of InitializeDay because the active bin set changes every day —
     /// without a full unsubscribe pass, bins deactivated mid-session would retain stale
     /// subscriptions and fire duplicate events the next time they become active.
     /// </summary>
-    /// <param name="activeBins">The bins active for the current day.</param>
-    private void RefreshBinSubscriptions(List<SortingBin> activeBins)
+    /// <param name="activeBins">The regular bins active for the current day.</param>
+    /// <param name="includeTrash">When true, also subscribe to the trash bin's events.</param>
+    private void RefreshBinSubscriptions(List<SortingBin> activeBins, bool includeTrash = false)
     {
         List<SortingBin> allBins = binLayoutManager.GetAllBins();
 
-        // Unsubscribe from ALL bins (active and inactive) to eliminate any stale delegates
-        // accumulated from previous days. Unsubscribing a delegate that was never subscribed
-        // is a no-op in C#, so this is safe regardless of each bin's previous state.
         foreach (SortingBin bin in allBins)
         {
             bin.onValidDrop   -= OnValidDrop;
             bin.onInvalidDrop -= OnInvalidDrop;
         }
 
-        // Re-subscribe only to active bins — inactive bins must not fire events because
-        // they hold no rules this day and any drop on them is outside the intended game flow.
         foreach (SortingBin bin in activeBins)
         {
             bin.onValidDrop   += OnValidDrop;
             bin.onInvalidDrop += OnInvalidDrop;
+        }
+
+        // Wire the trash bin separately so its events are always in a known state.
+        if (includeTrash)
+        {
+            SortingBin trashBin = binLayoutManager.GetTrashBin();
+
+            if (trashBin != null)
+            {
+                trashBin.onValidDrop   += OnValidDrop;
+                trashBin.onInvalidDrop += OnInvalidDrop;
+            }
         }
     }
 
@@ -1210,6 +1261,43 @@ public class GameManager : MonoBehaviour
         documentSpawner.StartDay();
 
         pendingSummary = new DifficultyChangeSummary();
+    }
+
+    // -------------------------------------------------------------------------
+    // Private helpers — trash bin
+    // -------------------------------------------------------------------------
+
+    /// <summary>
+    /// Builds one Simple RuleData per trash prefab path, all targeting "bin_trash".
+    /// Each rule uses the prefab path as conditionA so SortingBin.ValidateSimple can
+    /// match it against DocumentData.specificities (which stores the prefab path tag).
+    /// </summary>
+    /// <param name="paths">Full Unity asset paths of the designated trash prefabs.</param>
+    /// <returns>One RuleData per valid path, all with targetBinID "bin_trash".</returns>
+    private List<RuleData> BuildTrashRules(List<string> paths)
+    {
+        List<RuleData> trashRules = new List<RuleData>();
+
+        foreach (string path in paths)
+        {
+            if (string.IsNullOrEmpty(path))
+                continue;
+
+            string prefabName = System.IO.Path.GetFileNameWithoutExtension(path);
+
+            trashRules.Add(new RuleData
+            {
+                ruleType    = RuleType.Simple,
+                conditionA  = path,
+                conditionB  = string.Empty,
+                targetBinID = "bin_trash",
+                displayText = $"🗑 {prefabName}",
+                complexity  = 1,
+                isComplement = false
+            });
+        }
+
+        return trashRules;
     }
 
     // -------------------------------------------------------------------------

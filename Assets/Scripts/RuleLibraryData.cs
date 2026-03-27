@@ -35,31 +35,51 @@ public class RuleLibraryEntry
     /// </summary>
     public string manuscriptText = string.Empty;
 
-    // ─── Structured mode ──────────────────────────────────────────────────────
+    // ─── Prefab mode ──────────────────────────────────────────────────────────
 
     /// <summary>
-    /// Ordered list of condition nodes that make up the rule in structured mode.
-    /// Each node carries a specificity name, a connector (Et / Ou / Sauf) relative
-    /// to the next node, and the target bin when this node is terminal.
+    /// Asset path of the primary prefab (Prefab A) assigned in prefab mode.
+    /// Used for all rule types. Stored as a string for JSON serialisation.
+    /// </summary>
+    public string prefabPath = string.Empty;
+
+    /// <summary>
+    /// Bin slot (1 or 2) assigned to Prefab A in the Floor Designer.
+    /// "Corbeille 1" = slot 1, "Corbeille 2" = slot 2.
+    /// Defaults to 1.
+    /// </summary>
+    public int prefabASlot = 1;
+
+    /// <summary>
+    /// Asset path of the secondary prefab (Prefab B), used only when ruleType == Branch.
+    /// Documents matching Prefab B route to the opposite slot from Prefab A.
+    /// Empty for Simple and Multiple rules.
+    /// </summary>
+    public string prefabBPath = string.Empty;
+
+    /// <summary>
+    /// Bin slot (1 or 2) assigned to Prefab B in the Floor Designer.
+    /// Only meaningful when ruleType == Branch.
+    /// Defaults to 2.
+    /// </summary>
+    public int prefabBSlot = 2;
+
+    // ─── Legacy structured mode fields — kept for backward-compatible JSON reads ──
+
+    /// <summary>
+    /// Ordered list of condition nodes from the old structured mode.
+    /// No longer used by the editor UI — retained so existing JSON saves can be read
+    /// without a migration pass. New entries leave this list empty.
     /// </summary>
     public List<ConditionNode> conditions = new List<ConditionNode>();
 
-    /// <summary>
-    /// Slot number (1 or 2) assigned to the secondary bin used when a "Sauf" connector
-    /// is present in the chain. 0 means no secondary bin applies.
-    /// </summary>
+    /// <summary>Legacy secondary bin slot from the old structured mode. No longer used.</summary>
     public int secondaryBinSlot;
 
-    /// <summary>
-    /// Actual bin ID randomly resolved for slot 1 (e.g. "bin_B").
-    /// Empty until the designer clicks "Assigner les corbeilles".
-    /// </summary>
+    /// <summary>Legacy resolved bin 1 from the old structured mode. No longer used.</summary>
     public string resolvedBin1 = string.Empty;
 
-    /// <summary>
-    /// Actual bin ID randomly resolved for slot 2 (e.g. "bin_D").
-    /// Empty until the designer clicks "Assigner les corbeilles".
-    /// </summary>
+    /// <summary>Legacy resolved bin 2 from the old structured mode. No longer used.</summary>
     public string resolvedBin2 = string.Empty;
 
     // ─── Shared metadata ──────────────────────────────────────────────────────
