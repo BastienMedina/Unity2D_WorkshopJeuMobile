@@ -277,6 +277,9 @@ public static class FloorDesignerSaveUtils
                 hasTrashedPrefab    = night.hasTrashedPrefab,
                 trashedPrefabPaths  = night.hasTrashedPrefab
                     ? new List<string>(night.trashedPrefabPaths)
+                    : new List<string>(),
+                trashRuleGuids      = night.hasTrashedPrefab
+                    ? new List<string>(night.trashRuleGuids)
                     : new List<string>()
             };
 
@@ -294,13 +297,16 @@ public static class FloorDesignerSaveUtils
                 {
                     binSave.rules.Add(new SavedRuleData
                     {
-                        ruleType    = rule.ruleTypeString,
-                        conditionA  = rule.conditionA,
-                        conditionB  = rule.conditionB,
-                        targetBinID = rule.targetBinID,
-                        displayText = rule.displayText,
-                        complexity  = rule.complexity,
-                        isComplement = rule.isComplement
+                        ruleType      = rule.ruleTypeString,
+                        conditionA    = rule.conditionA,
+                        conditionB    = rule.conditionB,
+                        prefabPaths   = rule.prefabPaths != null
+                            ? new List<string>(rule.prefabPaths)
+                            : new List<string>(),
+                        targetBinID   = rule.targetBinID,
+                        displayText   = rule.displayText,
+                        complexity    = rule.complexity,
+                        isComplement  = rule.isComplement
                     });
                 }
 
@@ -354,6 +360,9 @@ public static class FloorDesignerSaveUtils
                     hasTrashedPrefab    = nightSave.hasTrashedPrefab,
                     trashedPrefabPaths  = nightSave.trashedPrefabPaths != null
                         ? new List<string>(nightSave.trashedPrefabPaths)
+                        : new List<string>(),
+                    trashRuleGuids      = nightSave.trashRuleGuids != null
+                        ? new List<string>(nightSave.trashRuleGuids)
                         : new List<string>()
                 };
 
@@ -377,6 +386,9 @@ public static class FloorDesignerSaveUtils
                                     ruleTypeString = savedRule.ruleType,
                                     conditionA     = savedRule.conditionA,
                                     conditionB     = savedRule.conditionB,
+                                    prefabPaths    = savedRule.prefabPaths != null
+                                        ? new List<string>(savedRule.prefabPaths)
+                                        : new List<string>(),
                                     targetBinID    = savedRule.targetBinID,
                                     displayText    = savedRule.displayText,
                                     complexity     = savedRule.complexity,

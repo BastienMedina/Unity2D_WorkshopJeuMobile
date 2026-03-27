@@ -71,17 +71,16 @@ public class RuleLibraryWindow : EditorWindow
     // ─── Cached data ──────────────────────────────────────────────────────────
 
     /// <summary>
-    /// Cached prefab GameObject loaded from editingEntry.prefabPath (Prefab A).
-    /// Used by the ObjectField in prefab mode to display and update the reference.
-    /// Rebuilt each time an entry is selected or when the path changes.
+    /// Cached prefab GameObjects chargés depuis editingEntry.prefabPaths.
+    /// La liste est synchronisée avec prefabPaths à chaque frame par SyncPrefabObjectsFromPaths.
     /// </summary>
-    private GameObject editingPrefabObject;
+    private List<GameObject> editingPrefabObjects = new List<GameObject>();
 
     /// <summary>
-    /// Cached prefab GameObject loaded from editingEntry.prefabBPath (Prefab B, Branch only).
-    /// Rebuilt each time an entry is selected or when the path changes.
+    /// Cached prefab GameObjects loaded from editingEntry.prefabBPaths (Prefab B list, Branch only).
+    /// Rebuilt each time an entry is selected or when any path changes.
     /// </summary>
-    private GameObject editingPrefabBObject;
+    private List<GameObject> editingPrefabBObjects = new List<GameObject>();
 
     /// <summary>All RuleType values displayed in the type dropdown.</summary>
     private static readonly RuleType[] PrimaryRuleTypes =
@@ -424,8 +423,9 @@ public class RuleLibraryWindow : EditorWindow
     /// <summary>
     /// Draws the prefab mode editor.
     ///
-    /// Simple / Multiple : un seul emplacement prefab (Prefab A) + dropdown "Corbeille 1 ou 2".
-    /// Branch            : deux emplacements (Prefab A et Prefab B) + un dropdown de slot par prefab.
+    /// Simple / Multiple : une liste de prefabs A (autant que souhaité) + dropdown "Corbeille 1 ou 2".
+    ///                     Boutons "+ Ajouter un prefab" et "✕" par ligne pour gérer la liste.
+    /// Branch            : liste de prefabs A + un Prefab B unique, chacun avec son slot.
     ///
     /// Les slots (1 ou 2) sont résolus en corbeilles physiques dans le Floor Designer.
     /// </summary>
@@ -436,59 +436,192 @@ public class RuleLibraryWindow : EditorWindow
         EditorGUILayout.LabelField("Prefab(s) du document", EditorStyles.boldLabel);
         EditorGUILayout.HelpBox(
             isBranch
-                ? "Branche : assignez Prefab A (condition principale) et Prefab B (condition secondaire).\n" +
-                  "Chaque prefab est routé vers l'une des deux corbeilles configurées dans le Floor Designer."
-                : "Sélectionnez le prefab à utiliser pour cette règle.\n" +
-                  "Le prefab sera instancié en jeu à la place d'un document généré.",
+                ? "Branche : assignez un ou plusieurs Prefabs A (condition principale) et un Prefab B.\n" +
+                  "Chaque groupe est routé vers l'une des deux corbeilles du Floor Designer."
+                : "Ajoutez un ou plusieurs prefabs pour cette règle.\n" +
+                  "Tous les prefabs listés seront acceptés par la corbeille assignée et injectés dans le pool de spawn.",
             MessageType.None);
 
         EditorGUILayout.Space(4f);
 
         SyncPrefabObjectsFromPaths();
 
-        // ── Prefab A ──────────────────────────────────────────────────────────
-        DrawPrefabSlotField(
-            label:        isBranch ? "Prefab A" : "Prefab",
-            prefabObject: editingPrefabObject,
-            storedPath:   editingEntry.prefabPath,
-            slot:         editingEntry.prefabASlot,
-            onPrefabChanged: (go, path) =>
+        // ── Liste des Prefabs A ───────────────────────────────────────────────
+        EditorGUILayout.LabelField(isBranch ? "Prefabs A" : "Prefabs", EditorStyles.boldLabel);
+
+        if (editingEntry.prefabPaths == null)
+            editingEntry.prefabPaths = new List<string>();
+
+        // Affiche chaque prefab de la liste avec un ObjectField + bouton ✕.
+        for (int i = 0; i < editingEntry.prefabPaths.Count; i++)
+        {
+            // Assure que le cache des GameObjects est suffisamment grand.
+            while (editingPrefabObjects.Count <= i)
+                editingPrefabObjects.Add(null);
+
+            string     storedPath = editingEntry.prefabPaths[i];
+            GameObject cachedObj  = editingPrefabObjects[i];
+
+            // Synchronise le cache si le path a changé.
+            string cachedPath = cachedObj != null ? AssetDatabase.GetAssetPath(cachedObj) : string.Empty;
+            if (cachedPath != storedPath)
             {
-                editingPrefabObject    = go;
-                editingEntry.prefabPath = path;
-                MarkDirty();
-            },
-            onSlotChanged: slot =>
+                cachedObj = string.IsNullOrEmpty(storedPath)
+                    ? null
+                    : AssetDatabase.LoadAssetAtPath<GameObject>(storedPath);
+                editingPrefabObjects[i] = cachedObj;
+            }
+
+            EditorGUILayout.BeginHorizontal();
+
+            // ObjectField pour ce prefab.
+            EditorGUI.BeginChangeCheck();
+            GameObject newPrefab = (GameObject)EditorGUILayout.ObjectField(
+                $"Prefab {i + 1}", cachedObj, typeof(GameObject), allowSceneObjects: false);
+            if (EditorGUI.EndChangeCheck())
             {
-                editingEntry.prefabASlot = slot;
+                editingPrefabObjects[i]    = newPrefab;
+                editingEntry.prefabPaths[i] = newPrefab != null
+                    ? AssetDatabase.GetAssetPath(newPrefab)
+                    : string.Empty;
+                // prefabPath miroir pour la rétrocompatibilité.
+                if (i == 0)
+                    editingEntry.prefabPath = editingEntry.prefabPaths[0];
                 MarkDirty();
-            });
+            }
+
+            // Bouton suppression.
+            GUI.backgroundColor = new Color(1f, 0.35f, 0.35f);
+            if (GUILayout.Button("✕", GUILayout.Width(26f)))
+            {
+                editingEntry.prefabPaths.RemoveAt(i);
+                editingPrefabObjects.RemoveAt(i);
+                // prefabPath miroir.
+                editingEntry.prefabPath = editingEntry.prefabPaths.Count > 0
+                    ? editingEntry.prefabPaths[0]
+                    : string.Empty;
+                MarkDirty();
+                GUI.backgroundColor = Color.white;
+                EditorGUILayout.EndHorizontal();
+                break; // Recalcule la liste au prochain frame.
+            }
+            GUI.backgroundColor = Color.white;
+
+            EditorGUILayout.EndHorizontal();
+        }
+
+        // Dropdown "corbeille" partagé pour tous les Prefabs A.
+        int currentSlotIdx = Mathf.Clamp(editingEntry.prefabASlot - 1, 0, SlotLabels.Length - 1);
+        EditorGUI.BeginChangeCheck();
+        int newSlotIdx = EditorGUILayout.Popup("Corbeille (slot)", currentSlotIdx, SlotLabels);
+        if (EditorGUI.EndChangeCheck())
+        {
+            editingEntry.prefabASlot = newSlotIdx + 1;
+            MarkDirty();
+        }
+
+        // Bouton "+ Ajouter un prefab".
+        EditorGUILayout.Space(2f);
+        GUI.backgroundColor = new Color(0.4f, 0.85f, 0.4f);
+        if (GUILayout.Button("+ Ajouter un prefab"))
+        {
+            editingEntry.prefabPaths.Add(string.Empty);
+            editingPrefabObjects.Add(null);
+            MarkDirty();
+        }
+        GUI.backgroundColor = Color.white;
 
         // ── Prefab B (Branch uniquement) ──────────────────────────────────────
         if (isBranch)
         {
             EditorGUILayout.Space(6f);
-            DrawPrefabSlotField(
-                label:        "Prefab B",
-                prefabObject: editingPrefabBObject,
-                storedPath:   editingEntry.prefabBPath,
-                slot:         editingEntry.prefabBSlot,
-                onPrefabChanged: (go, path) =>
+            EditorGUILayout.LabelField("Prefabs B", EditorStyles.boldLabel);
+
+            if (editingEntry.prefabBPaths == null)
+                editingEntry.prefabBPaths = new List<string>();
+
+            // Affiche chaque prefab B avec un ObjectField + bouton ✕.
+            for (int i = 0; i < editingEntry.prefabBPaths.Count; i++)
+            {
+                while (editingPrefabBObjects.Count <= i)
+                    editingPrefabBObjects.Add(null);
+
+                string     storedBPath = editingEntry.prefabBPaths[i];
+                GameObject cachedBObj  = editingPrefabBObjects[i];
+
+                // Synchronise le cache si le path a changé.
+                string cachedBPath = cachedBObj != null ? AssetDatabase.GetAssetPath(cachedBObj) : string.Empty;
+                if (cachedBPath != storedBPath)
                 {
-                    editingPrefabBObject    = go;
-                    editingEntry.prefabBPath = path;
-                    MarkDirty();
-                },
-                onSlotChanged: slot =>
+                    cachedBObj = string.IsNullOrEmpty(storedBPath)
+                        ? null
+                        : AssetDatabase.LoadAssetAtPath<GameObject>(storedBPath);
+                    editingPrefabBObjects[i] = cachedBObj;
+                }
+
+                EditorGUILayout.BeginHorizontal();
+
+                // ObjectField pour ce prefab B.
+                EditorGUI.BeginChangeCheck();
+                GameObject newBPrefab = (GameObject)EditorGUILayout.ObjectField(
+                    $"Prefab B{i + 1}", cachedBObj, typeof(GameObject), allowSceneObjects: false);
+                if (EditorGUI.EndChangeCheck())
                 {
-                    editingEntry.prefabBSlot = slot;
+                    editingPrefabBObjects[i]      = newBPrefab;
+                    editingEntry.prefabBPaths[i]  = newBPrefab != null
+                        ? AssetDatabase.GetAssetPath(newBPrefab)
+                        : string.Empty;
+                    // prefabBPath miroir pour la rétrocompatibilité.
+                    if (i == 0)
+                        editingEntry.prefabBPath = editingEntry.prefabBPaths[0];
                     MarkDirty();
-                });
+                }
+
+                // Bouton suppression B.
+                GUI.backgroundColor = new Color(1f, 0.35f, 0.35f);
+                if (GUILayout.Button("✕", GUILayout.Width(26f)))
+                {
+                    editingEntry.prefabBPaths.RemoveAt(i);
+                    editingPrefabBObjects.RemoveAt(i);
+                    // prefabBPath miroir.
+                    editingEntry.prefabBPath = editingEntry.prefabBPaths.Count > 0
+                        ? editingEntry.prefabBPaths[0]
+                        : string.Empty;
+                    MarkDirty();
+                    GUI.backgroundColor = Color.white;
+                    EditorGUILayout.EndHorizontal();
+                    break;
+                }
+                GUI.backgroundColor = Color.white;
+
+                EditorGUILayout.EndHorizontal();
+            }
+
+            // Dropdown "corbeille" partagé pour tous les Prefabs B.
+            int currentBSlotIdx = Mathf.Clamp(editingEntry.prefabBSlot - 1, 0, SlotLabels.Length - 1);
+            EditorGUI.BeginChangeCheck();
+            int newBSlotIdx = EditorGUILayout.Popup("Corbeille B (slot)", currentBSlotIdx, SlotLabels);
+            if (EditorGUI.EndChangeCheck())
+            {
+                editingEntry.prefabBSlot = newBSlotIdx + 1;
+                MarkDirty();
+            }
+
+            // Bouton "+ Ajouter un prefab B".
+            EditorGUILayout.Space(2f);
+            GUI.backgroundColor = new Color(0.4f, 0.65f, 0.95f);
+            if (GUILayout.Button("+ Ajouter un prefab B"))
+            {
+                editingEntry.prefabBPaths.Add(string.Empty);
+                editingPrefabBObjects.Add(null);
+                MarkDirty();
+            }
+            GUI.backgroundColor = Color.white;
 
             if (editingEntry.prefabASlot == editingEntry.prefabBSlot)
             {
                 EditorGUILayout.HelpBox(
-                    "Prefab A et Prefab B sont assignés au même slot.\n" +
+                    "Prefabs A et Prefabs B sont assignés au même slot.\n" +
                     "Ils doivent être sur des corbeilles différentes.",
                     MessageType.Warning);
             }
@@ -498,67 +631,32 @@ public class RuleLibraryWindow : EditorWindow
     private static readonly string[] SlotLabels = { "Corbeille 1", "Corbeille 2" };
 
     /// <summary>
-    /// Dessine un champ ObjectField + dropdown de slot pour un prefab de règle.
-    /// Le dropdown propose "Corbeille 1" et "Corbeille 2" — la correspondance avec
-    /// les bins physiques est résolue dans le Floor Designer.
-    /// </summary>
-    private static void DrawPrefabSlotField(
-        string              label,
-        GameObject          prefabObject,
-        string              storedPath,
-        int                 slot,
-        Action<GameObject, string> onPrefabChanged,
-        Action<int>         onSlotChanged)
-    {
-        EditorGUILayout.BeginHorizontal();
-
-        // ObjectField
-        EditorGUI.BeginChangeCheck();
-        GameObject newPrefab = (GameObject)EditorGUILayout.ObjectField(
-            label, prefabObject, typeof(GameObject), allowSceneObjects: false);
-        if (EditorGUI.EndChangeCheck())
-        {
-            string newPath = newPrefab != null ? AssetDatabase.GetAssetPath(newPrefab) : string.Empty;
-            onPrefabChanged(newPrefab, newPath);
-        }
-
-        // Slot dropdown — fixed width so it doesn't crowd the ObjectField.
-        int currentSlotIdx = Mathf.Clamp(slot - 1, 0, SlotLabels.Length - 1);
-        EditorGUI.BeginChangeCheck();
-        int newSlotIdx = EditorGUILayout.Popup(currentSlotIdx, SlotLabels, GUILayout.Width(100f));
-        if (EditorGUI.EndChangeCheck())
-            onSlotChanged(newSlotIdx + 1);
-
-        EditorGUILayout.EndHorizontal();
-
-        // Read-only path.
-        if (!string.IsNullOrEmpty(storedPath))
-        {
-            GUI.enabled = false;
-            EditorGUILayout.TextField("  Chemin", storedPath);
-            GUI.enabled = true;
-        }
-    }
-
-    /// <summary>
-    /// Synchronise editingPrefabObject et editingPrefabBObject avec les paths stockés dans editingEntry.
-    /// Appelé au début de DrawPrefabEditor chaque frame pour gérer les discards et changements de sélection.
+    /// Synchronise editingPrefabObjects et editingPrefabBObjects avec les paths stockés dans editingEntry.
+    /// Assure que les listes de caches ont la bonne taille; les synchronisations individuelles se font inline.
     /// </summary>
     private void SyncPrefabObjectsFromPaths()
     {
-        SyncOneObject(ref editingPrefabObject,  editingEntry.prefabPath);
-        SyncOneObject(ref editingPrefabBObject, editingEntry.prefabBPath);
-    }
+        if (editingEntry.prefabPaths == null)
+            editingEntry.prefabPaths = new List<string>();
 
-    private static void SyncOneObject(ref GameObject cached, string storedPath)
-    {
-        string cachedPath = cached != null ? AssetDatabase.GetAssetPath(cached) : string.Empty;
-        if (cachedPath == storedPath)
-            return;
+        // Redimensionne la liste de caches A si nécessaire.
+        while (editingPrefabObjects.Count < editingEntry.prefabPaths.Count)
+            editingPrefabObjects.Add(null);
+        while (editingPrefabObjects.Count > editingEntry.prefabPaths.Count)
+            editingPrefabObjects.RemoveAt(editingPrefabObjects.Count - 1);
 
-        cached = string.IsNullOrEmpty(storedPath)
-            ? null
-            : AssetDatabase.LoadAssetAtPath<GameObject>(storedPath);
+        // Migrate prefabBPath → prefabBPaths si nécessaire.
+        if (editingEntry.prefabBPaths == null)
+            editingEntry.prefabBPaths = new List<string>();
+
+        if (editingEntry.prefabBPaths.Count == 0 && !string.IsNullOrEmpty(editingEntry.prefabBPath))
+            editingEntry.prefabBPaths = new List<string> { editingEntry.prefabBPath };
+
+        // Redimensionne la liste de caches B si nécessaire.
+        while (editingPrefabBObjects.Count < editingEntry.prefabBPaths.Count)
+            editingPrefabBObjects.Add(null);
+        while (editingPrefabBObjects.Count > editingEntry.prefabBPaths.Count)
+            editingPrefabBObjects.RemoveAt(editingPrefabBObjects.Count - 1);
     }
 
     // ─── Entry management ─────────────────────────────────────────────────────
@@ -605,14 +703,44 @@ public class RuleLibraryWindow : EditorWindow
 
         selectedEntryGuid    = entry.guid;
         editingEntry         = DeepCopyEntry(entry);
-        editingPrefabObject  = string.IsNullOrEmpty(entry.prefabPath)
-            ? null
-            : AssetDatabase.LoadAssetAtPath<GameObject>(entry.prefabPath);
-        editingPrefabBObject = string.IsNullOrEmpty(entry.prefabBPath)
-            ? null
-            : AssetDatabase.LoadAssetAtPath<GameObject>(entry.prefabBPath);
+        editingPrefabObjects = new List<GameObject>();
+
+        // Charge le cache des Prefabs A depuis prefabPaths (avec migration depuis prefabPath).
+        if (editingEntry.prefabPaths == null || editingEntry.prefabPaths.Count == 0)
+        {
+            if (!string.IsNullOrEmpty(editingEntry.prefabPath))
+                editingEntry.prefabPaths = new List<string> { editingEntry.prefabPath };
+            else
+                editingEntry.prefabPaths = new List<string>();
+        }
+
+        foreach (string p in editingEntry.prefabPaths)
+        {
+            editingPrefabObjects.Add(string.IsNullOrEmpty(p)
+                ? null
+                : AssetDatabase.LoadAssetAtPath<GameObject>(p));
+        }
+
+        // Charge le cache des Prefabs B depuis prefabBPaths (avec migration depuis prefabBPath).
+        editingPrefabBObjects = new List<GameObject>();
+
+        if (editingEntry.prefabBPaths == null || editingEntry.prefabBPaths.Count == 0)
+        {
+            if (!string.IsNullOrEmpty(editingEntry.prefabBPath))
+                editingEntry.prefabBPaths = new List<string> { editingEntry.prefabBPath };
+            else
+                editingEntry.prefabBPaths = new List<string>();
+        }
+
+        foreach (string p in editingEntry.prefabBPaths)
+        {
+            editingPrefabBObjects.Add(string.IsNullOrEmpty(p)
+                ? null
+                : AssetDatabase.LoadAssetAtPath<GameObject>(p));
+        }
+
         hasPendingChanges    = false;
-        rightScrollPos    = Vector2.zero;
+        rightScrollPos       = Vector2.zero;
         Repaint();
     }
 
@@ -775,7 +903,22 @@ public class RuleLibraryWindow : EditorWindow
             return;
         }
 
-        // Prefab mode: derive label from the prefab file name.
+        // Prefab mode: derive label from all prefab names joined with ", ".
+        if (entry.prefabPaths != null && entry.prefabPaths.Count > 0)
+        {
+            var names = new System.Text.StringBuilder();
+            foreach (string p in entry.prefabPaths)
+            {
+                if (string.IsNullOrEmpty(p)) continue;
+                if (names.Length > 0) names.Append(", ");
+                names.Append(System.IO.Path.GetFileNameWithoutExtension(p));
+            }
+            string combined = names.ToString();
+            entry.label = combined.Length <= 48 ? combined : combined.Substring(0, 48) + "…";
+            return;
+        }
+
+        // Legacy fallback: single prefabPath.
         if (!string.IsNullOrEmpty(entry.prefabPath))
         {
             string fileName = System.IO.Path.GetFileNameWithoutExtension(entry.prefabPath);
@@ -797,11 +940,24 @@ public class RuleLibraryWindow : EditorWindow
             manuscriptText   = source.manuscriptText,
             ruleTypeString   = source.ruleTypeString,
             complexity       = source.complexity,
-            prefabPath       = source.prefabPath,
+            // prefabPaths : copie profonde de la liste complète.
+            prefabPaths      = source.prefabPaths != null
+                ? new List<string>(source.prefabPaths)
+                : new List<string>(),
+            // prefabPath miroir du premier élément pour la rétrocompatibilité JSON.
+            prefabPath       = source.prefabPaths != null && source.prefabPaths.Count > 0
+                ? source.prefabPaths[0]
+                : source.prefabPath,
             prefabASlot      = source.prefabASlot,
-            prefabBPath      = source.prefabBPath,
+            // prefabBPaths : copie profonde de la liste complète.
+            prefabBPaths     = source.prefabBPaths != null
+                ? new List<string>(source.prefabBPaths)
+                : new List<string>(),
+            // prefabBPath miroir du premier élément pour la rétrocompatibilité JSON.
+            prefabBPath      = source.prefabBPaths != null && source.prefabBPaths.Count > 0
+                ? source.prefabBPaths[0]
+                : source.prefabBPath,
             prefabBSlot      = source.prefabBSlot,
-            // Legacy fields — copied for round-trip JSON fidelity, not used by the editor UI.
             secondaryBinSlot = source.secondaryBinSlot,
             resolvedBin1     = source.resolvedBin1,
             resolvedBin2     = source.resolvedBin2,

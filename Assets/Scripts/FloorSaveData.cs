@@ -118,6 +118,13 @@ public class NightSaveData
     /// Only relevant when hasTrashedPrefab is true.
     /// </summary>
     public List<string> trashedPrefabPaths = new List<string>();
+
+    /// <summary>
+    /// GUIDs of Rule Library entries assigned as rules for the trash bin.
+    /// These rules define what documents the player must sort into the trash bin.
+    /// Only relevant when hasTrashedPrefab is true.
+    /// </summary>
+    public List<string> trashRuleGuids = new List<string>();
 }
 
 /// <summary>
@@ -155,6 +162,13 @@ public class SavedRuleData
 
     /// <summary>Secondary condition string used by two-condition rule types.</summary>
     public string conditionB;
+
+    /// <summary>
+    /// All prefab asset paths accepted by this rule in prefab mode.
+    /// When non-empty, conditionA mirrors prefabPaths[0] for backward compatibility.
+    /// Ignored for condition-based rules (where conditionA is a specificity string).
+    /// </summary>
+    public List<string> prefabPaths = new List<string>();
 
     /// <summary>ID of the primary bin that matching documents must be sorted into.</summary>
     public string targetBinID;

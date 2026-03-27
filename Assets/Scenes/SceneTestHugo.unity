@@ -2216,6 +2216,7 @@ MonoBehaviour:
   fadeCanvasGroup: {fileID: 745688161}
   audioSource: {fileID: 713552375}
   roosterClip: {fileID: 0}
+  dayLabelFormat: Fin du jour {0}
   fadeDuration: 1
   animationStartOverlap: 0.5
   hourHandRotationSpeed: 360
@@ -3465,7 +3466,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1025518953
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -6485,7 +6486,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1931314839
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -7591,7 +7592,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!225 &2136615209
 CanvasGroup:
   m_ObjectHideFlags: 0

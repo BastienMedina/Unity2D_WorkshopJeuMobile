@@ -194,6 +194,13 @@ public class NightDesignerData
     /// </summary>
     public List<string> trashedPrefabPaths = new List<string>();
 
+    /// <summary>
+    /// GUIDs of Rule Library entries explicitly assigned as rules for the trash bin.
+    /// These rules define what documents must be sorted into the trash bin.
+    /// Only populated when hasTrashedPrefab is true.
+    /// </summary>
+    public List<string> trashRuleGuids = new List<string>();
+
     // ─── Legacy flat rule list — kept for backward-compatibility on load ───────
 
     /// <summary>
@@ -262,11 +269,19 @@ public class DesignerRuleEntry
     /// <summary>RuleType enum name string (e.g. "Simple", "Branch").</summary>
     public string ruleTypeString = string.Empty;
 
-    /// <summary>Primary condition specificity or prefab path (Prefab A).</summary>
+    /// <summary>Primary condition specificity or first prefab path (mirrors prefabPaths[0]).</summary>
     public string conditionA = string.Empty;
 
     /// <summary>Secondary condition — only for two-condition rule types (Branch).</summary>
     public string conditionB = string.Empty;
+
+    /// <summary>
+    /// All prefab asset paths accepted by this rule.
+    /// In the Floor Designer, the designer can add or remove any number of prefabs.
+    /// conditionA mirrors prefabPaths[0] so the save/runtime systems stay backward-compatible.
+    /// Empty for condition-based rules.
+    /// </summary>
+    public List<string> prefabPaths = new List<string>();
 
     /// <summary>Target bin ID for this rule (primary bin).</summary>
     public string targetBinID = string.Empty;

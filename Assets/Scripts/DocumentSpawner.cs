@@ -172,11 +172,12 @@ public class DocumentSpawner : MonoBehaviour
     // -------------------------------------------------------------------------
 
     /// <summary>
-    /// Rebuilds spawnablePrefabs from the conditionA fields of the current active rules,
+    /// Rebuilds spawnablePrefabs from the prefabPaths/conditionA fields of the current active rules,
     /// then appends any trash prefabs stored via SetTrashPrefabs.
     ///
-    /// Each rule contributes one entry: if conditionA starts with "Assets/" it is treated
-    /// as a prefab path and loaded via Resources.Load or AssetDatabase at edit time.
+    /// For each rule, when prefabPaths is non-empty every path is added individually so all
+    /// accepted prefabs for that rule appear in the pool. Otherwise conditionA is used as the
+    /// single path (backward-compatible with saves that predate multi-prefab rules).
     /// Trash prefabs are appended after all rule-based prefabs so both pools feed a single
     /// random selection, mixing trash documents naturally into the spawn stream.
     /// </summary>
@@ -186,21 +187,43 @@ public class DocumentSpawner : MonoBehaviour
 
         foreach (RuleData rule in activeRules)
         {
-            string path = rule.conditionA;
+            // Multi-prefab mode: add every path in the list.
+            if (rule.prefabPaths != null && rule.prefabPaths.Count > 0)
+            {
+                foreach (string path in rule.prefabPaths)
+                {
+                    if (string.IsNullOrEmpty(path) || !path.StartsWith("Assets/"))
+                        continue;
 
-            if (string.IsNullOrEmpty(path) || !path.StartsWith("Assets/"))
+                    GameObject prefab = LoadPrefabAtPath(path);
+
+                    if (prefab == null)
+                    {
+                        Debug.LogWarning($"[DocumentSpawner] Multi-prefab path not found: '{path}'. Skipping.");
+                        continue;
+                    }
+
+                    spawnablePrefabs.Add(prefab);
+                }
+                continue;
+            }
+
+            // Single-prefab / condition mode: fall back to conditionA.
+            string singlePath = rule.conditionA;
+
+            if (string.IsNullOrEmpty(singlePath) || !singlePath.StartsWith("Assets/"))
                 continue;
 
-            GameObject prefab = LoadPrefabAtPath(path);
+            GameObject singlePrefab = LoadPrefabAtPath(singlePath);
 
-            if (prefab == null)
+            if (singlePrefab == null)
             {
-                Debug.LogWarning($"[DocumentSpawner] Prefab not found at path '{path}' " +
+                Debug.LogWarning($"[DocumentSpawner] Prefab not found at path '{singlePath}' " +
                                  $"(rule conditionA). Skipping this rule in the spawn pool.");
                 continue;
             }
 
-            spawnablePrefabs.Add(prefab);
+            spawnablePrefabs.Add(singlePrefab);
         }
 
         // Append trash prefabs so they mix with regular documents in the same pool.
@@ -210,7 +233,7 @@ public class DocumentSpawner : MonoBehaviour
         if (spawnablePrefabs.Count == 0)
         {
             Debug.LogWarning("[DocumentSpawner] Spawn pool is empty after RebuildSpawnPool. " +
-                             "Ensure all active rules have a valid prefab path in conditionA " +
+                             "Ensure all active rules have a valid prefab path in conditionA or prefabPaths " +
                              "and that the prefabs are located under Assets/Resources/.");
         }
         else

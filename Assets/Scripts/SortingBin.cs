@@ -206,9 +206,23 @@ public class SortingBin : MonoBehaviour
 
     /// <summary>
     /// Simple: document is valid if it contains conditionA, regardless of any other specificities.
+    /// In prefab mode, also accepts any path listed in rule.prefabPaths so a single rule can
+    /// represent multiple accepted document types within one bin.
     /// </summary>
     private bool ValidateSimple(DocumentData documentData, RuleData rule)
     {
+        // Multi-prefab mode: accept any path in the extended list.
+        if (rule.prefabPaths != null && rule.prefabPaths.Count > 0)
+        {
+            foreach (string path in rule.prefabPaths)
+            {
+                if (documentData.specificities.Contains(path))
+                    return true;
+            }
+            return false;
+        }
+
+        // Standard condition-based or single-prefab mode.
         return documentData.specificities.Contains(rule.conditionA);
     }
 

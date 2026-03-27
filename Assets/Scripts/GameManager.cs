@@ -81,6 +81,18 @@ public class GameManager : MonoBehaviour
     /// </summary>
     [SerializeField] private GameOverController gameOverController;
 
+    /// <summary>
+    /// Shows the promotion / win screen when the player clears all nights on a floor.
+    /// Drag the REJOUER ANIMATION root GameObject here in the Inspector.
+    /// </summary>
+    [SerializeField] private WinPromotionController winPromotionController;
+
+    /// <summary>
+    /// Référence directe à l'ElevatorSequenceController pour lui passer le numéro
+    /// d'étage avant de lancer l'animation. Drag ELEVATOR ANIMATION/ElevatorController ici.
+    /// </summary>
+    [SerializeField] private ElevatorSequenceController elevatorSequenceController;
+
     // -------------------------------------------------------------------------
     // Inspector-editable progression state
     // -------------------------------------------------------------------------
@@ -165,6 +177,62 @@ public class GameManager : MonoBehaviour
     /// ensuring rules distribute across all active bins rather than clustering on one.
     /// </summary>
     private string lastRuleAssignedBinID = "";
+
+    // -------------------------------------------------------------------------
+    // Debug (Editor & Development Build only)
+    // -------------------------------------------------------------------------
+
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+    /// <summary>
+    /// Cochez cette case dans l'Inspector en Play Mode pour déclencher immédiatement
+    /// la séquence de fin d'étage (lettre de promotion → ascenseur → floor suivant).
+    /// La bool se remet automatiquement à false après l'appel pour éviter un double-déclenchement.
+    /// N'a aucun effet en dehors de l'Editor et des builds de développement.
+    /// </summary>
+    [Header("Debug")]
+    [SerializeField] private bool debugTriggerFloorWin = false;
+
+    private void Update()
+    {
+        if (!debugTriggerFloorWin)
+            return;
+
+        debugTriggerFloorWin = false;
+        Debug_TriggerFloorWin();
+    }
+
+    /// <summary>
+    /// Force la condition de fin d'étage : positionne currentDayIndex sur le dernier jour
+    /// puis appelle OnDaySuccess() pour déclencher le flow complet de victoire.
+    /// </summary>
+    private void Debug_TriggerFloorWin()
+    {
+        Debug.Log("[GameManager][DEBUG] debugTriggerFloorWin activé — déclenchement forcé du win.");
+
+        // Arrête le gameplay en cours si une journée est active.
+        documentSpawner.StopDay();
+        documentSpawner.ClearAllDocuments();
+        documentStackManager.ClearStack();
+
+        // Garantit que currentDayData n'est pas null (peut arriver si Start() a échoué
+        // faute de FloorSessionData — cas typique d'un lancement direct depuis l'Editor).
+        if (currentDayData == null)
+            currentDayData = difficultyManager.ComputeDayData(currentDayIndex, currentFloorIndex);
+
+        // Garantit que currentFloorSaveData n'est pas null (SaveCurrentFloor en a besoin
+        // pour lire rulesPerBin / maxRuleComplexity ; si null, le fallback lit currentDayData).
+        // On le laisse null volontairement : SaveCurrentFloor a déjà son propre fallback
+        // qui lit currentDayData — pas besoin d'un stub ici.
+
+        // OnDaySuccess commence par currentDayIndex++ donc on part de daysPerFloor - 1
+        // pour qu'après l'incrément isFloorComplete soit vrai.
+        currentDayIndex = daysPerFloor - 1;
+
+        // Appel direct du bloc floor-complete de OnDaySuccess, sans repasser par
+        // ProfitabilityManager (qui n'a pas déclenché l'événement).
+        OnDaySuccess();
+    }
+#endif
 
     // -------------------------------------------------------------------------
     // Unity lifecycle
@@ -289,7 +357,7 @@ public class GameManager : MonoBehaviour
 
         currentDayIndex++;
 
-        // 5 days completed = floor cleared — save, generate next floor data, return to TowerScene.
+        // 5 days completed = floor cleared — save, generate next floor data, show win screen.
         bool isFloorComplete = currentDayIndex >= daysPerFloor;
 
         if (isFloorComplete)
@@ -302,24 +370,32 @@ public class GameManager : MonoBehaviour
             FloorSessionData.SelectedFloor    = nextFloorData;
             FloorSessionData.IsReplayingFloor = false;
 
-            // Play the floor-complete animation (elevator) before loading TowerScene.
-            // If no animationSequenceManager is assigned, load immediately as before.
-            if (animationSequenceManager != null)
+            // Show the promotion letter screen first. The player will press "Continuer" to
+            // trigger the elevator sequence, or "Retour" to go back to the main menu.
+            // WinPromotionController calls PlayElevatorAndLoadNextFloor() on this GameManager
+            // when the player presses Continue.
+            if (winPromotionController != null)
             {
-                // Pass the new floor number to ElevatorSequenceController if one is present.
-                ElevatorSequenceController elevator =
-                    animationSequenceManager.GetComponentInChildren<ElevatorSequenceController>(true);
+                Debug.Log("[GameManager] OnDaySuccess() — floor complet, appel WinPromotionController.Show().");
 
-                if (elevator != null)
-                    elevator.FloorNumber = currentFloorIndex + 2; // next floor is 1-based
+                if (elevatorSequenceController != null)
+                {
+                    // currentFloorIndex a déjà été incrémenté dans SaveCurrentFloor(),
+                    // donc +1 donne le numéro 1-based du nouvel étage à afficher.
+                    elevatorSequenceController.FloorNumber = currentFloorIndex + 1;
+                    Debug.Log($"[GameManager] OnDaySuccess() — ElevatorSequenceController.FloorNumber = {elevatorSequenceController.FloorNumber}.");
+                }
+                else
+                {
+                    Debug.LogWarning("[GameManager] OnDaySuccess() — elevatorSequenceController est NULL ! Assigne ELEVATOR ANIMATION/ElevatorController dans l'Inspector.");
+                }
 
-                pendingSceneLoad = true;
-                animationSequenceManager.PlaySequence(AnimationSequenceManager.TransitionType.FloorComplete);
-                // OnAnimationSequenceComplete will call SceneManager.LoadScene when the sequence ends.
+                winPromotionController.Show();
             }
             else
             {
-                SceneManager.LoadScene("Menu_Principal");
+                Debug.LogWarning("[GameManager] OnDaySuccess() — winPromotionController est NULL ! Assigne-le dans l'Inspector sur GameManager. Passage direct à l'ascenseur.");
+                PlayElevatorAndLoadNextFloor();
             }
             return;
         }
@@ -383,6 +459,29 @@ public class GameManager : MonoBehaviour
     }
 
     /// <summary>
+    /// Plays the elevator animation and then loads Menu_Principal (or TowerScene) when it ends.
+    /// Called by WinPromotionController when the player presses the "Continuer" button on the
+    /// promotion letter screen.
+    /// If no AnimationSequenceManager is assigned, loads the scene immediately as a fallback.
+    /// </summary>
+    public void PlayElevatorAndLoadNextFloor()
+    {
+        Debug.Log("[GameManager] PlayElevatorAndLoadNextFloor() — début.");
+
+        if (animationSequenceManager != null)
+        {
+            Debug.Log("[GameManager] PlayElevatorAndLoadNextFloor() — lancement de l'animation FloorComplete.");
+            pendingSceneLoad = true;
+            animationSequenceManager.PlaySequence(AnimationSequenceManager.TransitionType.FloorComplete);
+        }
+        else
+        {
+            Debug.LogWarning("[GameManager] PlayElevatorAndLoadNextFloor() — animationSequenceManager est NULL, chargement direct de Menu_Principal.");
+            SceneManager.LoadScene("Menu_Principal");
+        }
+    }
+
+    /// <summary>
     /// Called by DayTransitionManager after the overlay completes its display duration.
     /// Safe to initialise the next day here because profitability tracking and spawning
     /// were both stopped before PlayTransition was called.
@@ -405,7 +504,9 @@ public class GameManager : MonoBehaviour
         if (pendingSceneLoad)
         {
             pendingSceneLoad = false;
-            SceneManager.LoadScene("Menu_Principal");
+            // FloorSessionData.SelectedFloor a déjà été rempli avec les données du floor suivant
+            // dans OnDaySuccess() — GameScene va les lire dans Start() et démarrer le bon étage.
+            SceneManager.LoadScene("GameScene");
         }
     }
 
@@ -1412,6 +1513,12 @@ public class GameManager : MonoBehaviour
                     ruleType       = parsedType,
                     conditionA     = savedRule.conditionA,
                     conditionB     = savedRule.conditionB,
+                    // Restore multi-prefab list; fall back to conditionA for old saves.
+                    prefabPaths    = savedRule.prefabPaths != null && savedRule.prefabPaths.Count > 0
+                        ? new List<string>(savedRule.prefabPaths)
+                        : (!string.IsNullOrEmpty(savedRule.conditionA) && savedRule.conditionA.StartsWith("Assets/")
+                            ? new List<string> { savedRule.conditionA }
+                            : new List<string>()),
                     targetBinID    = targetBinID,
                     secondaryBinID = savedRule.secondaryBinID ?? string.Empty,
                     displayText    = savedRule.displayText,

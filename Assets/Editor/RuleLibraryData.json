@@ -5,6 +5,10 @@
             "label": "tampon_carre → Corbeille 1",
             "isManuscript": false,
             "manuscriptText": "Si le document contient un tempon, le mettre dans la corbeille 1",
+            "prefabPath": "",
+            "prefabASlot": 1,
+            "prefabBPath": "",
+            "prefabBSlot": 2,
             "conditions": [
                 {
                     "specificity": "tampon_carre",
@@ -23,6 +27,10 @@
             "label": "tampon_carre Et pastille_bleu → Corbeille 1",
             "isManuscript": true,
             "manuscriptText": "Si le document contient un tempon Et pastille bleu, le mettre dans la corbeille 1",
+            "prefabPath": "",
+            "prefabASlot": 1,
+            "prefabBPath": "",
+            "prefabBSlot": 2,
             "conditions": [
                 {
                     "specificity": "tampon_carre",
@@ -46,6 +54,10 @@
             "label": "Si le document contient un pastille vert…",
             "isManuscript": true,
             "manuscriptText": "Si le document contient un pastille verte, le mettre dans la corbeille 1",
+            "prefabPath": "",
+            "prefabASlot": 1,
+            "prefabBPath": "",
+            "prefabBSlot": 2,
             "conditions": [
                 {
                     "specificity": "pastille_vert",
@@ -64,6 +76,10 @@
             "label": "pastille_bleu Sauf signature_effacee → Corbeille…",
             "isManuscript": false,
             "manuscriptText": "",
+            "prefabPath": "",
+            "prefabASlot": 1,
+            "prefabBPath": "",
+            "prefabBSlot": 2,
             "conditions": [
                 {
                     "specificity": "pastille_bleu",
@@ -87,6 +103,10 @@
             "label": "Pastille verte",
             "isManuscript": false,
             "manuscriptText": "Quand il y a une pastille pastille vert alors mettez le document dans le tuyau 1",
+            "prefabPath": "",
+            "prefabASlot": 1,
+            "prefabBPath": "",
+            "prefabBSlot": 2,
             "conditions": [
                 {
                     "specificity": "pastille_vert",
@@ -105,6 +125,10 @@
             "label": "Pastille bleu",
             "isManuscript": false,
             "manuscriptText": "Quand il y a une pastille bleue alors mettez le document dans le tuyau 2",
+            "prefabPath": "",
+            "prefabASlot": 1,
+            "prefabBPath": "",
+            "prefabBSlot": 2,
             "conditions": [
                 {
                     "specificity": "pastille_bleu",
@@ -123,6 +147,10 @@
             "label": "Pastille verte sauf tampon",
             "isManuscript": false,
             "manuscriptText": "Quand il y a une pastille pastille vert alors mettez le document dans le tuyau 1\n    -  Sauf s'il y a tampon alors mettrez le dans le tuyau 2",
+            "prefabPath": "",
+            "prefabASlot": 1,
+            "prefabBPath": "",
+            "prefabBSlot": 2,
             "conditions": [
                 {
                     "specificity": "pastille_vert",
@@ -146,6 +174,10 @@
             "label": "Pastille violet",
             "isManuscript": false,
             "manuscriptText": "Quand il y a une pastille bleue alors mettez le document dans le tuyau 2",
+            "prefabPath": "",
+            "prefabASlot": 1,
+            "prefabBPath": "",
+            "prefabBSlot": 2,
             "conditions": [
                 {
                     "specificity": "pastille_violet",
@@ -164,6 +196,10 @@
             "label": "Tuyau poubelle",
             "isManuscript": true,
             "manuscriptText": "Si le document ne correspond à aucune règle alors mettez le dans le tuyau poubelle",
+            "prefabPath": "",
+            "prefabASlot": 1,
+            "prefabBPath": "",
+            "prefabBSlot": 2,
             "conditions": [
                 {
                     "specificity": "feuille_base",
@@ -182,6 +218,10 @@
             "label": "Prioritaire Tampon rectangle",
             "isManuscript": false,
             "manuscriptText": "",
+            "prefabPath": "",
+            "prefabASlot": 1,
+            "prefabBPath": "",
+            "prefabBSlot": 2,
             "conditions": [
                 {
                     "specificity": "tampon_rectangle",
@@ -200,6 +240,10 @@
             "label": "Grande déchirure → Tuyau 1",
             "isManuscript": false,
             "manuscriptText": "Quand le document a une grande déchirure alors mettez dans le tuyau 1",
+            "prefabPath": "",
+            "prefabASlot": 1,
+            "prefabBPath": "",
+            "prefabBSlot": 2,
             "conditions": [
                 {
                     "specificity": "feuille_dechirure_grande",
@@ -218,6 +262,10 @@
             "label": "Grande déchirure Sauf pas signé → Tuyau 1 / Tuyau 2",
             "isManuscript": false,
             "manuscriptText": "Quand le document a une grande déchirure alors mettez dans le tuyau 1 — Sauf si le document n'est pas signé alors mettez dans le tuyau 2",
+            "prefabPath": "",
+            "prefabASlot": 1,
+            "prefabBPath": "",
+            "prefabBSlot": 2,
             "conditions": [
                 {
                     "specificity": "feuille_dechirure_grande",
@@ -241,6 +289,10 @@
             "label": "Petite déchirure → Tuyau 2",
             "isManuscript": false,
             "manuscriptText": "Quand le document a une petite déchirure alors mettez dans le tuyau 2",
+            "prefabPath": "",
+            "prefabASlot": 1,
+            "prefabBPath": "",
+            "prefabBSlot": 2,
             "conditions": [
                 {
                     "specificity": "feuille_dechirure_petite",
@@ -259,6 +311,10 @@
             "label": "Petite déchirure ET signature → Tuyau 3",
             "isManuscript": false,
             "manuscriptText": "Quand le document a une petite déchirure ET une signature alors mettre dans tuyau 3",
+            "prefabPath": "",
+            "prefabASlot": 1,
+            "prefabBPath": "",
+            "prefabBSlot": 2,
             "conditions": [
                 {
                     "specificity": "feuille_dechirure_petite",
@@ -282,6 +338,10 @@
             "label": "Grande déchirure Sauf tampon double → Tuyau 1 / Poubelle",
             "isManuscript": false,
             "manuscriptText": "Sauf s'il y a deux tampons alors NE PAS mettre dans tuyau 1",
+            "prefabPath": "",
+            "prefabASlot": 1,
+            "prefabBPath": "",
+            "prefabBSlot": 2,
             "conditions": [
                 {
                     "specificity": "feuille_dechirure_grande",
@@ -305,6 +365,10 @@
             "label": "PRIORITAIRE tampon rond → Tuyau 1",
             "isManuscript": false,
             "manuscriptText": "PRIORITAIRE : Si un tampon rond est présent le document ira toujours dans le tuyau 1, peu importe les autres règles",
+            "prefabPath": "",
+            "prefabASlot": 1,
+            "prefabBPath": "",
+            "prefabBSlot": 2,
             "conditions": [
                 {
                     "specificity": "tampon_rond",

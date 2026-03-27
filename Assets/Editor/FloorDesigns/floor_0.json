@@ -71,7 +71,7 @@
                             "conditionA": "pastille_vert",
                             "conditionB": "tampon_rectangle",
                             "targetBinID": "bin_left_top",
-                            "secondaryBinID": "bin_right_top",
+                            "secondaryBinID": "",
                             "displayText": "Quand il y a une pastille verte alors mettez dans le tuyau 1 — Sauf s'il y a un tampon rectangle alors mettez dans le tuyau 2",
                             "complexity": 3,
                             "isComplement": false
@@ -113,7 +113,7 @@
                             "conditionA": "pastille_vert",
                             "conditionB": "tampon_rectangle",
                             "targetBinID": "bin_left_top",
-                            "secondaryBinID": "bin_right_top",
+                            "secondaryBinID": "",
                             "displayText": "Quand il y a une pastille verte alors mettez dans le tuyau 1 — Sauf s'il y a un tampon rectangle alors mettez dans le tuyau 2",
                             "complexity": 3,
                             "isComplement": false
@@ -171,7 +171,7 @@
                             "conditionA": "pastille_vert",
                             "conditionB": "tampon_rectangle",
                             "targetBinID": "bin_left_top",
-                            "secondaryBinID": "bin_right_top",
+                            "secondaryBinID": "",
                             "displayText": "Quand il y a une pastille verte alors mettez dans le tuyau 1 — Sauf s'il y a un tampon rectangle alors mettez dans le tuyau 2",
                             "complexity": 3,
                             "isComplement": false
@@ -245,7 +245,7 @@
                             "conditionA": "pastille_vert",
                             "conditionB": "tampon_rectangle",
                             "targetBinID": "bin_left_top",
-                            "secondaryBinID": "bin_right_top",
+                            "secondaryBinID": "",
                             "displayText": "Quand il y a une pastille verte alors mettez dans le tuyau 1 — Sauf s'il y a un tampon rectangle alors mettez dans le tuyau 2",
                             "complexity": 3,
                             "isComplement": false
