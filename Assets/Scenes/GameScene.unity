@@ -302,7 +302,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &22457237
 RectTransform:
   m_ObjectHideFlags: 0
@@ -337,7 +337,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba1bd635037833f40b97bd9993c746de, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SortingBin
-  binID: bin_bottom
+  binID: bin_trash
   rulesDisplayText: {fileID: 1413717332}
 --- !u!114 &22457239
 MonoBehaviour:
@@ -9621,12 +9621,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 352be5f3f60f2a246a8737a4eb3943ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DocumentSpawner
-  documentPrefab: {fileID: 7698059109857066673, guid: 1bcc3493be7b6ec439d389970fcbbbd2, type: 3}
   spawnAreaParent: {fileID: 1045035165}
   mainCanvas: {fileID: 66341487}
   dropZoneDetector: {fileID: 66341484}
   documentStackManager: {fileID: 1045035168}
-  specificityDatabase: {fileID: 11400000, guid: fa9b6cf72815b6245bdbed380a47fad1, type: 2}
 --- !u!114 &2040673044
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -9696,10 +9694,10 @@ MonoBehaviour:
   - {fileID: 1457293317}
   - {fileID: 752693271}
   - {fileID: 487088183}
-  - {fileID: 22457237}
-  activationOrder: 0000000002000000040000000100000003000000
+  trashBinSlot: {fileID: 22457237}
+  activationOrder: 00000000020000000100000003000000
   minimumBinCount: 1
-  maximumBinCount: 5
+  maximumBinCount: 4
 --- !u!114 &2040673048
 MonoBehaviour:
   m_ObjectHideFlags: 0

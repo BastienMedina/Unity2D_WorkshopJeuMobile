@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -30,7 +29,6 @@ public class RuleLibraryWindow : EditorWindow
     private const float PanelPadding     = 8f;
     private const float EntryHeight      = 36f;
     private const float ComplexityWidth  = 32f;
-    private const int   MaxConditions    = 6;
 
     // ─── Persistence ──────────────────────────────────────────────────────────
 
@@ -72,21 +70,18 @@ public class RuleLibraryWindow : EditorWindow
 
     // ─── Cached data ──────────────────────────────────────────────────────────
 
-    /// <summary>Specificity names loaded from the SpecificityDatabase for dropdown widgets.</summary>
-    private string[] cachedSpecificityNames = Array.Empty<string>();
-
-    /// <summary>Cached reference to the SpecificityDatabase ScriptableObject found in the project.</summary>
-    private SpecificityDatabase cachedDatabase;
+    /// <summary>
+    /// Cached prefab GameObject loaded from editingEntry.prefabPath (Prefab A).
+    /// Used by the ObjectField in prefab mode to display and update the reference.
+    /// Rebuilt each time an entry is selected or when the path changes.
+    /// </summary>
+    private GameObject editingPrefabObject;
 
     /// <summary>
-    /// Number of bins available in the current level configuration.
-    /// Used to build the random pool when assigning bins to slots.
-    /// Configurable by the designer directly in the window toolbar.
+    /// Cached prefab GameObject loaded from editingEntry.prefabBPath (Prefab B, Branch only).
+    /// Rebuilt each time an entry is selected or when the path changes.
     /// </summary>
-    private int numberOfBins = 3;
-
-    /// <summary>Labels for the two bin slots shown in the terminal-node dropdown.</summary>
-    private static readonly string[] BinSlotLabels = { "Corbeille 1", "Corbeille 2" };
+    private GameObject editingPrefabBObject;
 
     /// <summary>All RuleType values displayed in the type dropdown.</summary>
     private static readonly RuleType[] PrimaryRuleTypes =
@@ -104,9 +99,6 @@ public class RuleLibraryWindow : EditorWindow
         "Branche (A mais pas B)",
     };
 
-    /// <summary>Logical connector options shown between condition nodes.</summary>
-    private static readonly string[] ConnectorOptions = { "Et", "Ou", "Sauf" };
-
     // ─── Styles (created once per OnEnable) ───────────────────────────────────
 
     private GUIStyle groupHeaderStyle;
@@ -120,7 +112,6 @@ public class RuleLibraryWindow : EditorWindow
     private void OnEnable()
     {
         LoadLibrary();
-        RefreshSpecificityCache();
     }
 
     private void OnGUI()
@@ -167,14 +158,6 @@ public class RuleLibraryWindow : EditorWindow
         if (GUILayout.Button("+ Nouvelle règle", EditorStyles.toolbarButton))
             CreateNewEntry();
 
-        if (GUILayout.Button("↻ Base", EditorStyles.toolbarButton, GUILayout.Width(52f)))
-            RefreshSpecificityCache();
-
-        // Bin count field so the designer can match the current level configuration.
-        EditorGUILayout.LabelField("Corbeilles :", GUILayout.Width(66f));
-        numberOfBins = EditorGUILayout.IntField(numberOfBins, GUILayout.Width(28f));
-        numberOfBins = Mathf.Clamp(numberOfBins, 2, 8);
-
         EditorGUILayout.EndHorizontal();
     }
 
@@ -188,9 +171,12 @@ public class RuleLibraryWindow : EditorWindow
         // Build groups: map each PrimaryRuleType to the entries that belong to it.
         foreach (RuleType ruleType in PrimaryRuleTypes)
         {
-            List<RuleLibraryEntry> group = allEntries
-                .Where(e => e.ruleTypeString == ruleType.ToString())
-                .ToList();
+            List<RuleLibraryEntry> group = new List<RuleLibraryEntry>();
+            foreach (RuleLibraryEntry e in allEntries)
+            {
+                if (e.ruleTypeString == ruleType.ToString())
+                    group.Add(e);
+            }
 
             if (group.Count == 0)
                 continue;
@@ -202,9 +188,12 @@ public class RuleLibraryWindow : EditorWindow
         }
 
         // Entries with no type assigned yet fall into an "uncategorised" group.
-        List<RuleLibraryEntry> untyped = allEntries
-            .Where(e => string.IsNullOrEmpty(e.ruleTypeString))
-            .ToList();
+        List<RuleLibraryEntry> untyped = new List<RuleLibraryEntry>();
+        foreach (RuleLibraryEntry e in allEntries)
+        {
+            if (string.IsNullOrEmpty(e.ruleTypeString))
+                untyped.Add(e);
+        }
 
         if (untyped.Count > 0)
         {
@@ -298,7 +287,7 @@ public class RuleLibraryWindow : EditorWindow
         if (snapshot.isManuscript)
             DrawManuscriptEditor();
         else
-            DrawStructuredEditor();
+            DrawPrefabEditor();
 
         EditorGUILayout.EndVertical();
         EditorGUILayout.EndScrollView();
@@ -375,7 +364,7 @@ public class RuleLibraryWindow : EditorWindow
 
     // ─── Authoring mode toggle ────────────────────────────────────────────────
 
-    /// <summary>Draws the toggle that switches between manuscript and structured modes.</summary>
+    /// <summary>Draws the toggle that switches between manuscript and prefab modes.</summary>
     private void DrawAuthoringModeToggle()
     {
         EditorGUILayout.BeginHorizontal();
@@ -385,20 +374,20 @@ public class RuleLibraryWindow : EditorWindow
                                                 " ✎ Manuscrit",
                                                 EditorStyles.miniButtonLeft,
                                                 GUILayout.Height(22f));
-        bool newIsStructured = GUILayout.Toggle(!editingEntry.isManuscript,
-                                                " ⚙ Structuré",
+        bool newIsPrefab = GUILayout.Toggle(!editingEntry.isManuscript,
+                                                " 📦 Prefab",
                                                 EditorStyles.miniButtonRight,
                                                 GUILayout.Height(22f));
 
         bool toggledToManuscript = newIsManuscript && !editingEntry.isManuscript;
-        bool toggledToStructured = newIsStructured  &&  editingEntry.isManuscript;
+        bool toggledToPrefab     = newIsPrefab     &&  editingEntry.isManuscript;
 
         if (toggledToManuscript)
         {
             editingEntry.isManuscript = true;
             MarkDirty();
         }
-        else if (toggledToStructured)
+        else if (toggledToPrefab)
         {
             editingEntry.isManuscript = false;
             MarkDirty();
@@ -430,280 +419,149 @@ public class RuleLibraryWindow : EditorWindow
         }
     }
 
-    // ─── Structured editor ────────────────────────────────────────────────────
+    // ─── Prefab editor ────────────────────────────────────────────────────────
 
     /// <summary>
-    /// Draws the structured condition-chain editor.
-    /// The designer builds a sequence of (spécificité → connecteur → ...) nodes,
-    /// ending with a corbeille cible. A "Sauf" connector opens a secondary bin field.
+    /// Draws the prefab mode editor.
+    ///
+    /// Simple / Multiple : un seul emplacement prefab (Prefab A) + dropdown "Corbeille 1 ou 2".
+    /// Branch            : deux emplacements (Prefab A et Prefab B) + un dropdown de slot par prefab.
+    ///
+    /// Les slots (1 ou 2) sont résolus en corbeilles physiques dans le Floor Designer.
     /// </summary>
-    private void DrawStructuredEditor()
+    private void DrawPrefabEditor()
     {
-        EditorGUILayout.LabelField("Conditions structurées", EditorStyles.boldLabel);
+        bool isBranch = editingEntry.ruleTypeString == RuleType.Branch.ToString();
+
+        EditorGUILayout.LabelField("Prefab(s) du document", EditorStyles.boldLabel);
         EditorGUILayout.HelpBox(
-            "Construisez la règle condition par condition.\n" +
-            "Chaque ligne : [Spécificité]  →  [Connecteur vers la suivante]\n" +
-            "La dernière ligne définit la corbeille cible.\n" +
-            "Un connecteur « Sauf » ouvre une corbeille alternative.",
+            isBranch
+                ? "Branche : assignez Prefab A (condition principale) et Prefab B (condition secondaire).\n" +
+                  "Chaque prefab est routé vers l'une des deux corbeilles configurées dans le Floor Designer."
+                : "Sélectionnez le prefab à utiliser pour cette règle.\n" +
+                  "Le prefab sera instancié en jeu à la place d'un document généré.",
             MessageType.None);
 
         EditorGUILayout.Space(4f);
 
-        EnsureAtLeastOneCondition();
+        SyncPrefabObjectsFromPaths();
 
-        for (int i = 0; i < editingEntry.conditions.Count; i++)
-            DrawConditionNode(i);
-
-        EditorGUILayout.Space(4f);
-        DrawConditionListControls();
-        EditorGUILayout.Space(6f);
-        DrawSecondaryBinField();
-        EditorGUILayout.Space(8f);
-        DrawBinResolutionSection();
-    }
-
-    /// <summary>Guarantees the condition list is never empty when the structured editor is active.</summary>
-    private void EnsureAtLeastOneCondition()
-    {
-        if (editingEntry.conditions.Count == 0)
-        {
-            editingEntry.conditions.Add(new ConditionNode());
-            MarkDirty();
-        }
-    }
-
-    /// <summary>
-    /// Draws one condition node row:
-    ///   [Index label] [Spécificité dropdown] [Connecteur dropdown (non-terminal)] [Corbeille (terminal)]
-    /// </summary>
-    private void DrawConditionNode(int index)
-    {
-        ConditionNode node = editingEntry.conditions[index];
-        bool isLastNode    = index == editingEntry.conditions.Count - 1;
-
-        EditorGUILayout.BeginHorizontal();
-
-        // Index label
-        EditorGUILayout.LabelField($"#{index + 1}", GUILayout.Width(26f));
-
-        // Specificity dropdown
-        DrawSpecificityDropdown(node);
-
-        if (!isLastNode)
-        {
-            // Connector dropdown between this node and the next.
-            DrawConnectorDropdown(node);
-        }
-        else
-        {
-            // Target bin on the last node.
-            DrawTargetBinField(node);
-        }
-
-        EditorGUILayout.EndHorizontal();
-
-        // Show secondary bin hint when this non-last node has a "Sauf" connector.
-        bool hasUnlessConnector = !isLastNode && node.connector == "Sauf";
-        if (hasUnlessConnector)
-        {
-            EditorGUILayout.BeginHorizontal();
-            GUILayout.Space(30f);
-            EditorGUILayout.HelpBox(
-                "Le connecteur « Sauf » indique qu'une corbeille alternative peut recevoir " +
-                "les documents qui ne satisfont PAS cette condition.\n" +
-                "Définissez la corbeille alternative en bas du formulaire.",
-                MessageType.Info);
-            EditorGUILayout.EndHorizontal();
-        }
-    }
-
-    /// <summary>Draws the specificity popup for one condition node.</summary>
-    private void DrawSpecificityDropdown(ConditionNode node)
-    {
-        if (cachedSpecificityNames.Length == 0)
-        {
-            // No database found — fallback to a plain text field.
-            string newSpec = EditorGUILayout.TextField(node.specificity, GUILayout.MinWidth(100f));
-            if (newSpec != node.specificity)
+        // ── Prefab A ──────────────────────────────────────────────────────────
+        DrawPrefabSlotField(
+            label:        isBranch ? "Prefab A" : "Prefab",
+            prefabObject: editingPrefabObject,
+            storedPath:   editingEntry.prefabPath,
+            slot:         editingEntry.prefabASlot,
+            onPrefabChanged: (go, path) =>
             {
-                node.specificity = newSpec;
+                editingPrefabObject    = go;
+                editingEntry.prefabPath = path;
                 MarkDirty();
+            },
+            onSlotChanged: slot =>
+            {
+                editingEntry.prefabASlot = slot;
+                MarkDirty();
+            });
+
+        // ── Prefab B (Branch uniquement) ──────────────────────────────────────
+        if (isBranch)
+        {
+            EditorGUILayout.Space(6f);
+            DrawPrefabSlotField(
+                label:        "Prefab B",
+                prefabObject: editingPrefabBObject,
+                storedPath:   editingEntry.prefabBPath,
+                slot:         editingEntry.prefabBSlot,
+                onPrefabChanged: (go, path) =>
+                {
+                    editingPrefabBObject    = go;
+                    editingEntry.prefabBPath = path;
+                    MarkDirty();
+                },
+                onSlotChanged: slot =>
+                {
+                    editingEntry.prefabBSlot = slot;
+                    MarkDirty();
+                });
+
+            if (editingEntry.prefabASlot == editingEntry.prefabBSlot)
+            {
+                EditorGUILayout.HelpBox(
+                    "Prefab A et Prefab B sont assignés au même slot.\n" +
+                    "Ils doivent être sur des corbeilles différentes.",
+                    MessageType.Warning);
             }
-            return;
-        }
-
-        int currentIndex = Array.IndexOf(cachedSpecificityNames, node.specificity);
-        if (currentIndex < 0)
-            currentIndex = 0;
-
-        int newIndex = EditorGUILayout.Popup(currentIndex, cachedSpecificityNames,
-                                             GUILayout.MinWidth(120f));
-        if (newIndex != currentIndex || string.IsNullOrEmpty(node.specificity))
-        {
-            node.specificity = cachedSpecificityNames[newIndex];
-            MarkDirty();
         }
     }
 
-    /// <summary>Draws the logical connector dropdown (Et / Ou / Sauf) between two condition nodes.</summary>
-    private void DrawConnectorDropdown(ConditionNode node)
-    {
-        int currentConnectorIndex = Array.IndexOf(ConnectorOptions, node.connector);
-        if (currentConnectorIndex < 0)
-            currentConnectorIndex = 0;
+    private static readonly string[] SlotLabels = { "Corbeille 1", "Corbeille 2" };
 
-        int newConnectorIndex = EditorGUILayout.Popup(currentConnectorIndex, ConnectorOptions,
-                                                      GUILayout.Width(60f));
-        if (newConnectorIndex != currentConnectorIndex)
-        {
-            node.connector = ConnectorOptions[newConnectorIndex];
-            MarkDirty();
-        }
-    }
-
-    /// <summary>Draws the target bin slot popup for the terminal condition node.</summary>
-    private void DrawTargetBinField(ConditionNode node)
-    {
-        EditorGUILayout.LabelField("→", GUILayout.Width(16f));
-
-        // Slot index: 0 = Corbeille 1, 1 = Corbeille 2.
-        int currentSlotIndex = Mathf.Clamp(node.targetBinSlot - 1, 0, BinSlotLabels.Length - 1);
-        int newSlotIndex     = EditorGUILayout.Popup(currentSlotIndex, BinSlotLabels,
-                                                     GUILayout.Width(106f));
-        if (newSlotIndex != currentSlotIndex)
-        {
-            node.targetBinSlot = newSlotIndex + 1;
-            MarkDirty();
-        }
-    }
-
-    /// <summary>Draws "Add condition" and "Remove last condition" buttons.</summary>
-    private void DrawConditionListControls()
+    /// <summary>
+    /// Dessine un champ ObjectField + dropdown de slot pour un prefab de règle.
+    /// Le dropdown propose "Corbeille 1" et "Corbeille 2" — la correspondance avec
+    /// les bins physiques est résolue dans le Floor Designer.
+    /// </summary>
+    private static void DrawPrefabSlotField(
+        string              label,
+        GameObject          prefabObject,
+        string              storedPath,
+        int                 slot,
+        Action<GameObject, string> onPrefabChanged,
+        Action<int>         onSlotChanged)
     {
         EditorGUILayout.BeginHorizontal();
 
-        bool canAdd    = editingEntry.conditions.Count < MaxConditions;
-        bool canRemove = editingEntry.conditions.Count > 1;
-
-        GUI.enabled = canAdd;
-        if (GUILayout.Button("+ Ajouter une condition", EditorStyles.miniButton))
+        // ObjectField
+        EditorGUI.BeginChangeCheck();
+        GameObject newPrefab = (GameObject)EditorGUILayout.ObjectField(
+            label, prefabObject, typeof(GameObject), allowSceneObjects: false);
+        if (EditorGUI.EndChangeCheck())
         {
-            editingEntry.conditions.Add(new ConditionNode());
-            MarkDirty();
+            string newPath = newPrefab != null ? AssetDatabase.GetAssetPath(newPrefab) : string.Empty;
+            onPrefabChanged(newPrefab, newPath);
         }
 
-        GUI.enabled = canRemove;
-        if (GUILayout.Button("− Retirer la dernière", EditorStyles.miniButton))
-        {
-            editingEntry.conditions.RemoveAt(editingEntry.conditions.Count - 1);
-            MarkDirty();
-        }
+        // Slot dropdown — fixed width so it doesn't crowd the ObjectField.
+        int currentSlotIdx = Mathf.Clamp(slot - 1, 0, SlotLabels.Length - 1);
+        EditorGUI.BeginChangeCheck();
+        int newSlotIdx = EditorGUILayout.Popup(currentSlotIdx, SlotLabels, GUILayout.Width(100f));
+        if (EditorGUI.EndChangeCheck())
+            onSlotChanged(newSlotIdx + 1);
 
-        GUI.enabled = true;
         EditorGUILayout.EndHorizontal();
-    }
 
-    /// <summary>
-    /// Draws the secondary bin slot popup used when a "Sauf" connector is present in the chain.
-    /// Documents that do not satisfy the negated condition route to this slot.
-    /// </summary>
-    private void DrawSecondaryBinField()
-    {
-        bool hasSaufConnector = editingEntry.conditions
-            .Take(editingEntry.conditions.Count - 1)
-            .Any(n => n.connector == "Sauf");
-
-        if (!hasSaufConnector)
-            return;
-
-        EditorGUILayout.LabelField("Corbeille alternative (Sauf)", EditorStyles.boldLabel);
-
-        int currentSlotIndex = Mathf.Clamp(editingEntry.secondaryBinSlot - 1, 0, BinSlotLabels.Length - 1);
-        int newSlotIndex     = EditorGUILayout.Popup("Corbeille si « Sauf »",
-                                                     currentSlotIndex, BinSlotLabels);
-        if (newSlotIndex != currentSlotIndex)
+        // Read-only path.
+        if (!string.IsNullOrEmpty(storedPath))
         {
-            editingEntry.secondaryBinSlot = newSlotIndex + 1;
-            MarkDirty();
-        }
-    }
-
-    /// <summary>
-    /// Draws the bin resolution section: a "🎲 Assigner" button that randomly maps
-    /// Corbeille 1 and Corbeille 2 to actual bin IDs, plus a read-only display of the result.
-    /// The pool is built from numberOfBins consecutive bin IDs (bin_A, bin_B, …).
-    /// Re-clicking the button re-rolls both assignments independently.
-    /// </summary>
-    private void DrawBinResolutionSection()
-    {
-        EditorGUILayout.LabelField("Assignation des corbeilles", EditorStyles.boldLabel);
-
-        EditorGUILayout.BeginHorizontal();
-
-        bool hasResolution = !string.IsNullOrEmpty(editingEntry.resolvedBin1);
-
-        if (hasResolution)
-        {
-            // Read-only display of current resolved bins.
             GUI.enabled = false;
-            EditorGUILayout.TextField("Corbeille 1", editingEntry.resolvedBin1);
-            EditorGUILayout.TextField("Corbeille 2", editingEntry.resolvedBin2);
+            EditorGUILayout.TextField("  Chemin", storedPath);
             GUI.enabled = true;
         }
-        else
-        {
-            EditorGUILayout.HelpBox(
-                "Cliquez « 🎲 Assigner » pour attribuer des corbeilles aléatoires.",
-                MessageType.None);
-        }
+    }
 
-        EditorGUILayout.EndHorizontal();
+    /// <summary>
+    /// Synchronise editingPrefabObject et editingPrefabBObject avec les paths stockés dans editingEntry.
+    /// Appelé au début de DrawPrefabEditor chaque frame pour gérer les discards et changements de sélection.
+    /// </summary>
+    private void SyncPrefabObjectsFromPaths()
+    {
+        SyncOneObject(ref editingPrefabObject,  editingEntry.prefabPath);
+        SyncOneObject(ref editingPrefabBObject, editingEntry.prefabBPath);
+    }
 
-        EditorGUILayout.BeginHorizontal();
+    private static void SyncOneObject(ref GameObject cached, string storedPath)
+    {
+        string cachedPath = cached != null ? AssetDatabase.GetAssetPath(cached) : string.Empty;
+        if (cachedPath == storedPath)
+            return;
 
-        if (GUILayout.Button("🎲 Assigner aléatoirement", EditorStyles.miniButton))
-        {
-            ResolveRandomBins(editingEntry);
-            MarkDirty();
-        }
-
-        if (hasResolution && GUILayout.Button("✕ Effacer", EditorStyles.miniButton, GUILayout.Width(60f)))
-        {
-            editingEntry.resolvedBin1 = string.Empty;
-            editingEntry.resolvedBin2 = string.Empty;
-            MarkDirty();
-        }
-
-        EditorGUILayout.EndHorizontal();
+        cached = string.IsNullOrEmpty(storedPath)
+            ? null
+            : AssetDatabase.LoadAssetAtPath<GameObject>(storedPath);
     }
 
     // ─── Entry management ─────────────────────────────────────────────────────
-
-    /// <summary>
-    /// Randomly picks two different bin IDs from the available pool (bin_A … bin_N)
-    /// and stores them in resolvedBin1 and resolvedBin2 of the given entry.
-    /// Pool size is determined by numberOfBins set in the toolbar.
-    /// When fewer than 2 bins are available, resolvedBin2 falls back to resolvedBin1.
-    /// </summary>
-    private void ResolveRandomBins(RuleLibraryEntry entry)
-    {
-        List<string> pool = new List<string>();
-        for (int i = 0; i < numberOfBins; i++)
-            pool.Add(FloorDesignerData.GetBinID(i));
-
-        int index1 = UnityEngine.Random.Range(0, pool.Count);
-        entry.resolvedBin1 = pool[index1];
-        pool.RemoveAt(index1);
-
-        if (pool.Count == 0)
-        {
-            entry.resolvedBin2 = entry.resolvedBin1;
-            return;
-        }
-
-        int index2 = UnityEngine.Random.Range(0, pool.Count);
-        entry.resolvedBin2 = pool[index2];
-    }
 
     /// <summary>
     /// Creates a new blank entry, adds it to the library, selects it for editing,
@@ -745,9 +603,15 @@ public class RuleLibraryWindow : EditorWindow
                 return;
         }
 
-        selectedEntryGuid = entry.guid;
-        editingEntry      = DeepCopyEntry(entry);
-        hasPendingChanges = false;
+        selectedEntryGuid    = entry.guid;
+        editingEntry         = DeepCopyEntry(entry);
+        editingPrefabObject  = string.IsNullOrEmpty(entry.prefabPath)
+            ? null
+            : AssetDatabase.LoadAssetAtPath<GameObject>(entry.prefabPath);
+        editingPrefabBObject = string.IsNullOrEmpty(entry.prefabBPath)
+            ? null
+            : AssetDatabase.LoadAssetAtPath<GameObject>(entry.prefabBPath);
+        hasPendingChanges    = false;
         rightScrollPos    = Vector2.zero;
         Repaint();
     }
@@ -860,35 +724,6 @@ public class RuleLibraryWindow : EditorWindow
         }
     }
 
-    // ─── Specificity cache ────────────────────────────────────────────────────
-
-    /// <summary>
-    /// Finds the first SpecificityDatabase asset in the project and caches its specificity names
-    /// so condition-node dropdowns are populated without repeated asset queries.
-    /// </summary>
-    private void RefreshSpecificityCache()
-    {
-        string[] guids = AssetDatabase.FindAssets("t:SpecificityDatabase");
-
-        if (guids.Length == 0)
-        {
-            cachedDatabase        = null;
-            cachedSpecificityNames = Array.Empty<string>();
-            return;
-        }
-
-        string assetPath = AssetDatabase.GUIDToAssetPath(guids[0]);
-        cachedDatabase   = AssetDatabase.LoadAssetAtPath<SpecificityDatabase>(assetPath);
-
-        if (cachedDatabase == null || cachedDatabase.allSpecificities == null)
-        {
-            cachedSpecificityNames = Array.Empty<string>();
-            return;
-        }
-
-        cachedSpecificityNames = cachedDatabase.allSpecificities.ToArray();
-    }
-
     // ─── Helpers ──────────────────────────────────────────────────────────────
 
     /// <summary>
@@ -924,7 +759,7 @@ public class RuleLibraryWindow : EditorWindow
     /// <summary>
     /// Fills in the entry label automatically when the designer left it as the default.
     /// In manuscript mode: first 40 characters of the text.
-    /// In structured mode: "Spec1 [connecteur] Spec2… → BinID".
+    /// In prefab mode: the prefab file name without extension.
     /// </summary>
     private static void AutoFillLabel(RuleLibraryEntry entry)
     {
@@ -940,26 +775,12 @@ public class RuleLibraryWindow : EditorWindow
             return;
         }
 
-        // Build a short summary from the condition chain.
-        System.Text.StringBuilder sb = new System.Text.StringBuilder();
-        for (int i = 0; i < entry.conditions.Count; i++)
+        // Prefab mode: derive label from the prefab file name.
+        if (!string.IsNullOrEmpty(entry.prefabPath))
         {
-            ConditionNode node = entry.conditions[i];
-            sb.Append(node.specificity);
-
-            bool isLast = i == entry.conditions.Count - 1;
-            if (isLast)
-            {
-                sb.Append($" → Corbeille {node.targetBinSlot}");
-            }
-            else
-            {
-                sb.Append(' ').Append(node.connector).Append(' ');
-            }
+            string fileName = System.IO.Path.GetFileNameWithoutExtension(entry.prefabPath);
+            entry.label = fileName.Length <= 48 ? fileName : fileName.Substring(0, 48) + "…";
         }
-
-        string generated = sb.ToString();
-        entry.label = generated.Length <= 48 ? generated : generated.Substring(0, 48) + "…";
     }
 
     /// <summary>
@@ -970,26 +791,34 @@ public class RuleLibraryWindow : EditorWindow
     {
         RuleLibraryEntry copy = new RuleLibraryEntry
         {
-            guid               = source.guid,
-            label              = source.label,
-            isManuscript       = source.isManuscript,
-            manuscriptText     = source.manuscriptText,
-            ruleTypeString     = source.ruleTypeString,
-            complexity         = source.complexity,
-            secondaryBinSlot   = source.secondaryBinSlot,
-            resolvedBin1       = source.resolvedBin1,
-            resolvedBin2       = source.resolvedBin2,
-            conditions         = new List<ConditionNode>()
+            guid             = source.guid,
+            label            = source.label,
+            isManuscript     = source.isManuscript,
+            manuscriptText   = source.manuscriptText,
+            ruleTypeString   = source.ruleTypeString,
+            complexity       = source.complexity,
+            prefabPath       = source.prefabPath,
+            prefabASlot      = source.prefabASlot,
+            prefabBPath      = source.prefabBPath,
+            prefabBSlot      = source.prefabBSlot,
+            // Legacy fields — copied for round-trip JSON fidelity, not used by the editor UI.
+            secondaryBinSlot = source.secondaryBinSlot,
+            resolvedBin1     = source.resolvedBin1,
+            resolvedBin2     = source.resolvedBin2,
+            conditions       = new List<ConditionNode>()
         };
 
-        foreach (ConditionNode node in source.conditions)
+        if (source.conditions != null)
         {
-            copy.conditions.Add(new ConditionNode
+            foreach (ConditionNode node in source.conditions)
             {
-                specificity    = node.specificity,
-                connector      = node.connector,
-                targetBinSlot  = node.targetBinSlot
-            });
+                copy.conditions.Add(new ConditionNode
+                {
+                    specificity   = node.specificity,
+                    connector     = node.connector,
+                    targetBinSlot = node.targetBinSlot
+                });
+            }
         }
 
         return copy;

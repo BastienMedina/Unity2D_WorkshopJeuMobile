@@ -104,6 +104,20 @@ public class NightSaveData
     /// Null or empty entries are tolerated for backward compatibility with older saves.
     /// </summary>
     public List<BinSaveData> bins = new List<BinSaveData>();
+
+    /// <summary>
+    /// When true, the fifth "trash" bin (bottom-centre) is active for this night.
+    /// The GameManager activates this bin via BinLayoutManager.SetTrashBinActive and
+    /// injects trashedPrefabPaths into the DocumentSpawner pool alongside regular prefabs.
+    /// </summary>
+    public bool hasTrashedPrefab;
+
+    /// <summary>
+    /// Asset paths of the prefabs designated as trash documents for this night.
+    /// Populated by the Floor Designer; injected into the spawn pool by GameManager.
+    /// Only relevant when hasTrashedPrefab is true.
+    /// </summary>
+    public List<string> trashedPrefabPaths = new List<string>();
 }
 
 /// <summary>
