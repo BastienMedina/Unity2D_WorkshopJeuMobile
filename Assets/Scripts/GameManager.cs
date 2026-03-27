@@ -1412,6 +1412,12 @@ public class GameManager : MonoBehaviour
                     ruleType       = parsedType,
                     conditionA     = savedRule.conditionA,
                     conditionB     = savedRule.conditionB,
+                    // Restore multi-prefab list; fall back to conditionA for old saves.
+                    prefabPaths    = savedRule.prefabPaths != null && savedRule.prefabPaths.Count > 0
+                        ? new List<string>(savedRule.prefabPaths)
+                        : (!string.IsNullOrEmpty(savedRule.conditionA) && savedRule.conditionA.StartsWith("Assets/")
+                            ? new List<string> { savedRule.conditionA }
+                            : new List<string>()),
                     targetBinID    = targetBinID,
                     secondaryBinID = savedRule.secondaryBinID ?? string.Empty,
                     displayText    = savedRule.displayText,

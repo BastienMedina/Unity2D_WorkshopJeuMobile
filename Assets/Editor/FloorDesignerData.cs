@@ -262,11 +262,19 @@ public class DesignerRuleEntry
     /// <summary>RuleType enum name string (e.g. "Simple", "Branch").</summary>
     public string ruleTypeString = string.Empty;
 
-    /// <summary>Primary condition specificity or prefab path (Prefab A).</summary>
+    /// <summary>Primary condition specificity or first prefab path (mirrors prefabPaths[0]).</summary>
     public string conditionA = string.Empty;
 
     /// <summary>Secondary condition — only for two-condition rule types (Branch).</summary>
     public string conditionB = string.Empty;
+
+    /// <summary>
+    /// All prefab asset paths accepted by this rule.
+    /// In the Floor Designer, the designer can add or remove any number of prefabs.
+    /// conditionA mirrors prefabPaths[0] so the save/runtime systems stay backward-compatible.
+    /// Empty for condition-based rules.
+    /// </summary>
+    public List<string> prefabPaths = new List<string>();
 
     /// <summary>Target bin ID for this rule (primary bin).</summary>
     public string targetBinID = string.Empty;

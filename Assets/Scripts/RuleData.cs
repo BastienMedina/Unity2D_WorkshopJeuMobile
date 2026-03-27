@@ -20,6 +20,8 @@ public class RuleData
     /// <summary>
     /// Primary condition string. Used by all rule types except complement-less types.
     /// Example: "red_stamp", "urgent".
+    /// In prefab mode, stores the asset path of the first (or only) document prefab.
+    /// When prefabPaths is non-empty, conditionA mirrors prefabPaths[0] for backward compatibility.
     /// </summary>
     public string conditionA = string.Empty;
 
@@ -28,6 +30,15 @@ public class RuleData
     /// PositiveWithNegative, and their complements.
     /// </summary>
     public string conditionB = string.Empty;
+
+    /// <summary>
+    /// All prefab asset paths accepted by this rule in prefab mode.
+    /// When this list is non-empty, SortingBin.ValidateSimple matches any path in this list
+    /// against DocumentData.specificities, and DocumentSpawner adds each path to the spawn pool.
+    /// conditionA stores prefabPaths[0] for backward compatibility with old save files.
+    /// Ignored when the rule uses condition-based matching (conditionA is a specificity string).
+    /// </summary>
+    public List<string> prefabPaths = new List<string>();
 
     /// <summary>
     /// Retained for backwards compatibility but no longer used by any active rule type.

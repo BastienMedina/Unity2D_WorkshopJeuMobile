@@ -38,8 +38,17 @@ public class RuleLibraryEntry
     // ─── Prefab mode ──────────────────────────────────────────────────────────
 
     /// <summary>
-    /// Asset path of the primary prefab (Prefab A) assigned in prefab mode.
-    /// Used for all rule types. Stored as a string for JSON serialisation.
+    /// Asset paths of all prefabs assigned to this rule entry in prefab mode.
+    /// A single entry can accept multiple document types: each prefab path is added to the spawn
+    /// pool and accepted by the target bin's validation.
+    /// conditionA on the generated DesignerRuleEntry mirrors prefabPaths[0] for backward compat.
+    /// </summary>
+    public List<string> prefabPaths = new List<string>();
+
+    /// <summary>
+    /// Legacy single prefab path — kept for backward-compatible JSON reads of old library files.
+    /// On load, migrated into prefabPaths[0] if prefabPaths is empty.
+    /// Do NOT write to this field in new code; use prefabPaths instead.
     /// </summary>
     public string prefabPath = string.Empty;
 
@@ -51,14 +60,22 @@ public class RuleLibraryEntry
     public int prefabASlot = 1;
 
     /// <summary>
-    /// Asset path of the secondary prefab (Prefab B), used only when ruleType == Branch.
-    /// Documents matching Prefab B route to the opposite slot from Prefab A.
+    /// Asset paths of all secondary prefabs (Prefab B), used only when ruleType == Branch.
+    /// Documents matching any Prefab B path route to the opposite slot from Prefab A.
     /// Empty for Simple and Multiple rules.
+    /// prefabBPath mirrors prefabBPaths[0] for backward-compatible JSON reads.
+    /// </summary>
+    public List<string> prefabBPaths = new List<string>();
+
+    /// <summary>
+    /// Legacy single secondary prefab path — kept for backward-compatible JSON reads.
+    /// On load, migrated into prefabBPaths[0] if prefabBPaths is empty.
+    /// Do NOT write to this field in new code; use prefabBPaths instead.
     /// </summary>
     public string prefabBPath = string.Empty;
 
     /// <summary>
-    /// Bin slot (1 or 2) assigned to Prefab B in the Floor Designer.
+    /// Bin slot (1 or 2) assigned to all Prefab B entries in the Floor Designer.
     /// Only meaningful when ruleType == Branch.
     /// Defaults to 2.
     /// </summary>

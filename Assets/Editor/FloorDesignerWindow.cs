@@ -337,13 +337,20 @@ public class FloorDesignerWindow : EditorWindow
                 return;
             }
 
-            // Inclure les entrées prefab ET les entrées avec conditions structurées (legacy).
+            // Migration : si une entrée n'a pas encore prefabPaths mais a l'ancien prefabPath,
+            // on migre au chargement (en mémoire uniquement — le JSON n'est pas réécrit).
             foreach (RuleLibraryEntry entry in file.entries)
             {
-                bool hasPrefab     = !string.IsNullOrEmpty(entry.prefabPath);
-                bool hasConditions = entry.conditions != null && entry.conditions.Count > 0;
+                if ((entry.prefabPaths == null || entry.prefabPaths.Count == 0)
+                    && !string.IsNullOrEmpty(entry.prefabPath))
+                {
+                    entry.prefabPaths = new List<string> { entry.prefabPath };
+                }
 
-                if (hasPrefab || hasConditions)
+                bool hasPrefabs    = entry.prefabPaths != null && entry.prefabPaths.Count > 0;
+                bool hasConditions = entry.conditions  != null && entry.conditions.Count  > 0;
+
+                if (hasPrefabs || hasConditions)
                     libraryEntries.Add(entry);
             }
 
@@ -354,10 +361,16 @@ public class FloorDesignerWindow : EditorWindow
                 RuleLibraryEntry e     = libraryEntries[i];
                 string           stars = new string('★', e.complexity);
 
-                if (!string.IsNullOrEmpty(e.prefabPath))
+                if (e.prefabPaths != null && e.prefabPaths.Count > 0)
                 {
-                    string prefabName      = System.IO.Path.GetFileNameWithoutExtension(e.prefabPath);
-                    libraryEntryLabels[i]  = $"[{stars}] 📦 {prefabName}";
+                    // Afficher tous les noms de prefabs séparés par ", ".
+                    var nameList = new System.Text.StringBuilder();
+                    foreach (string p in e.prefabPaths)
+                    {
+                        if (nameList.Length > 0) nameList.Append(", ");
+                        nameList.Append(System.IO.Path.GetFileNameWithoutExtension(p));
+                    }
+                    libraryEntryLabels[i] = $"[{stars}] 📦 {nameList}";
                 }
                 else
                 {
@@ -925,15 +938,14 @@ public class FloorDesignerWindow : EditorWindow
                 replaceLibraryEntryIndex[replaceKey], libraryEntryLabels, GUILayout.ExpandWidth(true));
         }
 
-        int              repIdx   = Mathf.Clamp(replaceLibraryEntryIndex[replaceKey], 0, libraryEntries.Count - 1);
-        RuleLibraryEntry repEntry = libraryReady ? libraryEntries[repIdx] : null;
+        int              repIdx    = Mathf.Clamp(replaceLibraryEntryIndex[replaceKey], 0, libraryEntries.Count - 1);
+        RuleLibraryEntry repEntry  = libraryReady ? libraryEntries[repIdx] : null;
         bool             repDouble = repEntry != null && IsDoubleConnector(repEntry);
 
         BinDesignerData repSecondaryBin = null;
         if (repDouble)
             repSecondaryBin = DrawSecondaryBinSelector(night, bin, replaceKey, replaceSecondaryBinIndex);
 
-        // Aperçu du remplacement
         if (repEntry != null)
         {
             string repPreview = BuildDoublePreview(repEntry, bin.binID, repSecondaryBin?.binID ?? "?");
@@ -950,10 +962,8 @@ public class FloorDesignerWindow : EditorWindow
         {
             if (GUILayout.Button("↕ Remplacer", GUILayout.Width(110f)))
             {
-                // Remplace la règle courante sur ce bin par la règle primaire du nouvel entry.
                 ApplyLibraryEntryToBin(repEntry, bin, rule, isPrimary: true);
 
-                // Si double : ajoute aussi la règle secondaire sur l'autre corbeille.
                 if (repDouble && repSecondaryBin != null)
                 {
                     DesignerRuleEntry secondary = new DesignerRuleEntry();
@@ -1046,14 +1056,26 @@ public class FloorDesignerWindow : EditorWindow
 
     /// <summary>
     /// Builds a structured French label from a DesignerRuleEntry's fields.
-    /// In prefab mode: shows the prefab name and the target bin.
+    /// In prefab mode: shows all prefab names (comma-separated) and the target bin.
     /// In condition mode: shows the rule logic.
     /// </summary>
     private static string BuildStructuredLabel(DesignerRuleEntry rule)
     {
         string bin = string.IsNullOrEmpty(rule.targetBinID) ? "?" : rule.targetBinID;
 
-        // Prefab mode: the prefabPath is stored in conditionA for display purposes.
+        // Multi-prefab mode: list all prefab names.
+        if (rule.prefabPaths != null && rule.prefabPaths.Count > 0)
+        {
+            var names = new System.Text.StringBuilder();
+            for (int i = 0; i < rule.prefabPaths.Count; i++)
+            {
+                if (i > 0) names.Append(", ");
+                names.Append(System.IO.Path.GetFileNameWithoutExtension(rule.prefabPaths[i]));
+            }
+            return $"📦 {names} → {bin}";
+        }
+
+        // Legacy single-prefab via conditionA.
         if (!string.IsNullOrEmpty(rule.conditionA) && rule.conditionA.StartsWith("Assets/"))
         {
             string prefabName = System.IO.Path.GetFileNameWithoutExtension(rule.conditionA);
@@ -1490,15 +1512,24 @@ public class FloorDesignerWindow : EditorWindow
         bool              isPrimary = true)
     {
         // ── Mode prefab ───────────────────────────────────────────────────────
-        if (!string.IsNullOrEmpty(entry.prefabPath))
+        if (entry.prefabPaths != null && entry.prefabPaths.Count > 0)
         {
-            string prefabName = System.IO.Path.GetFileNameWithoutExtension(entry.prefabPath);
+            // Construire le label avec tous les noms de prefabs.
+            var nameList = new System.Text.StringBuilder();
+            foreach (string p in entry.prefabPaths)
+            {
+                if (nameList.Length > 0) nameList.Append(", ");
+                nameList.Append(System.IO.Path.GetFileNameWithoutExtension(p));
+            }
+
             target.ruleTypeString = RuleType.Simple.ToString();
-            // conditionA stores the prefab path so the runtime and save system can reference it.
-            target.conditionA     = entry.prefabPath;
+            // conditionA = premier prefab pour la rétrocompatibilité.
+            target.conditionA     = entry.prefabPaths[0];
             target.conditionB     = string.Empty;
+            // Copie complète de la liste — la règle accepte tous ces prefabs.
+            target.prefabPaths    = new List<string>(entry.prefabPaths);
             target.targetBinID    = bin.binID;
-            target.displayText    = $"📦 {prefabName} → {bin.binID}";
+            target.displayText    = $"📦 {nameList} → {bin.binID}";
             target.complexity     = entry.complexity;
             target.isComplement   = false;
             return;
