@@ -5,8 +5,10 @@
             "label": "tampon_carre → Corbeille 1",
             "isManuscript": false,
             "manuscriptText": "Si le document contient un tempon, le mettre dans la corbeille 1",
+            "prefabPaths": [],
             "prefabPath": "",
             "prefabASlot": 1,
+            "prefabBPaths": [],
             "prefabBPath": "",
             "prefabBSlot": 2,
             "conditions": [
@@ -27,8 +29,10 @@
             "label": "tampon_carre Et pastille_bleu → Corbeille 1",
             "isManuscript": true,
             "manuscriptText": "Si le document contient un tempon Et pastille bleu, le mettre dans la corbeille 1",
+            "prefabPaths": [],
             "prefabPath": "",
             "prefabASlot": 1,
+            "prefabBPaths": [],
             "prefabBPath": "",
             "prefabBSlot": 2,
             "conditions": [
@@ -54,8 +58,10 @@
             "label": "Si le document contient un pastille vert…",
             "isManuscript": true,
             "manuscriptText": "Si le document contient un pastille verte, le mettre dans la corbeille 1",
+            "prefabPaths": [],
             "prefabPath": "",
             "prefabASlot": 1,
+            "prefabBPaths": [],
             "prefabBPath": "",
             "prefabBSlot": 2,
             "conditions": [
@@ -76,8 +82,10 @@
             "label": "pastille_bleu Sauf signature_effacee → Corbeille…",
             "isManuscript": false,
             "manuscriptText": "",
+            "prefabPaths": [],
             "prefabPath": "",
             "prefabASlot": 1,
+            "prefabBPaths": [],
             "prefabBPath": "",
             "prefabBSlot": 2,
             "conditions": [
@@ -99,110 +107,44 @@
             "complexity": 1
         },
         {
-            "guid": "42c5cf07-1cdf-4550-a6e5-541aaebe65d6",
-            "label": "Pastille verte",
-            "isManuscript": false,
-            "manuscriptText": "Quand il y a une pastille pastille vert alors mettez le document dans le tuyau 1",
-            "prefabPath": "",
-            "prefabASlot": 1,
-            "prefabBPath": "",
-            "prefabBSlot": 2,
-            "conditions": [
-                {
-                    "specificity": "pastille_vert",
-                    "connector": "Et",
-                    "targetBinSlot": 1
-                }
-            ],
-            "secondaryBinSlot": 0,
-            "resolvedBin1": "",
-            "resolvedBin2": "",
-            "ruleTypeString": "Simple",
-            "complexity": 1
-        },
-        {
-            "guid": "b9e49cd4-5503-45d5-857f-bf7061ff8361",
-            "label": "Pastille bleu",
-            "isManuscript": false,
-            "manuscriptText": "Quand il y a une pastille bleue alors mettez le document dans le tuyau 2",
-            "prefabPath": "",
-            "prefabASlot": 1,
-            "prefabBPath": "",
-            "prefabBSlot": 2,
-            "conditions": [
-                {
-                    "specificity": "pastille_bleu",
-                    "connector": "Et",
-                    "targetBinSlot": 1
-                }
-            ],
-            "secondaryBinSlot": 0,
-            "resolvedBin1": "",
-            "resolvedBin2": "",
-            "ruleTypeString": "Simple",
-            "complexity": 1
-        },
-        {
-            "guid": "5bbb7812-8529-49ce-8fb7-aece6c9639d2",
-            "label": "Pastille verte sauf tampon",
-            "isManuscript": false,
-            "manuscriptText": "Quand il y a une pastille pastille vert alors mettez le document dans le tuyau 1\n    -  Sauf s'il y a tampon alors mettrez le dans le tuyau 2",
-            "prefabPath": "",
-            "prefabASlot": 1,
-            "prefabBPath": "",
-            "prefabBSlot": 2,
-            "conditions": [
-                {
-                    "specificity": "pastille_vert",
-                    "connector": "Sauf",
-                    "targetBinSlot": 1
-                },
-                {
-                    "specificity": "tampon_rectangle",
-                    "connector": "Et",
-                    "targetBinSlot": 2
-                }
-            ],
-            "secondaryBinSlot": 2,
-            "resolvedBin1": "",
-            "resolvedBin2": "",
-            "ruleTypeString": "Branch",
-            "complexity": 3
-        },
-        {
-            "guid": "a74093d7-9e34-42d8-beb5-06fc4a75c714",
-            "label": "Pastille violet",
-            "isManuscript": false,
-            "manuscriptText": "Quand il y a une pastille bleue alors mettez le document dans le tuyau 2",
-            "prefabPath": "",
-            "prefabASlot": 1,
-            "prefabBPath": "",
-            "prefabBSlot": 2,
-            "conditions": [
-                {
-                    "specificity": "pastille_violet",
-                    "connector": "Et",
-                    "targetBinSlot": 1
-                }
-            ],
-            "secondaryBinSlot": 0,
-            "resolvedBin1": "",
-            "resolvedBin2": "",
-            "ruleTypeString": "Simple",
-            "complexity": 1
-        },
-        {
-            "guid": "0da07f2b-bd16-4733-8a32-b436e9c2d916",
-            "label": "Tuyau poubelle",
+            "guid": "0869dfae-87c4-4319-ad7b-d011960f25d0",
+            "label": "Floor 1 Day 1 Tuyau 1",
             "isManuscript": true,
-            "manuscriptText": "Si le document ne correspond à aucune règle alors mettez le dans le tuyau poubelle",
-            "prefabPath": "",
+            "manuscriptText": "Quand il y a une pastille verte alors mettez le document dans ce tuyau",
+            "prefabPaths": [
+                "Assets/Resources/E1J5_T1_01.prefab",
+                "Assets/Resources/E1J5_T1_02.prefab",
+                "Assets/Resources/E1J5_T1_03.prefab",
+                "Assets/Resources/E1J5_T1_04.prefab",
+                "Assets/Resources/E1J5_T1_05.prefab",
+                "Assets/Resources/E1J5_T1_06.prefab",
+                "Assets/Resources/E1J5_T1_07.prefab",
+                "Assets/Resources/E1J5_T1_08.prefab",
+                "Assets/Resources/E1J5_T1_09.prefab",
+                "Assets/Resources/E1J5_T1_10.prefab",
+                "Assets/Resources/E1J5_T1_11.prefab",
+                "Assets/Resources/E1J5_T1_12.prefab",
+                "Assets/Resources/E1J5_T1_13.prefab",
+                "Assets/Resources/E1J5_T1_14.prefab",
+                "Assets/Resources/E1J5_T2_01.prefab",
+                "Assets/Resources/E1J5_T2_02.prefab",
+                "Assets/Resources/E1J5_T2_03.prefab",
+                "Assets/Resources/E1J5_T2_04.prefab",
+                "Assets/Resources/E1J5_T2_05.prefab",
+                "Assets/Resources/E1J5_T2_06.prefab",
+                "Assets/Resources/E1J5_T2_07.prefab",
+                "Assets/Resources/E1J5_T2_08.prefab",
+                "Assets/Resources/E1J5_T3_02.prefab",
+                "Assets/Resources/E1J5_T3_07.prefab"
+            ],
+            "prefabPath": "Assets/Resources/E1J5_T1_01.prefab",
             "prefabASlot": 1,
+            "prefabBPaths": [],
             "prefabBPath": "",
             "prefabBSlot": 2,
             "conditions": [
                 {
-                    "specificity": "feuille_base",
+                    "specificity": "",
                     "connector": "Et",
                     "targetBinSlot": 1
                 }
@@ -214,17 +156,149 @@
             "complexity": 1
         },
         {
-            "guid": "4fb4cd7c-e8be-4e14-843e-e4d74dfd0219",
-            "label": "Prioritaire Tampon rectangle",
+            "guid": "1d520989-1ca3-4b5f-80cd-4f240d3e09eb",
+            "label": "Floor 1 Day 1 Tuyau 2",
+            "isManuscript": true,
+            "manuscriptText": "Quand il y a une pastille bleue alors mettez le document dans ce tuyau",
+            "prefabPaths": [
+                "Assets/Resources/E1J5_T2_09.prefab",
+                "Assets/Resources/E1J5_T2_10.prefab",
+                "Assets/Resources/E1J5_T2_11.prefab",
+                "Assets/Resources/E1J5_T2_12.prefab",
+                "Assets/Resources/E1J5_T2_13.prefab",
+                "Assets/Resources/E1J5_T2_14.prefab",
+                "Assets/Resources/E1J5_T2_15.prefab",
+                "Assets/Resources/E1J5_T2_16.prefab",
+                "Assets/Resources/E1J5_T2_17.prefab",
+                "Assets/Resources/E1J5_T3_03.prefab",
+                "Assets/Resources/E1J5_T3_08.prefab"
+            ],
+            "prefabPath": "Assets/Resources/E1J5_T2_09.prefab",
+            "prefabASlot": 1,
+            "prefabBPaths": [],
+            "prefabBPath": "",
+            "prefabBSlot": 2,
+            "conditions": [
+                {
+                    "specificity": "",
+                    "connector": "Et",
+                    "targetBinSlot": 1
+                }
+            ],
+            "secondaryBinSlot": 0,
+            "resolvedBin1": "",
+            "resolvedBin2": "",
+            "ruleTypeString": "Simple",
+            "complexity": 1
+        },
+        {
+            "guid": "94ca288c-8901-4b4b-a27a-b71aae6a83fd",
+            "label": "Floor 1 Day 2/3/4/5 Tuyau 1",
+            "isManuscript": false,
+            "manuscriptText": "Quand il y a une pastille verte alors mettez le document dans ce tuyau",
+            "prefabPaths": [
+                "Assets/Resources/E1J5_T1_01.prefab",
+                "Assets/Resources/E1J5_T1_02.prefab",
+                "Assets/Resources/E1J5_T1_03.prefab",
+                "Assets/Resources/E1J5_T1_04.prefab",
+                "Assets/Resources/E1J5_T1_05.prefab",
+                "Assets/Resources/E1J5_T1_06.prefab",
+                "Assets/Resources/E1J5_T1_07.prefab",
+                "Assets/Resources/E1J5_T1_08.prefab",
+                "Assets/Resources/E1J5_T1_09.prefab",
+                "Assets/Resources/E1J5_T1_10.prefab",
+                "Assets/Resources/E1J5_T1_11.prefab",
+                "Assets/Resources/E1J5_T1_12.prefab",
+                "Assets/Resources/E1J5_T1_13.prefab",
+                "Assets/Resources/E1J5_T1_14.prefab"
+            ],
+            "prefabPath": "Assets/Resources/E1J5_T1_01.prefab",
+            "prefabASlot": 1,
+            "prefabBPaths": [],
+            "prefabBPath": "",
+            "prefabBSlot": 2,
+            "conditions": [
+                {
+                    "specificity": "",
+                    "connector": "Et",
+                    "targetBinSlot": 1
+                }
+            ],
+            "secondaryBinSlot": 0,
+            "resolvedBin1": "",
+            "resolvedBin2": "",
+            "ruleTypeString": "Simple",
+            "complexity": 2
+        },
+        {
+            "guid": "9689433e-a19c-457f-a28b-d3eda94c48d1",
+            "label": "Floor 1 Day 2/3/4 Tuyau 2",
+            "isManuscript": false,
+            "manuscriptText": "Quand il y a une pastille bleue alors mettez le document dans ce tuyau",
+            "prefabPaths": [
+                "Assets/Resources/E1J5_T2_01.prefab",
+                "Assets/Resources/E1J5_T2_02.prefab",
+                "Assets/Resources/E1J5_T2_03.prefab",
+                "Assets/Resources/E1J5_T2_04.prefab",
+                "Assets/Resources/E1J5_T2_05.prefab",
+                "Assets/Resources/E1J5_T2_06.prefab",
+                "Assets/Resources/E1J5_T2_07.prefab",
+                "Assets/Resources/E1J5_T2_08.prefab",
+                "Assets/Resources/E1J5_T2_09.prefab",
+                "Assets/Resources/E1J5_T2_10.prefab",
+                "Assets/Resources/E1J5_T2_11.prefab",
+                "Assets/Resources/E1J5_T2_12.prefab",
+                "Assets/Resources/E1J5_T2_13.prefab",
+                "Assets/Resources/E1J5_T2_14.prefab",
+                "Assets/Resources/E1J5_T2_15.prefab",
+                "Assets/Resources/E1J5_T2_16.prefab",
+                "Assets/Resources/E1J5_T2_17.prefab",
+                "Assets/Resources/E1J5_T3_02.prefab",
+                "Assets/Resources/E1J5_T3_03.prefab",
+                "Assets/Resources/E1J5_T3_07.prefab",
+                "Assets/Resources/E1J5_T3_08.prefab"
+            ],
+            "prefabPath": "Assets/Resources/E1J5_T2_01.prefab",
+            "prefabASlot": 1,
+            "prefabBPaths": [],
+            "prefabBPath": "",
+            "prefabBSlot": 2,
+            "conditions": [
+                {
+                    "specificity": "",
+                    "connector": "Et",
+                    "targetBinSlot": 1
+                }
+            ],
+            "secondaryBinSlot": 0,
+            "resolvedBin1": "",
+            "resolvedBin2": "",
+            "ruleTypeString": "Simple",
+            "complexity": 2
+        },
+        {
+            "guid": "d02d9de5-2d30-4747-b83b-f9ecfd44899f",
+            "label": "Floor 1 Day 3/4 tuyau 3",
             "isManuscript": false,
             "manuscriptText": "",
-            "prefabPath": "",
+            "prefabPaths": [
+                "Assets/Resources/E1J5_T3_05.prefab",
+                "Assets/Resources/E1J5_T3_11.prefab",
+                "Assets/Resources/E1J5_T3_10.prefab",
+                "Assets/Resources/E1J5_T3_12.prefab",
+                "Assets/Resources/E1J5_T3_13.prefab",
+                "Assets/Resources/E1J5_T3_14.prefab",
+                "Assets/Resources/E1J5_T3_15.prefab",
+                "Assets/Resources/E1J5_T3_16.prefab"
+            ],
+            "prefabPath": "Assets/Resources/E1J5_T3_05.prefab",
             "prefabASlot": 1,
+            "prefabBPaths": [],
             "prefabBPath": "",
             "prefabBSlot": 2,
             "conditions": [
                 {
-                    "specificity": "tampon_rectangle",
+                    "specificity": "",
                     "connector": "Et",
                     "targetBinSlot": 1
                 }
@@ -233,69 +307,39 @@
             "resolvedBin1": "",
             "resolvedBin2": "",
             "ruleTypeString": "Simple",
-            "complexity": 2
-        },
-        {
-            "guid": "f2001001-0000-4000-0000-000000000001",
-            "label": "Grande déchirure → Tuyau 1",
-            "isManuscript": false,
-            "manuscriptText": "Quand le document a une grande déchirure alors mettez dans le tuyau 1",
-            "prefabPath": "",
-            "prefabASlot": 1,
-            "prefabBPath": "",
-            "prefabBSlot": 2,
-            "conditions": [
-                {
-                    "specificity": "feuille_dechirure_grande",
-                    "connector": "Et",
-                    "targetBinSlot": 1
-                }
-            ],
-            "secondaryBinSlot": 0,
-            "resolvedBin1": "",
-            "resolvedBin2": "",
-            "ruleTypeString": "Simple",
-            "complexity": 1
-        },
-        {
-            "guid": "f2001001-0000-4000-0000-000000000002",
-            "label": "Grande déchirure Sauf pas signé → Tuyau 1 / Tuyau 2",
-            "isManuscript": false,
-            "manuscriptText": "Quand le document a une grande déchirure alors mettez dans le tuyau 1 — Sauf si le document n'est pas signé alors mettez dans le tuyau 2",
-            "prefabPath": "",
-            "prefabASlot": 1,
-            "prefabBPath": "",
-            "prefabBSlot": 2,
-            "conditions": [
-                {
-                    "specificity": "feuille_dechirure_grande",
-                    "connector": "Sauf",
-                    "targetBinSlot": 1
-                },
-                {
-                    "specificity": "signature_effacee",
-                    "connector": "Et",
-                    "targetBinSlot": 2
-                }
-            ],
-            "secondaryBinSlot": 2,
-            "resolvedBin1": "",
-            "resolvedBin2": "",
-            "ruleTypeString": "Branch",
             "complexity": 3
         },
         {
-            "guid": "f2001001-0000-4000-0000-000000000003",
-            "label": "Petite déchirure → Tuyau 2",
+            "guid": "42e3419d-8797-49d8-8f85-bfa23c18b1cb",
+            "label": "Floor 1 Poubelle day 4",
             "isManuscript": false,
-            "manuscriptText": "Quand le document a une petite déchirure alors mettez dans le tuyau 2",
-            "prefabPath": "",
+            "manuscriptText": "",
+            "prefabPaths": [
+                "Assets/Resources/E1J5_P_01.prefab",
+                "Assets/Resources/E1J5_P_02.prefab",
+                "Assets/Resources/E1J5_P_03.prefab",
+                "Assets/Resources/E1J5_P_04.prefab",
+                "Assets/Resources/E1J5_P_05.prefab",
+                "Assets/Resources/E1J5_P_06.prefab",
+                "Assets/Resources/E1J5_P_07.prefab",
+                "Assets/Resources/E1J5_P_08.prefab",
+                "Assets/Resources/E1J5_P_09.prefab",
+                "Assets/Resources/E1J5_P_10.prefab",
+                "Assets/Resources/E1J5_T3_01.prefab",
+                "Assets/Resources/E1J5_T3_04.prefab",
+                "Assets/Resources/E1J5_T3_06.prefab",
+                "Assets/Resources/E1J5_T3_07.prefab",
+                "Assets/Resources/E1J5_T3_08.prefab",
+                "Assets/Resources/E1J5_T3_09.prefab"
+            ],
+            "prefabPath": "Assets/Resources/E1J5_P_01.prefab",
             "prefabASlot": 1,
+            "prefabBPaths": [],
             "prefabBPath": "",
             "prefabBSlot": 2,
             "conditions": [
                 {
-                    "specificity": "feuille_dechirure_petite",
+                    "specificity": "",
                     "connector": "Et",
                     "targetBinSlot": 1
                 }
@@ -304,74 +348,33 @@
             "resolvedBin1": "",
             "resolvedBin2": "",
             "ruleTypeString": "Simple",
-            "complexity": 1
+            "complexity": 4
         },
         {
-            "guid": "f2001001-0000-4000-0000-000000000004",
-            "label": "Petite déchirure ET signature → Tuyau 3",
+            "guid": "3dcad88c-b779-4270-9b0f-c7502e47d00e",
+            "label": "Floor 1 poubelle day 5",
             "isManuscript": false,
-            "manuscriptText": "Quand le document a une petite déchirure ET une signature alors mettre dans tuyau 3",
-            "prefabPath": "",
-            "prefabASlot": 1,
-            "prefabBPath": "",
-            "prefabBSlot": 2,
-            "conditions": [
-                {
-                    "specificity": "feuille_dechirure_petite",
-                    "connector": "Et",
-                    "targetBinSlot": 1
-                },
-                {
-                    "specificity": "signature_grande",
-                    "connector": "Et",
-                    "targetBinSlot": 1
-                }
+            "manuscriptText": "",
+            "prefabPaths": [
+                "Assets/Resources/E1J5_P_01.prefab",
+                "Assets/Resources/E1J5_P_02.prefab",
+                "Assets/Resources/E1J5_P_03.prefab",
+                "Assets/Resources/E1J5_P_04.prefab",
+                "Assets/Resources/E1J5_P_05.prefab",
+                "Assets/Resources/E1J5_P_06.prefab",
+                "Assets/Resources/E1J5_P_07.prefab",
+                "Assets/Resources/E1J5_P_08.prefab",
+                "Assets/Resources/E1J5_P_09.prefab",
+                "Assets/Resources/E1J5_P_10.prefab"
             ],
-            "secondaryBinSlot": 0,
-            "resolvedBin1": "",
-            "resolvedBin2": "",
-            "ruleTypeString": "Multiple",
-            "complexity": 2
-        },
-        {
-            "guid": "f2001001-0000-4000-0000-000000000005",
-            "label": "Grande déchirure Sauf tampon double → Tuyau 1 / Poubelle",
-            "isManuscript": false,
-            "manuscriptText": "Sauf s'il y a deux tampons alors NE PAS mettre dans tuyau 1",
-            "prefabPath": "",
+            "prefabPath": "Assets/Resources/E1J5_P_01.prefab",
             "prefabASlot": 1,
+            "prefabBPaths": [],
             "prefabBPath": "",
             "prefabBSlot": 2,
             "conditions": [
                 {
-                    "specificity": "feuille_dechirure_grande",
-                    "connector": "Sauf",
-                    "targetBinSlot": 1
-                },
-                {
-                    "specificity": "tampon_double",
-                    "connector": "Et",
-                    "targetBinSlot": 2
-                }
-            ],
-            "secondaryBinSlot": 2,
-            "resolvedBin1": "",
-            "resolvedBin2": "",
-            "ruleTypeString": "Branch",
-            "complexity": 3
-        },
-        {
-            "guid": "f2001001-0000-4000-0000-000000000006",
-            "label": "PRIORITAIRE tampon rond → Tuyau 1",
-            "isManuscript": false,
-            "manuscriptText": "PRIORITAIRE : Si un tampon rond est présent le document ira toujours dans le tuyau 1, peu importe les autres règles",
-            "prefabPath": "",
-            "prefabASlot": 1,
-            "prefabBPath": "",
-            "prefabBSlot": 2,
-            "conditions": [
-                {
-                    "specificity": "tampon_rond",
+                    "specificity": "",
                     "connector": "Et",
                     "targetBinSlot": 1
                 }
@@ -380,7 +383,90 @@
             "resolvedBin1": "",
             "resolvedBin2": "",
             "ruleTypeString": "Simple",
-            "complexity": 2
+            "complexity": 5
+        },
+        {
+            "guid": "8b85ec20-f734-4557-9bd3-198cf17e90ed",
+            "label": "Floor 1 Day 5 tuyau 2",
+            "isManuscript": false,
+            "manuscriptText": "",
+            "prefabPaths": [
+                "Assets/Resources/E1J5_T2_01.prefab",
+                "Assets/Resources/E1J5_T2_02.prefab",
+                "Assets/Resources/E1J5_T2_03.prefab",
+                "Assets/Resources/E1J5_T2_04.prefab",
+                "Assets/Resources/E1J5_T2_05.prefab",
+                "Assets/Resources/E1J5_T2_06.prefab",
+                "Assets/Resources/E1J5_T2_07.prefab",
+                "Assets/Resources/E1J5_T2_08.prefab",
+                "Assets/Resources/E1J5_T2_09.prefab",
+                "Assets/Resources/E1J5_T2_10.prefab",
+                "Assets/Resources/E1J5_T2_11.prefab",
+                "Assets/Resources/E1J5_T2_12.prefab",
+                "Assets/Resources/E1J5_T2_13.prefab",
+                "Assets/Resources/E1J5_T2_14.prefab",
+                "Assets/Resources/E1J5_T2_15.prefab",
+                "Assets/Resources/E1J5_T2_16.prefab",
+                "Assets/Resources/E1J5_T2_17.prefab"
+            ],
+            "prefabPath": "Assets/Resources/E1J5_T2_01.prefab",
+            "prefabASlot": 1,
+            "prefabBPaths": [],
+            "prefabBPath": "",
+            "prefabBSlot": 2,
+            "conditions": [
+                {
+                    "specificity": "",
+                    "connector": "Et",
+                    "targetBinSlot": 1
+                }
+            ],
+            "secondaryBinSlot": 0,
+            "resolvedBin1": "",
+            "resolvedBin2": "",
+            "ruleTypeString": "Simple",
+            "complexity": 5
+        },
+        {
+            "guid": "0735103a-13dc-42a8-adf4-3c06a0835984",
+            "label": "Floor 1 day 5 Tuyau 3",
+            "isManuscript": false,
+            "manuscriptText": "",
+            "prefabPaths": [
+                "Assets/Resources/E1J5_T3_01.prefab",
+                "Assets/Resources/E1J5_T3_02.prefab",
+                "Assets/Resources/E1J5_T3_03.prefab",
+                "Assets/Resources/E1J5_T3_04.prefab",
+                "Assets/Resources/E1J5_T3_05.prefab",
+                "Assets/Resources/E1J5_T3_06.prefab",
+                "Assets/Resources/E1J5_T3_07.prefab",
+                "Assets/Resources/E1J5_T3_08.prefab",
+                "Assets/Resources/E1J5_T3_09.prefab",
+                "Assets/Resources/E1J5_T3_10.prefab",
+                "Assets/Resources/E1J5_T3_11.prefab",
+                "Assets/Resources/E1J5_T3_12.prefab",
+                "Assets/Resources/E1J5_T3_13.prefab",
+                "Assets/Resources/E1J5_T3_14.prefab",
+                "Assets/Resources/E1J5_T3_15.prefab",
+                "Assets/Resources/E1J5_T3_16.prefab"
+            ],
+            "prefabPath": "Assets/Resources/E1J5_T3_01.prefab",
+            "prefabASlot": 1,
+            "prefabBPaths": [],
+            "prefabBPath": "",
+            "prefabBSlot": 2,
+            "conditions": [
+                {
+                    "specificity": "",
+                    "connector": "Et",
+                    "targetBinSlot": 1
+                }
+            ],
+            "secondaryBinSlot": 0,
+            "resolvedBin1": "",
+            "resolvedBin2": "",
+            "ruleTypeString": "Simple",
+            "complexity": 5
         }
     ]
 }

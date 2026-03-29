@@ -26,11 +26,37 @@
                     "rules": [
                         {
                             "ruleType": "Simple",
-                            "conditionA": "pastille_vert",
+                            "conditionA": "Assets/Resources/E1J5_T1_01.prefab",
                             "conditionB": "",
+                            "prefabPaths": [
+                                "Assets/Resources/E1J5_T1_01.prefab",
+                                "Assets/Resources/E1J5_T1_02.prefab",
+                                "Assets/Resources/E1J5_T1_03.prefab",
+                                "Assets/Resources/E1J5_T1_04.prefab",
+                                "Assets/Resources/E1J5_T1_05.prefab",
+                                "Assets/Resources/E1J5_T1_06.prefab",
+                                "Assets/Resources/E1J5_T1_07.prefab",
+                                "Assets/Resources/E1J5_T1_08.prefab",
+                                "Assets/Resources/E1J5_T1_09.prefab",
+                                "Assets/Resources/E1J5_T1_10.prefab",
+                                "Assets/Resources/E1J5_T1_11.prefab",
+                                "Assets/Resources/E1J5_T1_12.prefab",
+                                "Assets/Resources/E1J5_T1_13.prefab",
+                                "Assets/Resources/E1J5_T1_14.prefab",
+                                "Assets/Resources/E1J5_T2_01.prefab",
+                                "Assets/Resources/E1J5_T2_02.prefab",
+                                "Assets/Resources/E1J5_T2_03.prefab",
+                                "Assets/Resources/E1J5_T2_04.prefab",
+                                "Assets/Resources/E1J5_T2_05.prefab",
+                                "Assets/Resources/E1J5_T2_06.prefab",
+                                "Assets/Resources/E1J5_T2_07.prefab",
+                                "Assets/Resources/E1J5_T2_08.prefab",
+                                "Assets/Resources/E1J5_T3_02.prefab",
+                                "Assets/Resources/E1J5_T3_07.prefab"
+                            ],
                             "targetBinID": "bin_left_top",
                             "secondaryBinID": "",
-                            "displayText": "Quand il y a une pastille verte alors mettez le document dans le tuyau 1",
+                            "displayText": "📦 E1J5_T1_01, E1J5_T1_02, E1J5_T1_03, E1J5_T1_04, E1J5_T1_05, E1J5_T1_06, E1J5_T1_07, E1J5_T1_08, E1J5_T1_09, E1J5_T1_10, E1J5_T1_11, E1J5_T1_12, E1J5_T1_13, E1J5_T1_14, E1J5_T2_01, E1J5_T2_02, E1J5_T2_03, E1J5_T2_04, E1J5_T2_05, E1J5_T2_06, E1J5_T2_07, E1J5_T2_08, E1J5_T3_02, E1J5_T3_07 → bin_left_top",
                             "complexity": 1,
                             "isComplement": false
                         }
@@ -42,17 +68,33 @@
                     "rules": [
                         {
                             "ruleType": "Simple",
-                            "conditionA": "pastille_bleu",
+                            "conditionA": "Assets/Resources/E1J5_T2_09.prefab",
                             "conditionB": "",
+                            "prefabPaths": [
+                                "Assets/Resources/E1J5_T2_09.prefab",
+                                "Assets/Resources/E1J5_T2_10.prefab",
+                                "Assets/Resources/E1J5_T2_11.prefab",
+                                "Assets/Resources/E1J5_T2_12.prefab",
+                                "Assets/Resources/E1J5_T2_13.prefab",
+                                "Assets/Resources/E1J5_T2_14.prefab",
+                                "Assets/Resources/E1J5_T2_15.prefab",
+                                "Assets/Resources/E1J5_T2_16.prefab",
+                                "Assets/Resources/E1J5_T2_17.prefab",
+                                "Assets/Resources/E1J5_T3_03.prefab",
+                                "Assets/Resources/E1J5_T3_08.prefab"
+                            ],
                             "targetBinID": "bin_right_top",
                             "secondaryBinID": "",
-                            "displayText": "Quand il y a une pastille bleue alors mettez le document dans le tuyau 2",
+                            "displayText": "📦 E1J5_T2_09, E1J5_T2_10, E1J5_T2_11, E1J5_T2_12, E1J5_T2_13, E1J5_T2_14, E1J5_T2_15, E1J5_T2_16, E1J5_T2_17, E1J5_T3_03, E1J5_T3_08 → bin_right_top",
                             "complexity": 1,
                             "isComplement": false
                         }
                     ]
                 }
-            ]
+            ],
+            "hasTrashedPrefab": false,
+            "trashedPrefabPaths": [],
+            "trashRuleGuids": []
         },
         {
             "nightIndex": 1,
@@ -67,13 +109,29 @@
                     "binID": "bin_left_top",
                     "rules": [
                         {
-                            "ruleType": "Branch",
-                            "conditionA": "pastille_vert",
-                            "conditionB": "tampon_rectangle",
+                            "ruleType": "Simple",
+                            "conditionA": "Assets/Resources/E1J5_T1_01.prefab",
+                            "conditionB": "",
+                            "prefabPaths": [
+                                "Assets/Resources/E1J5_T1_01.prefab",
+                                "Assets/Resources/E1J5_T1_02.prefab",
+                                "Assets/Resources/E1J5_T1_03.prefab",
+                                "Assets/Resources/E1J5_T1_04.prefab",
+                                "Assets/Resources/E1J5_T1_05.prefab",
+                                "Assets/Resources/E1J5_T1_06.prefab",
+                                "Assets/Resources/E1J5_T1_07.prefab",
+                                "Assets/Resources/E1J5_T1_08.prefab",
+                                "Assets/Resources/E1J5_T1_09.prefab",
+                                "Assets/Resources/E1J5_T1_10.prefab",
+                                "Assets/Resources/E1J5_T1_11.prefab",
+                                "Assets/Resources/E1J5_T1_12.prefab",
+                                "Assets/Resources/E1J5_T1_13.prefab",
+                                "Assets/Resources/E1J5_T1_14.prefab"
+                            ],
                             "targetBinID": "bin_left_top",
-                            "secondaryBinID": "bin_right_top",
-                            "displayText": "Quand il y a une pastille verte alors mettez dans le tuyau 1 — Sauf s'il y a un tampon rectangle alors mettez dans le tuyau 2",
-                            "complexity": 3,
+                            "secondaryBinID": "",
+                            "displayText": "📦 E1J5_T1_01, E1J5_T1_02, E1J5_T1_03, E1J5_T1_04, E1J5_T1_05, E1J5_T1_06, E1J5_T1_07, E1J5_T1_08, E1J5_T1_09, E1J5_T1_10, E1J5_T1_11, E1J5_T1_12, E1J5_T1_13, E1J5_T1_14 → bin_left_top",
+                            "complexity": 2,
                             "isComplement": false
                         }
                     ]
@@ -84,17 +142,43 @@
                     "rules": [
                         {
                             "ruleType": "Simple",
-                            "conditionA": "pastille_bleu",
+                            "conditionA": "Assets/Resources/E1J5_T2_01.prefab",
                             "conditionB": "",
+                            "prefabPaths": [
+                                "Assets/Resources/E1J5_T2_01.prefab",
+                                "Assets/Resources/E1J5_T2_02.prefab",
+                                "Assets/Resources/E1J5_T2_03.prefab",
+                                "Assets/Resources/E1J5_T2_04.prefab",
+                                "Assets/Resources/E1J5_T2_05.prefab",
+                                "Assets/Resources/E1J5_T2_06.prefab",
+                                "Assets/Resources/E1J5_T2_07.prefab",
+                                "Assets/Resources/E1J5_T2_08.prefab",
+                                "Assets/Resources/E1J5_T2_09.prefab",
+                                "Assets/Resources/E1J5_T2_10.prefab",
+                                "Assets/Resources/E1J5_T2_11.prefab",
+                                "Assets/Resources/E1J5_T2_12.prefab",
+                                "Assets/Resources/E1J5_T2_13.prefab",
+                                "Assets/Resources/E1J5_T2_14.prefab",
+                                "Assets/Resources/E1J5_T2_15.prefab",
+                                "Assets/Resources/E1J5_T2_16.prefab",
+                                "Assets/Resources/E1J5_T2_17.prefab",
+                                "Assets/Resources/E1J5_T3_02.prefab",
+                                "Assets/Resources/E1J5_T3_03.prefab",
+                                "Assets/Resources/E1J5_T3_07.prefab",
+                                "Assets/Resources/E1J5_T3_08.prefab"
+                            ],
                             "targetBinID": "bin_right_top",
                             "secondaryBinID": "",
-                            "displayText": "Quand il y a une pastille bleue alors mettez le document dans le tuyau 2",
-                            "complexity": 1,
+                            "displayText": "📦 E1J5_T2_01, E1J5_T2_02, E1J5_T2_03, E1J5_T2_04, E1J5_T2_05, E1J5_T2_06, E1J5_T2_07, E1J5_T2_08, E1J5_T2_09, E1J5_T2_10, E1J5_T2_11, E1J5_T2_12, E1J5_T2_13, E1J5_T2_14, E1J5_T2_15, E1J5_T2_16, E1J5_T2_17, E1J5_T3_02, E1J5_T3_03, E1J5_T3_07, E1J5_T3_08 → bin_right_top",
+                            "complexity": 2,
                             "isComplement": false
                         }
                     ]
                 }
-            ]
+            ],
+            "hasTrashedPrefab": false,
+            "trashedPrefabPaths": [],
+            "trashRuleGuids": []
         },
         {
             "nightIndex": 2,
@@ -109,13 +193,29 @@
                     "binID": "bin_left_top",
                     "rules": [
                         {
-                            "ruleType": "Branch",
-                            "conditionA": "pastille_vert",
-                            "conditionB": "tampon_rectangle",
+                            "ruleType": "Simple",
+                            "conditionA": "Assets/Resources/E1J5_T1_01.prefab",
+                            "conditionB": "",
+                            "prefabPaths": [
+                                "Assets/Resources/E1J5_T1_01.prefab",
+                                "Assets/Resources/E1J5_T1_02.prefab",
+                                "Assets/Resources/E1J5_T1_03.prefab",
+                                "Assets/Resources/E1J5_T1_04.prefab",
+                                "Assets/Resources/E1J5_T1_05.prefab",
+                                "Assets/Resources/E1J5_T1_06.prefab",
+                                "Assets/Resources/E1J5_T1_07.prefab",
+                                "Assets/Resources/E1J5_T1_08.prefab",
+                                "Assets/Resources/E1J5_T1_09.prefab",
+                                "Assets/Resources/E1J5_T1_10.prefab",
+                                "Assets/Resources/E1J5_T1_11.prefab",
+                                "Assets/Resources/E1J5_T1_12.prefab",
+                                "Assets/Resources/E1J5_T1_13.prefab",
+                                "Assets/Resources/E1J5_T1_14.prefab"
+                            ],
                             "targetBinID": "bin_left_top",
-                            "secondaryBinID": "bin_right_top",
-                            "displayText": "Quand il y a une pastille verte alors mettez dans le tuyau 1 — Sauf s'il y a un tampon rectangle alors mettez dans le tuyau 2",
-                            "complexity": 3,
+                            "secondaryBinID": "",
+                            "displayText": "📦 E1J5_T1_01, E1J5_T1_02, E1J5_T1_03, E1J5_T1_04, E1J5_T1_05, E1J5_T1_06, E1J5_T1_07, E1J5_T1_08, E1J5_T1_09, E1J5_T1_10, E1J5_T1_11, E1J5_T1_12, E1J5_T1_13, E1J5_T1_14 → bin_left_top",
+                            "complexity": 2,
                             "isComplement": false
                         }
                     ]
@@ -126,12 +226,35 @@
                     "rules": [
                         {
                             "ruleType": "Simple",
-                            "conditionA": "pastille_bleu",
+                            "conditionA": "Assets/Resources/E1J5_T2_01.prefab",
                             "conditionB": "",
+                            "prefabPaths": [
+                                "Assets/Resources/E1J5_T2_01.prefab",
+                                "Assets/Resources/E1J5_T2_02.prefab",
+                                "Assets/Resources/E1J5_T2_03.prefab",
+                                "Assets/Resources/E1J5_T2_04.prefab",
+                                "Assets/Resources/E1J5_T2_05.prefab",
+                                "Assets/Resources/E1J5_T2_06.prefab",
+                                "Assets/Resources/E1J5_T2_07.prefab",
+                                "Assets/Resources/E1J5_T2_08.prefab",
+                                "Assets/Resources/E1J5_T2_09.prefab",
+                                "Assets/Resources/E1J5_T2_10.prefab",
+                                "Assets/Resources/E1J5_T2_11.prefab",
+                                "Assets/Resources/E1J5_T2_12.prefab",
+                                "Assets/Resources/E1J5_T2_13.prefab",
+                                "Assets/Resources/E1J5_T2_14.prefab",
+                                "Assets/Resources/E1J5_T2_15.prefab",
+                                "Assets/Resources/E1J5_T2_16.prefab",
+                                "Assets/Resources/E1J5_T2_17.prefab",
+                                "Assets/Resources/E1J5_T3_02.prefab",
+                                "Assets/Resources/E1J5_T3_03.prefab",
+                                "Assets/Resources/E1J5_T3_07.prefab",
+                                "Assets/Resources/E1J5_T3_08.prefab"
+                            ],
                             "targetBinID": "bin_right_top",
                             "secondaryBinID": "",
-                            "displayText": "Quand il y a une pastille bleue alors mettez le document dans le tuyau 2",
-                            "complexity": 1,
+                            "displayText": "📦 E1J5_T2_01, E1J5_T2_02, E1J5_T2_03, E1J5_T2_04, E1J5_T2_05, E1J5_T2_06, E1J5_T2_07, E1J5_T2_08, E1J5_T2_09, E1J5_T2_10, E1J5_T2_11, E1J5_T2_12, E1J5_T2_13, E1J5_T2_14, E1J5_T2_15, E1J5_T2_16, E1J5_T2_17, E1J5_T3_02, E1J5_T3_03, E1J5_T3_07, E1J5_T3_08 → bin_right_top",
+                            "complexity": 2,
                             "isComplement": false
                         }
                     ]
@@ -142,17 +265,30 @@
                     "rules": [
                         {
                             "ruleType": "Simple",
-                            "conditionA": "pastille_violet",
+                            "conditionA": "Assets/Resources/E1J5_T3_05.prefab",
                             "conditionB": "",
+                            "prefabPaths": [
+                                "Assets/Resources/E1J5_T3_05.prefab",
+                                "Assets/Resources/E1J5_T3_11.prefab",
+                                "Assets/Resources/E1J5_T3_10.prefab",
+                                "Assets/Resources/E1J5_T3_12.prefab",
+                                "Assets/Resources/E1J5_T3_13.prefab",
+                                "Assets/Resources/E1J5_T3_14.prefab",
+                                "Assets/Resources/E1J5_T3_15.prefab",
+                                "Assets/Resources/E1J5_T3_16.prefab"
+                            ],
                             "targetBinID": "bin_bottom",
                             "secondaryBinID": "",
-                            "displayText": "Les documents avec une pastille violette vont toujours dans le tuyau 3",
-                            "complexity": 1,
+                            "displayText": "📦 E1J5_T3_05, E1J5_T3_11, E1J5_T3_10, E1J5_T3_12, E1J5_T3_13, E1J5_T3_14, E1J5_T3_15, E1J5_T3_16 → bin_bottom",
+                            "complexity": 3,
                             "isComplement": false
                         }
                     ]
                 }
-            ]
+            ],
+            "hasTrashedPrefab": false,
+            "trashedPrefabPaths": [],
+            "trashRuleGuids": []
         },
         {
             "nightIndex": 3,
@@ -167,13 +303,29 @@
                     "binID": "bin_left_top",
                     "rules": [
                         {
-                            "ruleType": "Branch",
-                            "conditionA": "pastille_vert",
-                            "conditionB": "tampon_rectangle",
+                            "ruleType": "Simple",
+                            "conditionA": "Assets/Resources/E1J5_T1_01.prefab",
+                            "conditionB": "",
+                            "prefabPaths": [
+                                "Assets/Resources/E1J5_T1_01.prefab",
+                                "Assets/Resources/E1J5_T1_02.prefab",
+                                "Assets/Resources/E1J5_T1_03.prefab",
+                                "Assets/Resources/E1J5_T1_04.prefab",
+                                "Assets/Resources/E1J5_T1_05.prefab",
+                                "Assets/Resources/E1J5_T1_06.prefab",
+                                "Assets/Resources/E1J5_T1_07.prefab",
+                                "Assets/Resources/E1J5_T1_08.prefab",
+                                "Assets/Resources/E1J5_T1_09.prefab",
+                                "Assets/Resources/E1J5_T1_10.prefab",
+                                "Assets/Resources/E1J5_T1_11.prefab",
+                                "Assets/Resources/E1J5_T1_12.prefab",
+                                "Assets/Resources/E1J5_T1_13.prefab",
+                                "Assets/Resources/E1J5_T1_14.prefab"
+                            ],
                             "targetBinID": "bin_left_top",
-                            "secondaryBinID": "bin_right_top",
-                            "displayText": "Quand il y a une pastille verte alors mettez dans le tuyau 1 — Sauf s'il y a un tampon rectangle alors mettez dans le tuyau 2",
-                            "complexity": 3,
+                            "secondaryBinID": "",
+                            "displayText": "📦 E1J5_T1_01, E1J5_T1_02, E1J5_T1_03, E1J5_T1_04, E1J5_T1_05, E1J5_T1_06, E1J5_T1_07, E1J5_T1_08, E1J5_T1_09, E1J5_T1_10, E1J5_T1_11, E1J5_T1_12, E1J5_T1_13, E1J5_T1_14 → bin_left_top",
+                            "complexity": 2,
                             "isComplement": false
                         }
                     ]
@@ -184,12 +336,35 @@
                     "rules": [
                         {
                             "ruleType": "Simple",
-                            "conditionA": "pastille_bleu",
+                            "conditionA": "Assets/Resources/E1J5_T2_01.prefab",
                             "conditionB": "",
+                            "prefabPaths": [
+                                "Assets/Resources/E1J5_T2_01.prefab",
+                                "Assets/Resources/E1J5_T2_02.prefab",
+                                "Assets/Resources/E1J5_T2_03.prefab",
+                                "Assets/Resources/E1J5_T2_04.prefab",
+                                "Assets/Resources/E1J5_T2_05.prefab",
+                                "Assets/Resources/E1J5_T2_06.prefab",
+                                "Assets/Resources/E1J5_T2_07.prefab",
+                                "Assets/Resources/E1J5_T2_08.prefab",
+                                "Assets/Resources/E1J5_T2_09.prefab",
+                                "Assets/Resources/E1J5_T2_10.prefab",
+                                "Assets/Resources/E1J5_T2_11.prefab",
+                                "Assets/Resources/E1J5_T2_12.prefab",
+                                "Assets/Resources/E1J5_T2_13.prefab",
+                                "Assets/Resources/E1J5_T2_14.prefab",
+                                "Assets/Resources/E1J5_T2_15.prefab",
+                                "Assets/Resources/E1J5_T2_16.prefab",
+                                "Assets/Resources/E1J5_T2_17.prefab",
+                                "Assets/Resources/E1J5_T3_02.prefab",
+                                "Assets/Resources/E1J5_T3_03.prefab",
+                                "Assets/Resources/E1J5_T3_07.prefab",
+                                "Assets/Resources/E1J5_T3_08.prefab"
+                            ],
                             "targetBinID": "bin_right_top",
                             "secondaryBinID": "",
-                            "displayText": "Quand il y a une pastille bleue alors mettez le document dans le tuyau 2",
-                            "complexity": 1,
+                            "displayText": "📦 E1J5_T2_01, E1J5_T2_02, E1J5_T2_03, E1J5_T2_04, E1J5_T2_05, E1J5_T2_06, E1J5_T2_07, E1J5_T2_08, E1J5_T2_09, E1J5_T2_10, E1J5_T2_11, E1J5_T2_12, E1J5_T2_13, E1J5_T2_14, E1J5_T2_15, E1J5_T2_16, E1J5_T2_17, E1J5_T3_02, E1J5_T3_03, E1J5_T3_07, E1J5_T3_08 → bin_right_top",
+                            "complexity": 2,
                             "isComplement": false
                         }
                     ]
@@ -200,12 +375,30 @@
                     "rules": [
                         {
                             "ruleType": "Simple",
-                            "conditionA": "pastille_violet",
+                            "conditionA": "Assets/Resources/E1J5_P_01.prefab",
                             "conditionB": "",
+                            "prefabPaths": [
+                                "Assets/Resources/E1J5_P_01.prefab",
+                                "Assets/Resources/E1J5_P_02.prefab",
+                                "Assets/Resources/E1J5_P_03.prefab",
+                                "Assets/Resources/E1J5_P_04.prefab",
+                                "Assets/Resources/E1J5_P_05.prefab",
+                                "Assets/Resources/E1J5_P_06.prefab",
+                                "Assets/Resources/E1J5_P_07.prefab",
+                                "Assets/Resources/E1J5_P_08.prefab",
+                                "Assets/Resources/E1J5_P_09.prefab",
+                                "Assets/Resources/E1J5_P_10.prefab",
+                                "Assets/Resources/E1J5_T3_01.prefab",
+                                "Assets/Resources/E1J5_T3_04.prefab",
+                                "Assets/Resources/E1J5_T3_06.prefab",
+                                "Assets/Resources/E1J5_T3_07.prefab",
+                                "Assets/Resources/E1J5_T3_08.prefab",
+                                "Assets/Resources/E1J5_T3_09.prefab"
+                            ],
                             "targetBinID": "bin_bottom",
                             "secondaryBinID": "",
-                            "displayText": "Les documents avec une pastille violette vont toujours dans le tuyau 3",
-                            "complexity": 1,
+                            "displayText": "📦 E1J5_P_01, E1J5_P_02, E1J5_P_03, E1J5_P_04, E1J5_P_05, E1J5_P_06, E1J5_P_07, E1J5_P_08, E1J5_P_09, E1J5_P_10, E1J5_T3_01, E1J5_T3_04, E1J5_T3_06, E1J5_T3_07, E1J5_T3_08, E1J5_T3_09 → bin_bottom",
+                            "complexity": 4,
                             "isComplement": false
                         }
                     ]
@@ -216,17 +409,30 @@
                     "rules": [
                         {
                             "ruleType": "Simple",
-                            "conditionA": "",
+                            "conditionA": "Assets/Resources/E1J5_T3_05.prefab",
                             "conditionB": "",
+                            "prefabPaths": [
+                                "Assets/Resources/E1J5_T3_05.prefab",
+                                "Assets/Resources/E1J5_T3_11.prefab",
+                                "Assets/Resources/E1J5_T3_10.prefab",
+                                "Assets/Resources/E1J5_T3_12.prefab",
+                                "Assets/Resources/E1J5_T3_13.prefab",
+                                "Assets/Resources/E1J5_T3_14.prefab",
+                                "Assets/Resources/E1J5_T3_15.prefab",
+                                "Assets/Resources/E1J5_T3_16.prefab"
+                            ],
                             "targetBinID": "bin_left_bottom",
                             "secondaryBinID": "",
-                            "displayText": "Si le document ne correspond à aucune règle alors mettez le dans le tuyau poubelle",
-                            "complexity": 1,
+                            "displayText": "📦 E1J5_T3_05, E1J5_T3_11, E1J5_T3_10, E1J5_T3_12, E1J5_T3_13, E1J5_T3_14, E1J5_T3_15, E1J5_T3_16 → bin_left_bottom",
+                            "complexity": 3,
                             "isComplement": false
                         }
                     ]
                 }
-            ]
+            ],
+            "hasTrashedPrefab": false,
+            "trashedPrefabPaths": [],
+            "trashRuleGuids": []
         },
         {
             "nightIndex": 4,
@@ -241,13 +447,29 @@
                     "binID": "bin_left_top",
                     "rules": [
                         {
-                            "ruleType": "Branch",
-                            "conditionA": "pastille_vert",
-                            "conditionB": "tampon_rectangle",
+                            "ruleType": "Simple",
+                            "conditionA": "Assets/Resources/E1J5_T1_01.prefab",
+                            "conditionB": "",
+                            "prefabPaths": [
+                                "Assets/Resources/E1J5_T1_01.prefab",
+                                "Assets/Resources/E1J5_T1_02.prefab",
+                                "Assets/Resources/E1J5_T1_03.prefab",
+                                "Assets/Resources/E1J5_T1_04.prefab",
+                                "Assets/Resources/E1J5_T1_05.prefab",
+                                "Assets/Resources/E1J5_T1_06.prefab",
+                                "Assets/Resources/E1J5_T1_07.prefab",
+                                "Assets/Resources/E1J5_T1_08.prefab",
+                                "Assets/Resources/E1J5_T1_09.prefab",
+                                "Assets/Resources/E1J5_T1_10.prefab",
+                                "Assets/Resources/E1J5_T1_11.prefab",
+                                "Assets/Resources/E1J5_T1_12.prefab",
+                                "Assets/Resources/E1J5_T1_13.prefab",
+                                "Assets/Resources/E1J5_T1_14.prefab"
+                            ],
                             "targetBinID": "bin_left_top",
-                            "secondaryBinID": "bin_right_top",
-                            "displayText": "Quand il y a une pastille verte alors mettez dans le tuyau 1 — Sauf s'il y a un tampon rectangle alors mettez dans le tuyau 2",
-                            "complexity": 3,
+                            "secondaryBinID": "",
+                            "displayText": "📦 E1J5_T1_01, E1J5_T1_02, E1J5_T1_03, E1J5_T1_04, E1J5_T1_05, E1J5_T1_06, E1J5_T1_07, E1J5_T1_08, E1J5_T1_09, E1J5_T1_10, E1J5_T1_11, E1J5_T1_12, E1J5_T1_13, E1J5_T1_14 → bin_left_top",
+                            "complexity": 2,
                             "isComplement": false
                         }
                     ]
@@ -258,12 +480,31 @@
                     "rules": [
                         {
                             "ruleType": "Simple",
-                            "conditionA": "pastille_bleu",
+                            "conditionA": "Assets/Resources/E1J5_T2_01.prefab",
                             "conditionB": "",
+                            "prefabPaths": [
+                                "Assets/Resources/E1J5_T2_01.prefab",
+                                "Assets/Resources/E1J5_T2_02.prefab",
+                                "Assets/Resources/E1J5_T2_03.prefab",
+                                "Assets/Resources/E1J5_T2_04.prefab",
+                                "Assets/Resources/E1J5_T2_05.prefab",
+                                "Assets/Resources/E1J5_T2_06.prefab",
+                                "Assets/Resources/E1J5_T2_07.prefab",
+                                "Assets/Resources/E1J5_T2_08.prefab",
+                                "Assets/Resources/E1J5_T2_09.prefab",
+                                "Assets/Resources/E1J5_T2_10.prefab",
+                                "Assets/Resources/E1J5_T2_11.prefab",
+                                "Assets/Resources/E1J5_T2_12.prefab",
+                                "Assets/Resources/E1J5_T2_13.prefab",
+                                "Assets/Resources/E1J5_T2_14.prefab",
+                                "Assets/Resources/E1J5_T2_15.prefab",
+                                "Assets/Resources/E1J5_T2_16.prefab",
+                                "Assets/Resources/E1J5_T2_17.prefab"
+                            ],
                             "targetBinID": "bin_right_top",
                             "secondaryBinID": "",
-                            "displayText": "Quand il y a une pastille bleue alors mettez le document dans le tuyau 2",
-                            "complexity": 1,
+                            "displayText": "📦 E1J5_T2_01, E1J5_T2_02, E1J5_T2_03, E1J5_T2_04, E1J5_T2_05, E1J5_T2_06, E1J5_T2_07, E1J5_T2_08, E1J5_T2_09, E1J5_T2_10, E1J5_T2_11, E1J5_T2_12, E1J5_T2_13, E1J5_T2_14, E1J5_T2_15, E1J5_T2_16, E1J5_T2_17 → bin_right_top",
+                            "complexity": 5,
                             "isComplement": false
                         }
                     ]
@@ -274,22 +515,24 @@
                     "rules": [
                         {
                             "ruleType": "Simple",
-                            "conditionA": "tampon_rectangle",
+                            "conditionA": "Assets/Resources/E1J5_P_01.prefab",
                             "conditionB": "",
+                            "prefabPaths": [
+                                "Assets/Resources/E1J5_P_01.prefab",
+                                "Assets/Resources/E1J5_P_02.prefab",
+                                "Assets/Resources/E1J5_P_03.prefab",
+                                "Assets/Resources/E1J5_P_04.prefab",
+                                "Assets/Resources/E1J5_P_05.prefab",
+                                "Assets/Resources/E1J5_P_06.prefab",
+                                "Assets/Resources/E1J5_P_07.prefab",
+                                "Assets/Resources/E1J5_P_08.prefab",
+                                "Assets/Resources/E1J5_P_09.prefab",
+                                "Assets/Resources/E1J5_P_10.prefab"
+                            ],
                             "targetBinID": "bin_bottom",
                             "secondaryBinID": "",
-                            "displayText": "PRIORITAIRE : Si un tampon rectangle est présent le document ira toujours dans le tuyau 3",
-                            "complexity": 2,
-                            "isComplement": false
-                        },
-                        {
-                            "ruleType": "Simple",
-                            "conditionA": "pastille_violet",
-                            "conditionB": "",
-                            "targetBinID": "bin_bottom",
-                            "secondaryBinID": "",
-                            "displayText": "Les documents avec une pastille violette vont toujours dans le tuyau 3",
-                            "complexity": 1,
+                            "displayText": "📦 E1J5_P_01, E1J5_P_02, E1J5_P_03, E1J5_P_04, E1J5_P_05, E1J5_P_06, E1J5_P_07, E1J5_P_08, E1J5_P_09, E1J5_P_10 → bin_bottom",
+                            "complexity": 5,
                             "isComplement": false
                         }
                     ]
@@ -300,17 +543,38 @@
                     "rules": [
                         {
                             "ruleType": "Simple",
-                            "conditionA": "",
+                            "conditionA": "Assets/Resources/E1J5_T3_01.prefab",
                             "conditionB": "",
+                            "prefabPaths": [
+                                "Assets/Resources/E1J5_T3_01.prefab",
+                                "Assets/Resources/E1J5_T3_02.prefab",
+                                "Assets/Resources/E1J5_T3_03.prefab",
+                                "Assets/Resources/E1J5_T3_04.prefab",
+                                "Assets/Resources/E1J5_T3_05.prefab",
+                                "Assets/Resources/E1J5_T3_06.prefab",
+                                "Assets/Resources/E1J5_T3_07.prefab",
+                                "Assets/Resources/E1J5_T3_08.prefab",
+                                "Assets/Resources/E1J5_T3_09.prefab",
+                                "Assets/Resources/E1J5_T3_10.prefab",
+                                "Assets/Resources/E1J5_T3_11.prefab",
+                                "Assets/Resources/E1J5_T3_12.prefab",
+                                "Assets/Resources/E1J5_T3_13.prefab",
+                                "Assets/Resources/E1J5_T3_14.prefab",
+                                "Assets/Resources/E1J5_T3_15.prefab",
+                                "Assets/Resources/E1J5_T3_16.prefab"
+                            ],
                             "targetBinID": "bin_left_bottom",
                             "secondaryBinID": "",
-                            "displayText": "Si le document ne correspond à aucune règle alors mettez le dans le tuyau poubelle",
-                            "complexity": 1,
+                            "displayText": "📦 E1J5_T3_01, E1J5_T3_02, E1J5_T3_03, E1J5_T3_04, E1J5_T3_05, E1J5_T3_06, E1J5_T3_07, E1J5_T3_08, E1J5_T3_09, E1J5_T3_10, E1J5_T3_11, E1J5_T3_12, E1J5_T3_13, E1J5_T3_14, E1J5_T3_15, E1J5_T3_16 → bin_left_bottom",
+                            "complexity": 5,
                             "isComplement": false
                         }
                     ]
                 }
-            ]
+            ],
+            "hasTrashedPrefab": false,
+            "trashedPrefabPaths": [],
+            "trashRuleGuids": []
         }
     ]
 }
